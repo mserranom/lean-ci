@@ -44,8 +44,14 @@ module.exports = function (grunt) {
             }
         },
 
-        jasmine: {
-            src: project.targetTestJs
+        nodeunit: {
+            all: [project.targetTestDir + '/*.js'],
+            options: {
+                reporter: 'junit',
+                reporterOptions: {
+                    output: project.targetTestDir
+                }
+            }
         },
 
         uglify: {
@@ -71,12 +77,12 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-contrib-nodeunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.registerTask("compile", ["clean", "typescript"]);
-    grunt.registerTask("test", ["compile", /*"jasmine"*/]);
+    grunt.registerTask("test", ["compile", "nodeunit"]);
     grunt.registerTask("package", ["test", "uglify"]);
     grunt.registerTask("default", ["package"]);
 

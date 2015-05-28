@@ -1,13 +1,8 @@
-///<reference path="../../../lib/jasmine-1.2.d.ts"/>
-///<reference path="../../main/ts/index.ts"/>
+///<reference path="../../../lib/node-0.10.d.ts"/>
+///<reference path="../../../lib/nodeunit.d.ts"/>
 
-describe("Default Test", function() {
+exports['calculate'] = function (test) {
+    test.equal(2 * 2, 4);
+    test.done();
+};
 
-    var TEST_NUMBER = 321;
-
-    it("foo", function() {
-        expect(321).toBe(TEST_NUMBER);
-    });
-
-
-});
