@@ -1,30 +1,37 @@
-///<reference path="terminal.ts"/>
 ///<reference path="util.ts"/>
 ///<reference path="config.ts"/>
-///<reference path="ssh.ts"/>
+///<reference path="github.ts"/>
+///<reference path="builder.ts"/>
 
-import {terminal} from './terminal';
 import {util} from './util';
 import {config} from './config';
-import {ssh} from './ssh';
-
+import {github} from './github';
+import {builder} from './builder';
 
 util.overrideConsoleColors();
 
-var terminalAPI = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
+var githubAPI = new github.GithubAPI(config.github.username, config.github.password);
+
+function registerWebhook(repo : string) {
+    githubAPI.setupWebhook(config.github.hookUrl, repo)
+        .then(id => console.log('hook ' + id + ' available!'))
+        .fail(error => console.warn('there was an issue: ' + error.message));
+}
+
+var repos = ['mserranom/lean-ci'];
+repos.forEach(repo => registerWebhook(repo));
+
+var express : any = require('express');
+var app = express();
+var server = app.listen(64321, function () {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log('http server listening at http://%s:%s', host, port);
+});
+
+app.post('/github/push', function (req, res) {
+    var repo = ''; //TODO
+    builder.startBuild(repo);
+});
 
 
-var commands = [
-    "git clone https://github.com/mserranom/lean-ci.git",
-    "cd lean-ci",
-    "git clean -xfd",
-    "npm install --unsafe-perm"];
-
-terminalAPI.createTerminal()
-    .then(terminal =>
-            {
-                console.log('key: ' + terminal.container_key);
-                var agentURL = terminal.subdomain + ".terminal.com";
-                ssh.execute(agentURL, commands).then(() => terminalAPI.closeTerminal(terminal));
-            })
-    .fail(error => console.error("error creating terminal:  " + error.message));
