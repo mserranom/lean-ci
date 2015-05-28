@@ -12,6 +12,7 @@
  * subscribes to hooks in github repo to build when a change is pushed, printing logs
 
 [ ] write integration tests for the services implemented so far
+ * explore test framework options (mocha?)
  
 [ ] queue of scheduled builds
  * only one build concurrent, the others are scheduled
