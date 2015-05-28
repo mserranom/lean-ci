@@ -1,13 +1,17 @@
-[ ] build lean-ci repo in terminal agent
+[x] build lean-ci repo in terminal agent
  * single script that can be run locally
  * creates an agent in terminal.com
  * asks the agent to checkout the project and build it
  * prints the build log
  * kills the agent
- 
+
+[x] clean up previous work and make it reliable (errors, long streams)
+
 [ ] monitor pushes and builds on lean-ci
  * running the script on a terminal permanently
  * subscribes to hooks in github repo to build when a change is pushed, printing logs
+
+[ ] write integration tests for the services implemented so far
  
 [ ] queue of scheduled builds
  * only one build concurrent, the others are scheduled
@@ -20,6 +24,11 @@
  * all repos included build and read a config file, establishing a dependency chain
  * the dependency chain is on sync with the repos
  * A and B build, the dependency chain is stablished for B, and when it finishes, it builds B
- 
+
+[ ] upload artifacts to S3
+ * define a bucket to upload artifacts
+ * define the artifacts to upload in the config file
+ * upload in format /repo-id/version/artifact
+
  
  
