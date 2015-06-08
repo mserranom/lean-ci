@@ -36,8 +36,7 @@ export module builder {
         commands[0] = commands[0] + repo.repo + '.git';
 
         terminalAPI.createTerminal()
-            .then(terminal =>
-            {
+            .then(terminal => {
                 console.log('key: ' + terminal.container_key);
                 var agentURL = terminal.subdomain + ".terminal.com";
                 ssh.execute(agentURL, commands)
@@ -49,7 +48,9 @@ export module builder {
                         console.log("error creating terminal:  " + error.message);
                         buildQueue.finish(repo);
                     } );
-            });
+            })
+            .fail(error => buildQueue.finish(repo));
+        ;
     }
 
 }
