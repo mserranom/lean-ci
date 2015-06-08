@@ -21,7 +21,7 @@ TODO
  * setup aws account and S3, configure Artifatory with that S3
  * upload lean-ci in npm form to artifactory
  
- [ ] write integration tests for the services implemented so far
+[ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
  
  
