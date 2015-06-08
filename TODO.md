@@ -16,7 +16,7 @@ TODO
  * the dependency chain is on sync with the repos
  * A and B build, the dependency chain is stablished for B, and when it finishes, it builds B
 
-[ ] setup local repo
+[ ] setup npm repository for builds
 
 [ ] create continues deployment pipeline
 
