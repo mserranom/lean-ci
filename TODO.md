@@ -32,7 +32,6 @@ TODO
  * check if root usage in agent is safe
  
  
- 
 DONE
 ====
 [x] clean up previous work and make it reliable (errors, long streams)
