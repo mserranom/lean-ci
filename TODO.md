@@ -18,7 +18,8 @@ TODO
 
 [ ] setup npm repository for builds
 
-[ ] create continues deployment pipeline for lean-ci
+[ ] create continues deployment pipeline for lean-ci 
+ * builds the whole pipeline and run builds to deploy to agents
 
 [ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
