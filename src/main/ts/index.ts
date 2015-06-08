@@ -30,6 +30,8 @@ var server = app.listen(64321, function () {
 });
 
 app.post('/github/push', function (req, res) {
+    console.log('received /github/push POST request');
+    console.log(req.body);
     var repo = ''; //TODO
     builder.startBuild(repo);
 });
