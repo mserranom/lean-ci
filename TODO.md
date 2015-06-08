@@ -16,11 +16,10 @@ TODO
  * the dependency chain is on sync with the repos
  * A and B build, the dependency chain is stablished for B, and when it finishes, it builds B
 
-[ ] setup Artifactory
- * setup an installation on terminal
- * setup aws account and S3, configure Artifatory with that S3
- * upload lean-ci in npm form to artifactory
- 
+[ ] setup local repo
+
+[ ] create continues deployment pipeline
+
 [ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
  
@@ -35,6 +34,3 @@ DONE
  * asks the agent to checkout the project and build it
  * prints the build log
  * kills the agent
-
- 
- 
