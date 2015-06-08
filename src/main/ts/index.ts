@@ -48,8 +48,8 @@ app.post('/github/push', function (req, res) {
     res.end();
 
     console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-    let repo = req.body.repository.full_name;
-    builder.queueBuild(repo);
+    let repo : string = req.body.repository.full_name;
+    builder.queueBuild({repo : repo});
 });
 
 app.post('/build/start', function (req, res) {
@@ -57,8 +57,8 @@ app.post('/build/start', function (req, res) {
     res.end();
 
     console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-    let repo = req.body.repo;
-    builder.queueBuild(repo);
+    let repo : string = req.body.repo;
+    builder.queueBuild({repo : repo});
 });
 
 // setup builder

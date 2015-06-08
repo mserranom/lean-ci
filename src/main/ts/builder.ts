@@ -15,9 +15,8 @@ export module builder {
 
     var buildQueue = new model.BuildQueue();
 
-    export function queueBuild(repo : string) {
-        buildQueue.add({repo : repo});
-        startBuild();
+    export function queueBuild(repo : model.ScheduledBuild) {
+        buildQueue.add(repo);
     }
 
     export function startBuild() {
@@ -33,8 +32,8 @@ export module builder {
             "git clean -xfd",
             "npm install --unsafe-perm"];
 
-        console.log('starting build on repo: ' + repo);
-        commands[0] = commands[0] + repo + '.git';
+        console.log('starting build on repo: ' + repo.repo);
+        commands[0] = commands[0] + repo.repo + '.git';
 
         terminalAPI.createTerminal()
             .then(terminal =>
@@ -42,8 +41,14 @@ export module builder {
                 console.log('key: ' + terminal.container_key);
                 var agentURL = terminal.subdomain + ".terminal.com";
                 ssh.execute(agentURL, commands)
-                    .then(() => terminalAPI.closeTerminal(terminal))
-                    .fail(error => console.log("error creating terminal:  " + error.message));
+                    .then(() => {
+                        terminalAPI.closeTerminal(terminal);
+                        buildQueue.finish(repo)
+                    })
+                    .fail(error => {
+                        console.log("error creating terminal:  " + error.message);
+                        buildQueue.finish(repo);
+                    } );
             });
     }
 
