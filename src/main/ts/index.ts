@@ -21,8 +21,16 @@ function registerWebhook(repo : string) {
 var repos = ['mserranom/lean-ci'];
 repos.forEach(repo => registerWebhook(repo));
 
+
 var express : any = require('express');
+var bodyParser : any = require('body-parser');
+var multer : any = require('multer');
+
 var app = express();
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(multer()); // for parsing multipart/form-data
+
 var server = app.listen(64321, function () {
     var host = server.address().address;
     var port = server.address().port;
@@ -31,10 +39,8 @@ var server = app.listen(64321, function () {
 
 app.post('/github/push', function (req, res) {
     console.log('received /github/push POST request');
-    console.log(req.baseUrl);
-    console.log(JSON.stringify(req.params));
     console.log(req.body);
-    console.log(req.ip);
+    res.json(req.body);
     var repo = ''; //TODO
     builder.startBuild(repo);
 });
