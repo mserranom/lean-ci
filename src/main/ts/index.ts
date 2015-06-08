@@ -42,7 +42,7 @@ app.post('/github/push', function (req, res) {
     res.end();
 
     console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-    var repo = req.body.repository.full_name;
+    let repo = req.body.repository.full_name;
     builder.startBuild(repo);
 });
 

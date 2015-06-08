@@ -21,7 +21,7 @@ export module builder {
     export function startBuild(repo : String) {
 
         console.log('starting build on repo: ' + repo);
-        commands[0] += repo + '.git';
+        commands[0] = commands[0] + repo + '.git';
 
         terminalAPI.createTerminal()
             .then(terminal =>
