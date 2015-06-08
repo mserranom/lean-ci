@@ -34,6 +34,7 @@ app.post('/github/push', function (req, res) {
     console.log(req.baseUrl);
     console.log(req.params);
     console.log(req.body);
+    console.log(req.ip);
     var repo = ''; //TODO
     builder.startBuild(repo);
 });
