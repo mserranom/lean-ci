@@ -39,7 +39,7 @@ var server = app.listen(64321, function () {
 
 app.post('/github/push', function (req, res) {
     console.log('received /github/push POST request');
-    console.log(req.body);
+    console.info(JSON.stringify(req.body));
     res.json(req.body);
     var repo = ''; //TODO
     builder.startBuild(repo);
