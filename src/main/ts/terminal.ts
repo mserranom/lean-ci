@@ -26,8 +26,8 @@ export module terminal {
 
     export class TerminalAPI {
 
-        private static POLL_INTERVAL_MS = 1000;
-        private static CREATE_TERMINAL_TIMEOUT = 30000;
+        private static POLL_INTERVAL_MS = 2000;
+        private static CREATE_TERMINAL_TIMEOUT = 60000;
 
         private _config;
         private _sshKey;
@@ -66,13 +66,13 @@ export module terminal {
                     .fail(err => d.reject(err))
                     .then(function (requestStatus:any) {
                         if (requestStatus.status == 'success') {
-                            console.log('new agent request succeeded');
+                            console.log('new terminal request succeeded');
                             d.resolve(requestStatus.result);
                         } else {
-                            console.log('new agent request status: ' + requestStatus.status);
+                            console.log('new terminal request status: ' + requestStatus.status);
                             currentAttempt++;
                             if(currentAttempt > pollAttempts) {
-                                let errorMessage = "new agent request timeout";
+                                let errorMessage = "new terminal request timeout";
                                 console.error(errorMessage);
                                 d.reject({message: errorMessage});
                             } else {
