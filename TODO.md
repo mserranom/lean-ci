@@ -1,8 +1,5 @@
 TODO
 ====
- 
-[ ] create endpoint to force a build to start
- * payload should include the full name of the repo to build
 
 [ ] queue of scheduled builds
  * only one build concurrent, the others are scheduled
@@ -31,6 +28,9 @@ TODO
  
 DONE
 ====
+
+[x] create endpoint to force a build to start
+ * payload should include the full name of the repo to build
 
 [x] monitor pushes and builds on lean-ci
  * running the script on a terminal permanently
