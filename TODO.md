@@ -8,6 +8,10 @@ TODO
  * there's a predefined dependency between 2 modules A and B
  * when A build finishes, B immediately starts
  
+[ ] rest api to check active builds and build status
+ * each build is assigned an id (repo + commit)
+ * status of each build is saved in memory (only running/finished so far)
+ 
 [ ] take dependency chain from build repos definition
  * all repos included build and read a config file, establishing a dependency chain
  * the dependency chain is on sync with the repos
