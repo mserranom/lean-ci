@@ -15,13 +15,6 @@ export module builder {
 
     var buildQueue = new model.BuildQueue();
 
-    var commands = [
-        "git clone https://github.com/",
-        "cd lean-ci",
-        "git clean -xfd",
-        "npm install --unsafe-perm"];
-
-
     export function queueBuild(repo : string) {
         buildQueue.add({repo : repo});
         startBuild();
@@ -33,6 +26,12 @@ export module builder {
         if(!repo) {
             return;
         }
+
+        var commands = [
+            "git clone https://github.com/",
+            "cd lean-ci",
+            "git clean -xfd",
+            "npm install --unsafe-perm"];
 
         console.log('starting build on repo: ' + repo);
         commands[0] = commands[0] + repo + '.git';
