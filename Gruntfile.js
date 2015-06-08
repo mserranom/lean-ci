@@ -32,7 +32,7 @@ module.exports = function (grunt) {
                 dest: project.targetJs
             },
             test: {
-                src: project.testDir + '/*.ts',
+                src: [project.testDir + '/*.ts'],
                 dest: project.targetTestJs
             },
             options: {
@@ -44,23 +44,16 @@ module.exports = function (grunt) {
             }
         },
 
-        nodeunit: {
-            all: [project.targetTestDir + '/*.js'],
-            options: {
-                reporter: 'junit',
-                reporterOptions: {
-                    output: project.targetTestDir
-                }
-            }
-        },
 
-        uglify: {
-            options: {
-                banner: '/*! ' +  project.name + ' */\n'
-            },
-            build: {
-                src: project.targetJs,
-                dest: project.targetJsMin
+        mochaTest: {
+            test: {
+                options: {
+                    reporter: 'spec',
+                    captureFile: project.targetTestDir + '/results.txt', // Optionally capture the reporter output to a file
+                    quiet: false, // Optionally suppress output to standard out (defaults to false)
+                    clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
+                },
+                src: [project.testDir + '/*.js']
             }
         },
 
@@ -77,13 +70,11 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-contrib-nodeunit');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.registerTask("compile", ["clean", "typescript"]);
-    grunt.registerTask("test", ["compile", "nodeunit"]);
-    grunt.registerTask("package", ["test", "uglify"]);
-    grunt.registerTask("default", ["package"]);
+    grunt.registerTask("test", ["compile", "mochaTest"]);
+    grunt.registerTask("default", ["test"]);
 
 };
