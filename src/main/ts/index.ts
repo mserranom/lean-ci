@@ -10,6 +10,9 @@ import {builder} from './builder';
 
 util.overrideConsoleColors();
 
+
+// setup hooks for github
+
 var githubAPI = new github.GithubAPI(config.github.username, config.github.password);
 
 function registerWebhook(repo : string) {
@@ -21,6 +24,9 @@ function registerWebhook(repo : string) {
 var repos = ['mserranom/lean-ci'];
 repos.forEach(repo => registerWebhook(repo));
 
+
+
+// setup server
 
 var express : any = require('express');
 var bodyParser : any = require('body-parser');

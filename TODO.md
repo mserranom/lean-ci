@@ -1,8 +1,5 @@
 TODO
 ====
-[ ] monitor pushes and builds on lean-ci
- * running the script on a terminal permanently
- * subscribes to hooks in github repo to build when a change is pushed, printing logs
  
 [ ] create endpoint to force a build to start
  * payload should include the full name of the repo to build
@@ -34,6 +31,11 @@ TODO
  
 DONE
 ====
+
+[x] monitor pushes and builds on lean-ci
+ * running the script on a terminal permanently
+ * subscribes to hooks in github repo to build when a change is pushed, printing logs
+
 [x] clean up previous work and make it reliable (errors, long streams)
 
 [x] build lean-ci repo in terminal agent
