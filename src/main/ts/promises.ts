@@ -125,7 +125,7 @@ export module P {
 
     export interface PromiseState<Value>
     {
-        /// The current status of the promise.
+        /// The upstream status of the promise.
         status: Status;
 
         /// If the promise got resolved, the result of the promise.

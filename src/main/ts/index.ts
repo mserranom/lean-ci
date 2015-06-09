@@ -9,6 +9,7 @@ import {github} from './github';
 import {builder} from './builder';
 
 util.overrideConsoleColors();
+util.overrideConsoleColors();
 
 
 // setup hooks for github
@@ -21,7 +22,7 @@ function registerWebhook(repo : string) {
         .fail(error => console.warn('there was an issue: ' + error.message));
 }
 
-var repos = ['mserranom/lean-ci'];
+var repos = ['mserranom/lean-ci','mserranom/lean-ci-testA','mserranom/lean-ci-testB'];
 repos.forEach(repo => registerWebhook(repo));
 
 
@@ -49,7 +50,7 @@ app.post('/github/push', function (req, res) {
 
     console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
     let repo : string = req.body.repository.full_name;
-    builder.queueBuild({repo : repo});
+    builder.queueBuild(repo);
 });
 
 app.post('/build/start', function (req, res) {
@@ -58,7 +59,7 @@ app.post('/build/start', function (req, res) {
 
     console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
     let repo : string = req.body.repo;
-    builder.queueBuild({repo : repo});
+    builder.queueBuild(repo);
 });
 
 // setup builder

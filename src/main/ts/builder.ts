@@ -11,12 +11,21 @@ import {model} from './model';
 
 export module builder {
 
+    var data = new model.AllProjects();
+    data.populateTestData();
+
     var terminalAPI = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
 
     var buildQueue = new model.BuildQueue();
 
-    export function queueBuild(repo : model.ScheduledBuild) {
-        buildQueue.add(repo);
+    export function queueBuild(repo : string) {
+        let project = data.getProject(repo);
+        if(!project) {
+            console.error('unknown project: ' + repo);
+        } else {
+            console.log('adding project to build queue: ' + project.repo);
+            buildQueue.add(data.getProject(repo));
+        }
     }
 
     export function startBuild() {
@@ -28,12 +37,13 @@ export module builder {
 
         var commands = [
             "git clone https://github.com/",
-            "cd lean-ci",
+            "cd ",
             "git clean -xfd",
             "npm install --unsafe-perm"];
 
         console.log('starting build on repo: ' + repo.repo);
         commands[0] = commands[0] + repo.repo + '.git';
+        commands[1] = commands[1] + repo.repo.split('/')[1];
 
         terminalAPI.createTerminal()
             .then(terminal => {

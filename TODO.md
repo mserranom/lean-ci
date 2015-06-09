@@ -1,14 +1,11 @@
 TODO
 ====
-
-[ ] queue of scheduled builds
- * only one build concurrent, the others are scheduled
  
 [ ] build dependency chain
  * there's a predefined dependency between 2 modules A and B
  * when A build finishes, B immediately starts
  
-[ ] rest api to check active builds and build status
+[ ] rest api to check active builds, build queue and past builds
  * each build is assigned an id (repo + commit)
  * status of each build is saved in memory (only running/finished so far)
  
@@ -32,6 +29,8 @@ TODO
  
 DONE
 ====
+[x] queue of scheduled builds
+ * only one build concurrent, the others are scheduled
 
 [x] create endpoint to force a build to start
  * payload should include the full name of the repo to build
