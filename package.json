@@ -12,6 +12,7 @@
     "grunt-contrib-clean": "0.4.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-mocha-test": "^0.12.7",
+    "grunt-notify": "^0.4.1",
     "grunt-typescript": "0.6.2",
     "immutable": "^3.7.3",
     "mocha": "2.0.1",
@@ -19,9 +20,9 @@
     "shelljs": "0.5.0"
   },
   "scripts": {
-    "clean": "grunt clean --verbose",
-    "test": "grunt test --verbose",
-    "install": "grunt --verbose"
+    "clean": "grunt clean",
+    "test": "grunt test",
+    "install": "grunt"
   },
   "repository": {
     "type": "git",

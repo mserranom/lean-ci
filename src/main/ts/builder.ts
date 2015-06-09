@@ -50,7 +50,6 @@ export module builder {
                     } );
             })
             .fail(error => buildQueue.finish(repo));
-        ;
     }
 
 }

@@ -44,7 +44,6 @@ module.exports = function (grunt) {
             }
         },
 
-
         mochaTest: {
             test: {
                 options: {
@@ -62,8 +61,18 @@ module.exports = function (grunt) {
                 files: [project.srcDir + '/**/*.ts', project.testDir + '/**/*.ts'],
                 tasks: ['test'],
                 options: {
-                    spawn: false
+                    spawn: true
                 }
+            }
+        },
+
+        notify_hooks: {
+            options: {
+                enabled: true,
+                max_jshint_notifications: 2, // maximum number of notifications from jshint output
+                title: '<%= pkg.name %>', // defaults to the name in package.json, or will use project directory's name
+                success: true, // whether successful grunt executions should be notified automatically
+                duration: 3 // the duration of notification in seconds, for `notify-send only
             }
         }
     });
@@ -72,9 +81,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-notify');
 
     grunt.registerTask("compile", ["clean", "typescript"]);
     grunt.registerTask("test", ["compile", "mochaTest"]);
     grunt.registerTask("default", ["test"]);
+
+    grunt.task.run('notify_hooks'); //requires 'brew install terminal-notifier'
 
 };
