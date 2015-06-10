@@ -8,6 +8,8 @@ export module model {
 
         private _queue : Array<Project> = [];
 
+        private _finished : Array<Project> = [];
+
         private _activeBuilds : Immutable.Set<Project> = Immutable.Set<Project>();
 
         /** adds a project to the queue */
@@ -35,11 +37,20 @@ export module model {
         finish(repo : Project) {
             this._activeBuilds = this._activeBuilds.delete(repo);
             repo.downstreamDependencies.forEach(dep => this.add(dep.downstream));
+            this._finished.push(repo);
         }
 
         /** project builds that are active at the moment */
         activeBuilds() : Immutable.Set<Project> {
             return this._activeBuilds;
+        }
+
+        queue() : Array<Project> {
+            return this._queue;
+        }
+
+        finished() : Array<Project> {
+            return this._finished;
         }
 
         private isActive(build:Project) : boolean {
@@ -69,6 +80,15 @@ export module model {
         constructor(repo : string) {
             this.repo = repo;
         }
+
+        toJSONObject() {
+            let result : any =  {repo : this.repo};
+            result.upstreamDependencies = [];
+            result.downstreamDependencies = [];
+            this.upstreamDependencies.forEach(dep => result.upstreamDependencies.push(dep.upstream.repo));
+            this.downstreamDependencies.forEach(dep => result.downstreamDependencies.push(dep.downstream.repo));
+            return result;
+        }
     }
 
     export class AllProjects {
@@ -86,6 +106,12 @@ export module model {
 
             this.setDependency(repo1, repo2);
             this.setDependency(repo2, repo3);
+        }
+
+        getProjects() : Array<Project> {
+            let projects : Array<Project> = [];
+            this._projects.forEach((project,repo) => projects.push(project));
+            return projects;
         }
 
         getProject(repo : string) : Project {

@@ -11,12 +11,10 @@ import {model} from './model';
 
 export module builder {
 
-    var data = new model.AllProjects();
-    data.populateTestData();
+    export var data : model.AllProjects;
+    export var queue : model.BuildQueue;
 
     var terminalAPI = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
-
-    var buildQueue = new model.BuildQueue();
 
     export function queueBuild(repo : string) {
         let project = data.getProject(repo);
@@ -24,13 +22,13 @@ export module builder {
             console.error('unknown project: ' + repo);
         } else {
             console.log('adding project to build queue: ' + project.repo);
-            buildQueue.add(data.getProject(repo));
+            queue.add(data.getProject(repo));
         }
     }
 
     export function startBuild() {
 
-        let repo = buildQueue.next();
+        let repo = queue.next();
         if(!repo) {
             return;
         }
@@ -52,14 +50,14 @@ export module builder {
                 ssh.execute(agentURL, commands)
                     .then(() => {
                         terminalAPI.closeTerminal(terminal);
-                        buildQueue.finish(repo)
+                        queue.finish(repo)
                     })
                     .fail(error => {
                         console.log("error creating terminal:  " + error.message);
-                        buildQueue.finish(repo);
+                        queue.finish(repo);
                     } );
             })
-            .fail(error => buildQueue.finish(repo));
+            .fail(error => queue.finish(repo));
     }
 
 }

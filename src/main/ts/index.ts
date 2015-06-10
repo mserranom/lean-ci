@@ -2,14 +2,26 @@
 ///<reference path="config.ts"/>
 ///<reference path="github.ts"/>
 ///<reference path="builder.ts"/>
+///<reference path="model.ts"/>
+///<reference path="api.ts"/>
 
 import {util} from './util';
 import {config} from './config';
 import {github} from './github';
 import {builder} from './builder';
+import {model} from './model';
+import {api} from './api';
 
 util.overrideConsoleColors();
-util.overrideConsoleColors();
+
+
+// create data model
+
+var projects = new model.AllProjects();
+projects.populateTestData();
+
+var queue = new model.BuildQueue();
+
 
 
 // setup hooks for github
@@ -22,8 +34,7 @@ function registerWebhook(repo : string) {
         .fail(error => console.warn('there was an issue: ' + error.message));
 }
 
-var repos = ['mserranom/lean-ci','mserranom/lean-ci-testA','mserranom/lean-ci-testB'];
-repos.forEach(repo => registerWebhook(repo));
+projects.getProjects().forEach(project => registerWebhook(project.repo));
 
 
 
@@ -44,25 +55,15 @@ var server = app.listen(64321, function () {
     console.log('http server listening at http://%s:%s', host, port);
 });
 
-app.post('/github/push', function (req, res) {
-    console.log('received /github/push POST request');
-    res.end();
+var restApi = new api.LeanCIApi(queue);
+restApi.start(app);
 
-    console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-    let repo : string = req.body.repository.full_name;
-    builder.queueBuild(repo);
-});
 
-app.post('/build/start', function (req, res) {
-    console.log('received /build/start POST request');
-    res.end();
-
-    console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-    let repo : string = req.body.repo;
-    builder.queueBuild(repo);
-});
 
 // setup builder
+
+builder.data = projects;
+builder.queue = queue;
 
 setInterval(builder.startBuild, 1000);
 
