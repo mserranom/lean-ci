@@ -55,16 +55,24 @@ var server = app.listen(64321, function () {
     console.log('http server listening at http://%s:%s', host, port);
 });
 
-var restApi = new api.LeanCIApi(queue);
-restApi.start(app);
-
 
 
 // setup builder
 
-builder.data = projects;
-builder.queue = queue;
+var scheduler = new builder.BuildScheduler(projects, queue);
+setInterval(() => scheduler.startBuild(), 1000);
 
-setInterval(builder.startBuild, 1000);
+
+
+// setup rest API
+
+var restApi = new api.LeanCIApi(queue, scheduler);
+restApi.start(app);
+
+
+
+
+
+
 
 

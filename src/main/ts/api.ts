@@ -9,9 +9,11 @@ export module api {
     export class LeanCIApi {
 
         private _queue : model.BuildQueue;
+        private _builder : builder.BuildScheduler;
 
-        constructor(queue : model.BuildQueue) {
+        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler) {
             this._queue = queue;
+            this._builder = builder;
         }
 
         start(app) {
@@ -22,7 +24,7 @@ export module api {
 
                 console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
                 let repo : string = req.body.repository.full_name;
-                builder.queueBuild(repo);
+                this._builder.queueBuild(repo);
             });
 
             app.post('/build/start', (req, res) => {
@@ -32,7 +34,7 @@ export module api {
                 console.info(JSON.stringify(req.body));
                 let repo : string = req.body.repo;
                 console.log(repo);
-                builder.queueBuild(repo);
+                this._builder.queueBuild(repo);
             });
 
             app.get('/build/queue', (req, res) => {
