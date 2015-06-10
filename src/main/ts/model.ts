@@ -10,10 +10,12 @@ export module model {
 
         private _activeBuilds : Immutable.Set<Project> = Immutable.Set<Project>();
 
+        /** adds a project to the queue */
         add(repo : Project) {
             this._queue.push(repo);
         }
 
+        /** moves a project to active builds and returns the activated project */
         next() : Project {
            if(this.queueIsEmpty() || this.maxConcurrentBuildsReached()){
                return null;
@@ -29,11 +31,13 @@ export module model {
            return null;
         }
 
+        /** finishes an active build, removing it from the set of active builds */
         finish(repo : Project) {
             this._activeBuilds = this._activeBuilds.delete(repo);
             repo.downstreamDependencies.forEach(dep => this.add(dep.downstream));
         }
 
+        /** project builds that are active at the moment */
         activeBuilds() : Immutable.Set<Project> {
             return this._activeBuilds;
         }

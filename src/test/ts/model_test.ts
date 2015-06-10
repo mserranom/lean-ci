@@ -52,6 +52,7 @@ describe('BuildQueue', () => {
         queue.add(repo1Build);
         queue.next();
         queue.add(repo1Build2);
+        expect(queue.next()).to.be.null;
         expect(queue.activeBuilds().contains(repo1Build2)).to.be.false;
     });
 
@@ -65,7 +66,7 @@ describe('BuildQueue', () => {
         expect(queue.next()).to.be.null;
     });
 
-    it('being 1 the max concurrent builds, next() should return null while the previous hasnt finished',() => {
+    it('being 1 the max concurrent builds, projects shouldnt be added to activeBuilds with next() ',() => {
         let queue = new model.BuildQueue();
         queue.add(repo1Build);
         queue.next();
