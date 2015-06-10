@@ -1,10 +1,6 @@
 TODO
 ====
  
-[ ] build dependency chain
- * there's a predefined dependency between 2 modules A and B
- * when A build finishes, B immediately starts
- 
 [ ] rest api to check active builds, build queue and past builds
  * each build is assigned an id (repo + commit)
  * status of each build is saved in memory (only running/finished so far)
@@ -16,8 +12,14 @@ TODO
 
 [ ] setup npm repository for builds
 
-[ ] create continues deployment pipeline for lean-ci 
+[ ] UI for active builds, build queue and past builds
+ * data is in memory only
+
+[ ] finish continuous deployment pipeline for lean-ci
  * builds the whole pipeline and run builds to deploy to agents
+
+[ ] Save past builds in DB (mongoDB?)
+ * past build reports are taken from DB
 
 [ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
@@ -25,10 +27,18 @@ TODO
 [ ] resolve agent security and ssh
  * use secure ssh communications
  * check if root usage in agent is safe
+ * or use http server to activate the agent
+
+[ ] identify pipeline triggered by a build
  
  
 DONE
 ====
+
+[x] build dependency chain
+ * there's a predefined dependency between 2 modules A and B
+ * when A build finishes, B immediately starts
+
 [x] queue of scheduled builds
  * only one build concurrent, the others are scheduled
 
