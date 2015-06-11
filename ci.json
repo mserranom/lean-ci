@@ -1,3 +1,4 @@
 {
-  "dependencies" : ["mserranom/lean-ci-testB"]
+  "dependencies" : ["mserranom/lean-ci-testB"],
+  "command" : "npm install"
 }
