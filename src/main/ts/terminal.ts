@@ -37,6 +37,30 @@ export module terminal {
             this._sshKey = sshKey;
         }
 
+        createTerminalWithOpenPorts(ports : Array<number>) : Promise<TerminalInfo> {
+            let d = defer<TerminalInfo>();
+
+            let openPortOptions:TerminalRequestOptions = {
+                query: 'edit_terminal_access',
+                requireAuthentication: true,
+                data: {
+                    'container_key': '',
+                    'is_public_list': ports,
+                    'access_rules' : ["IDE::mserranom@gmail.com","*::mserranom@gmail.com"]
+                }
+            };
+
+            this.createTerminal().then(info => {
+                    console.log('opening terminal ports: ' + ports);
+                    openPortOptions.data.container_key = info.container_key;
+                    this.createTerminalRequest(openPortOptions)
+                        .then(res => d.resolve(info))
+                        .fail(error => d.reject(error));
+                }).fail(error => d.reject(error));
+
+            return d.promise();
+        }
+
         createTerminal() : Promise<TerminalInfo> {
 
             console.info('creating new agent');
@@ -48,7 +72,9 @@ export module terminal {
                 requireAuthentication: true,
                 data: {
                     'snapshot_id': this._config.buildAgentId,
-                    'publicKey': this._sshKey
+                    'publicKey': this._sshKey,
+                    'keep_ram': false,
+                    'temporary': true
                  }
             };
 
@@ -135,6 +161,9 @@ export module terminal {
             if (options.data) {
                 request.write(JSON.stringify(options.data));
             }
+
+            console.info('request data: ' + JSON.stringify(options.data));
+
             request.end();
 
             return d.promise();
@@ -180,7 +209,7 @@ export module terminal {
     interface TerminalRequestOptions {
         query : string;
         requireAuthentication : boolean;
-        data : Object;
+        data : any;
     }
 
 }

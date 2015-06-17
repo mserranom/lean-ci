@@ -6,6 +6,8 @@ TODO
  * the dependency chain is on sync with the repos
  * A and B build, the dependency chain is stablished for B, and when it finishes, it builds B
 
+[ ] make sure we're checking out the latest commit triggering the hook
+
 [ ] setup npm repository for builds
 
 [ ] UI for active builds, build queue and past builds
