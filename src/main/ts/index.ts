@@ -4,6 +4,7 @@
 ///<reference path="builder.ts"/>
 ///<reference path="model.ts"/>
 ///<reference path="api.ts"/>
+///<reference path="terminal.ts"/>
 
 import {util} from './util';
 import {config} from './config';
@@ -11,6 +12,7 @@ import {github} from './github';
 import {builder} from './builder';
 import {model} from './model';
 import {api} from './api';
+import {terminal} from './terminal';
 
 util.overrideConsoleColors();
 
@@ -59,7 +61,8 @@ var server = app.listen(64321, function () {
 
 // setup builder
 
-var scheduler = new builder.BuildScheduler(projects, queue);
+var terminalApi =new terminal.TerminalAPI(config.terminal, config.sshPubKey);
+var scheduler = new builder.BuildScheduler(projects, queue, new builder.BuildService(), terminalApi);
 setInterval(() => scheduler.startBuild(), 1000);
 
 

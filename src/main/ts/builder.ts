@@ -2,6 +2,8 @@
 ///<reference path="ssh.ts"/>
 ///<reference path="config.ts"/>
 ///<reference path="model.ts"/>
+///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
+
 
 import {terminal} from './terminal';
 import {util} from './util';
@@ -9,18 +11,68 @@ import {config} from './config';
 import {ssh} from './ssh';
 import {model} from './model';
 
+import Immutable = require('immutable');
+
 export module builder {
 
-    var terminalAPI = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
+    interface BuildRequest {
+        id : string,
+        repo : string;
+        commit : string;
+        pingURL : string;
+    }
+
+    export interface BuildConfig {
+        command : string;
+        dependencies : Array<string>;
+    }
+
+    export class BuildResult {
+        repo : string;
+        commit : string;
+        succeeded : boolean;
+        buildConfig : BuildConfig;
+        log : string = '';
+    }
+
+    export class BuildService {
+
+        sendBuildRequest(agentURL:string, req:BuildRequest) {
+            var request : any = require('request');
+            let args = {
+                headers: {
+                    'content-type' : 'application/json'},
+                'url': agentURL,
+                'body': JSON.stringify(req)
+            };
+
+            request.post(args , (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    console.log('build requested to ' + agentURL);
+                } else if (error){
+                    console.error('unable to request build: ' + error);
+                } else {
+                    console.error('error requesting build with HTTP status: ' + response.statusCode);
+                }
+            });
+        }
+    }
 
     export class BuildScheduler {
 
         private _data : model.AllProjects;
         private _queue : model.BuildQueue;
+        private _buildService : BuildService;
+        private _terminalAPI : terminal.TerminalAPI;
 
-        constructor(data : model.AllProjects, queue : model.BuildQueue) {
+        private _activeBuilds : Immutable.Map<string, BuildRequest> = Immutable.Map<string, BuildRequest>();
+
+        constructor(data : model.AllProjects, queue : model.BuildQueue,
+                    service : BuildService, terminalAPI : terminal.TerminalAPI) {
             this._data = data;
             this._queue = queue;
+            this._buildService = service;
+            this._terminalAPI = terminalAPI;
         }
 
         queueBuild(repo : string) {
@@ -33,39 +85,55 @@ export module builder {
             }
         }
 
-        startBuild() {
+        startBuild() : BuildRequest {
 
             let repo = this._queue.next();
             if(!repo) {
-                return;
+                return null;
             }
 
-            var commands = [
-                "git clone https://github.com/",
-                "cd ",
-                "git clean -xfd",
-                "npm install --unsafe-perm"];
+            let pingURL = '';
 
             console.log('starting build on repo: ' + repo.repo);
-            commands[0] = commands[0] + repo.repo + '.git';
-            commands[1] = commands[1] + repo.repo.split('/')[1];
 
-            terminalAPI.createTerminal()
+            let req : BuildRequest = {
+                id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
+                repo : repo.repo,
+                commit : '',
+                pingURL : pingURL,
+            };
+
+            this._activeBuilds = this._activeBuilds.set(req.id, req);
+
+            this._terminalAPI.createTerminalWithOpenPorts([65234])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
-                    var agentURL = terminal.subdomain + ".terminal.com";
-                    ssh.execute(agentURL, commands)
-                        .then(() => {
-                            terminalAPI.closeTerminal(terminal);
-                            this._queue.finish(repo)
-                        })
-                        .fail(error => {
-                            console.log("error creating terminal:  " + error.message);
-                            this._queue.finish(repo);
-                        } );
+                    let agentURL = terminal.subdomain + ".terminal.com:64532";
+
+                    this._buildService.sendBuildRequest(agentURL, req);
+
                 })
                 .fail(error => this._queue.finish(repo));
+
+            return req;
         }
+
+        pingFinish(buildId : string, result : BuildResult) {
+
+            result.buildConfig.dependencies.forEach(dep =>this._data.setDependency(result.repo, dep));
+
+            let build = this._activeBuilds.get(buildId);
+
+            if(!build) {
+                throw new Error('unable to find active build with id=' + buildId);
+            }
+
+            this._activeBuilds = this._activeBuilds.delete(buildId);
+
+            var project : model.Project = this._data.getProject(build.repo);
+            this._queue.finish(project);
+        }
+
     }
 
 }
