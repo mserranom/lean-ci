@@ -111,7 +111,7 @@ export module builder {
             this._terminalAPI.createTerminalWithOpenPorts([65234])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
-                    let agentURL = terminal.subdomain + ".terminal.com:64321";
+                    let agentURL = "http://" + terminal.subdomain + "-64321.terminal.com:";
 
                     this._buildService.sendBuildRequest(agentURL, req);
 
