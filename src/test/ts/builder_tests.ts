@@ -19,7 +19,7 @@ export var defer = P.defer;
 
 var simple = require('simple-mock');
 
-describe('BuildScheduler', () => {
+describe('BuildScheduler: ', () => {
 
     var project : model.Project;
     var upproject : model.Project;
@@ -50,6 +50,11 @@ describe('BuildScheduler', () => {
 
     var assertBuildWasNotRequested = function() {
         expect(service.sendBuildRequest['callCount']).equals(0);
+    };
+
+    var assertUpDownProjectDependenciesAreCorrect = function() {
+        expect(upproject.downstreamDependencies.some(dep => dep.downstream == downProject)).to.be.true;
+        expect(downProject.upstreamDependencies.some(dep => dep.upstream == upproject)).to.be.true;
     };
 
     beforeEach(function(){
@@ -132,8 +137,36 @@ describe('BuildScheduler', () => {
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
         sut.pingFinish(req.id, result);
 
-        expect(upproject.downstreamDependencies.some(dep => dep.downstream == downProject)).to.be.true;
-        expect(downProject.upstreamDependencies.some(dep => dep.upstream == upproject)).to.be.true;
+        assertUpDownProjectDependenciesAreCorrect();
+    });
+
+    it('attempting to finish a build that doesnt exist throw an error',() => {
+        sut.queueBuild(upproject.repo);
+        sut.startBuild();
+
+        let result = new builder.BuildResult();
+        result.repo = upproject.repo;
+        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
+
+        let fn = () => sut.pingFinish('fakeId', result);
+        expect(fn).to.throw(/fakeId/);
+    });
+
+    it('a downstream dependency build can be started after the upstream is finished',() => {
+        data.setDependency(upproject.repo, downProject.repo);
+        assertUpDownProjectDependenciesAreCorrect();
+
+        sut.queueBuild(upproject.repo);
+        let upstreamReq = sut.startBuild();
+        expect(upstreamReq.repo).equals(upproject.repo);
+
+        let result = new builder.BuildResult();
+        result.repo = upproject.repo;
+        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
+        sut.pingFinish(upstreamReq.id, result);
+
+        let downstreamReq = sut.startBuild();
+        expect(downstreamReq.repo).equals(downProject.repo);
     });
 
 });

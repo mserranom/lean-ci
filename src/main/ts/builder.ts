@@ -82,6 +82,9 @@ export module builder {
             } else {
                 console.log('adding project to build queue: ' + project.repo);
                 this._queue.add(this._data.getProject(repo));
+                if(project.downstreamDependencies.size > 0) {
+                    project.downstreamDependencies.forEach(dep => this.queueBuild(dep.downstream.repo));
+                }
             }
         }
 
@@ -120,6 +123,7 @@ export module builder {
 
         pingFinish(buildId : string, result : BuildResult) {
 
+            //TODO: dependencies should be updated, not added!!
             result.buildConfig.dependencies.forEach(dep =>this._data.setDependency(result.repo, dep));
 
             let build = this._activeBuilds.get(buildId);
