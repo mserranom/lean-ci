@@ -35,3 +35,5 @@ _SpecRunner.html
 
 src/main/ts/*.js
 src/test/ts/*.js
+
+dist.zip
