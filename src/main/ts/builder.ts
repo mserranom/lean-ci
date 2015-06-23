@@ -95,7 +95,7 @@ export module builder {
                 return null;
             }
 
-            let pingURL = '';
+            let pingURL = 'http://mserranom145-64321.terminal.com/build/pingFinish';
 
             console.log('starting build on repo: ' + repo.repo);
 
@@ -111,7 +111,7 @@ export module builder {
             this._terminalAPI.createTerminalWithOpenPorts([65234])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
-                    let agentURL = terminal.subdomain + ".terminal.com:64532";
+                    let agentURL = terminal.subdomain + ".terminal.com:64321";
 
                     this._buildService.sendBuildRequest(agentURL, req);
 

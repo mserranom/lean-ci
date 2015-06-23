@@ -61,7 +61,7 @@ var server = app.listen(64321, function () {
 
 // setup builder
 
-var terminalApi =new terminal.TerminalAPI(config.terminal, config.sshPubKey);
+var terminalApi = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
 var scheduler = new builder.BuildScheduler(projects, queue, new builder.BuildService(), terminalApi);
 setInterval(() => scheduler.startBuild(), 1000);
 

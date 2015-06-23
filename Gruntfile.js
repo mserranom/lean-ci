@@ -23,7 +23,7 @@ module.exports = function (grunt) {
         clean:{
             target:[ project.targetDir,'_SpecRunner.html', project.srcDir + '/**/*.js', project.srcDir + '/**/*.js.map',
                 project.srcDir + '/**/*.html', project.testDir + '/**/*.js',  project.testDir + '/**/*.js.map',
-                project.testDir + '/**/*.html' ]
+                project.testDir + '/**/*.html', 'dist.zip']
         },
 
         typescript: {
@@ -56,6 +56,10 @@ module.exports = function (grunt) {
             }
         },
 
+        zip: {
+            'dist.zip': ['src/main/ts/*.js', 'node_modules/**/*']
+        },
+
         watch: {
             scripts: {
                 files: [project.srcDir + '/**/*.ts', project.testDir + '/**/*.ts'],
@@ -82,10 +86,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-notify');
+    grunt.loadNpmTasks('grunt-zip');
 
     grunt.registerTask("compile", ["clean", "typescript"]);
     grunt.registerTask("test", ["compile", "mochaTest"]);
-    grunt.registerTask("default", ["test"]);
+    grunt.registerTask("package", ["test", "zip"]);
+    grunt.registerTask("default", ["package"]);
 
     grunt.task.run('notify_hooks'); //requires 'brew install terminal-notifier'
 

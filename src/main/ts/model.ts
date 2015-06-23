@@ -96,9 +96,9 @@ export module model {
         private _projects : Immutable.Map<string, Project> = Immutable.Map<string, Project>();
 
         populateTestData() {
-            let repo1 = 'mserranom/lean-ci-testA';
-            let repo2 = 'mserranom/lean-ci-testB';
-            let repo3 = 'mserranom/lean-ci';
+            this.addNewProject('mserranom/lean-ci-testA');
+            this.addNewProject('mserranom/lean-ci-testB');
+            this.addNewProject('mserranom/lean-ci');
         }
 
         getProjects() : Array<Project> {

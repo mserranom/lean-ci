@@ -7,6 +7,8 @@ TODO
  * A and B build, the dependency chain is stablished for B. Then, if B is built, it should trigger A
  * unit tests for AllProject and BuildScheduler
 
+[ ] remove ssh keys
+
 [ ] fix dependencies vs devDependencies
 
 [ ] make sure we're checking out the latest commit triggering the hook
