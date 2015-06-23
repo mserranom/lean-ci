@@ -131,6 +131,26 @@ export module model {
             p2.upstreamDependencies = p2.upstreamDependencies.add(dep);
         }
 
+        private clearDependency(upstream : string, downstream : string) {
+            let up = this.getProject(upstream);
+            let down = this.getProject(downstream);
+
+            let dep = up.downstreamDependencies.find((element, index, array) => element.downstream.repo == downstream
+                        && element.upstream.repo == upstream);
+
+            up.downstreamDependencies = up.downstreamDependencies.remove(dep);
+            down.upstreamDependencies = down.upstreamDependencies.remove(dep);
+        }
+
+        updateDependencies(repo : string, upstreamDependencies : Array<string>) {
+            let project = this.getProject(repo);
+
+            project.upstreamDependencies.forEach(dep => this.clearDependency(dep.upstream.repo, dep.downstream.repo));
+
+            upstreamDependencies.forEach(upstreamDep => this.setDependency(upstreamDep, repo))
+
+        }
+
     }
 
 }

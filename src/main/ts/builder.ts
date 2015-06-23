@@ -123,18 +123,15 @@ export module builder {
 
         pingFinish(buildId : string, result : BuildResult) {
 
-            //TODO: dependencies should be updated, not added!!
-            result.buildConfig.dependencies.forEach(dep =>this._data.setDependency(result.repo, dep));
-
             let build = this._activeBuilds.get(buildId);
 
             if(!build) {
                 throw new Error('unable to find active build with id=' + buildId);
             }
 
+            let project = this._data.getProject(result.repo);
+            this._data.updateDependencies(project.repo, result.buildConfig.dependencies);
             this._activeBuilds = this._activeBuilds.delete(buildId);
-
-            var project : model.Project = this._data.getProject(build.repo);
             this._queue.finish(project);
         }
 

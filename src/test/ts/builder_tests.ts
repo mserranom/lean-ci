@@ -129,12 +129,12 @@ describe('BuildScheduler: ', () => {
     });
 
     it('when a build is finished downstream dependencies are registered',() => {
-        sut.queueBuild(upproject.repo);
+        sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
         let result = new builder.BuildResult();
-        result.repo = upproject.repo;
-        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
+        result.repo = downProject.repo;
+        result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
 
         assertUpDownProjectDependenciesAreCorrect();

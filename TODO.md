@@ -4,7 +4,8 @@ TODO
 [ ] take dependency chain from build repos definition
  * all repos included build and read a config file, establishing a dependency chain
  * the dependency chain is on sync with the repos
- * A and B build, the dependency chain is stablished for B, and when it finishes, it builds B
+ * A and B build, the dependency chain is stablished for B. Then, if B is built, it should trigger A
+ * unit tests for AllProject and BuildScheduler
 
 [ ] fix dependencies vs devDependencies
 
@@ -30,6 +31,8 @@ TODO
  * or use http server to activate the agent
 
 [ ] identify pipeline triggered by a build
+
+[ ] decide strategies for queuing builds after the pipeline graph
  
  
 DONE
