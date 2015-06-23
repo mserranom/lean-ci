@@ -6,7 +6,7 @@
 import {model} from '../../../src/main/ts/model';
 import {expect} from 'chai';
 
-describe('BuildQueue', () => {
+describe('BuildQueue: ', () => {
 
     let repo1Build = new model.Project('repo1');
     let repo1Build2 = new model.Project('repo1');
@@ -79,4 +79,109 @@ describe('BuildQueue', () => {
     });
 
 });
+
+describe('AllProjects: ', () => {
+
+    let sut : model.AllProjects;
+
+    beforeEach(() => {
+        sut = new model.AllProjects();
+    });
+
+    it('should be empty initially',() => {
+        expect(sut.getProjects()).to.be.empty;
+    });
+
+    it('should return added repos',() => {
+        sut.addNewProject('group/repo1');
+        sut.addNewProject('group/repo2');
+
+        expect(sut.getProjects().length).equals(2);
+        expect(sut.getProject('group/repo1')).not.to.be.null;
+        expect(sut.getProject('group/repo2')).not.to.be.null;
+    });
+
+    it('should return null for non existing repo',() => {
+        expect(sut.getProject('group/foo')).to.be.undefined;
+    });
+
+    it('should set dependencies for existing projects',() => {
+        sut.addNewProject('group/repo1');
+        sut.addNewProject('group/repo2');
+        let dep = sut.setDependency('group/repo1', 'group/repo2');
+
+        let up = sut.getProject('group/repo1');
+        let down = sut.getProject('group/repo2');
+
+        expect(up.downstreamDependencies.contains(dep)).to.be.true;
+        expect(up.upstreamDependencies.contains(dep)).to.be.false;
+
+        expect(down.upstreamDependencies.contains(dep)).to.be.true;
+        expect(down.downstreamDependencies.contains(dep)).to.be.false;
+    });
+
+    it('updating dependencies should remove existing dependencies',() => {
+        sut.addNewProject('group/repo1');
+        sut.addNewProject('group/repo2');
+        sut.addNewProject('group/repo3');
+
+        let repo1 = sut.getProject('group/repo1');
+        let repo2 = sut.getProject('group/repo2');
+        let repo3 = sut.getProject('group/repo3');
+
+        let dep = sut.setDependency('group/repo1', 'group/repo2');
+        expect(repo1.downstreamDependencies.contains(dep)).to.be.true;
+        expect(repo2.upstreamDependencies.contains(dep)).to.be.true;
+
+        sut.updateDependencies('group/repo2', ['group/repo3']);
+        expect(repo1.downstreamDependencies.contains(dep)).to.be.false;
+        expect(repo2.upstreamDependencies.contains(dep)).to.be.false;
+    });
+
+    it('updating dependencies should set new dependencies on projects',() => {
+        sut.addNewProject('group/repo1');
+        sut.addNewProject('group/repo2');
+        sut.addNewProject('group/repo3');
+
+        let repo1 = sut.getProject('group/repo1');
+        let repo2 = sut.getProject('group/repo2');
+        let repo3 = sut.getProject('group/repo3');
+
+        sut.setDependency('group/repo1', 'group/repo2');
+
+        let newDeps = sut.updateDependencies('group/repo2', ['group/repo3']);
+
+        expect(newDeps.size).equals(1);
+        newDeps.forEach(dep => {
+            expect(repo2.upstreamDependencies.contains(dep)).to.be.true;
+            expect(repo3.downstreamDependencies.contains(dep)).to.be.true;
+        })
+    });
+
+    it('should be able to update multiple dependencies on projects',() => {
+        sut.addNewProject('group/repo1');
+        sut.addNewProject('group/repo2');
+        sut.addNewProject('group/repo3');
+        sut.addNewProject('group/repo4');
+
+        let repo1 = sut.getProject('group/repo1');
+        let repo2 = sut.getProject('group/repo2');
+        let repo3 = sut.getProject('group/repo3');
+        let repo4 = sut.getProject('group/repo4');
+
+        sut.setDependency('group/repo1', 'group/repo2');
+
+        let newDeps = sut.updateDependencies('group/repo2', ['group/repo3', 'group/repo4']);
+
+        expect(newDeps.size).equals(2);
+        expect(repo2.upstreamDependencies.size).equals(2);
+        newDeps.forEach(dep => {
+           repo2.downstreamDependencies.forEach(downDep => expect(downDep.upstream).equals(repo2))
+        });
+    });
+
+
+});
+
+
 

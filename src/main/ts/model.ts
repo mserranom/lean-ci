@@ -99,13 +99,6 @@ export module model {
             let repo1 = 'mserranom/lean-ci-testA';
             let repo2 = 'mserranom/lean-ci-testB';
             let repo3 = 'mserranom/lean-ci';
-
-            this.addNewProject(repo1);
-            this.addNewProject(repo2);
-            this.addNewProject(repo3);
-
-            this.setDependency(repo1, repo2);
-            this.setDependency(repo2, repo3);
         }
 
         getProjects() : Array<Project> {
@@ -123,12 +116,13 @@ export module model {
             this._projects = this._projects.set(repo, project);
         }
 
-        setDependency(upstream : string, downstream : string) {
+        setDependency(upstream : string, downstream : string) : ProjectDependency {
             let p1 = this._projects.get(upstream);
             let p2 = this._projects.get(downstream);
             let dep : ProjectDependency = {upstream : p1, downstream : p2};
             p1.downstreamDependencies = p1.downstreamDependencies.add(dep);
             p2.upstreamDependencies = p2.upstreamDependencies.add(dep);
+            return dep;
         }
 
         private clearDependency(upstream : string, downstream : string) {
@@ -142,12 +136,12 @@ export module model {
             down.upstreamDependencies = down.upstreamDependencies.remove(dep);
         }
 
-        updateDependencies(repo : string, upstreamDependencies : Array<string>) {
+        updateDependencies(repo : string, upstreamDependencies : Array<string>) : Immutable.Set<ProjectDependency> {
             let project = this.getProject(repo);
 
             project.upstreamDependencies.forEach(dep => this.clearDependency(dep.upstream.repo, dep.downstream.repo));
 
-            upstreamDependencies.forEach(upstreamDep => this.setDependency(upstreamDep, repo))
+            return Immutable.Set(upstreamDependencies.map(upstreamDep => this.setDependency(upstreamDep, repo)));
 
         }
 
