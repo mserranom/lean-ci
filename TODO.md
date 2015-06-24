@@ -1,6 +1,8 @@
 TODO
 ====
 
+[ ] make sure we're killing the terminal after the build
+
 [ ] remove ssh keys and add URLs and ports to config
 
 [ ] fix dependencies vs devDependencies
@@ -31,6 +33,8 @@ TODO
 [ ] identify pipeline triggered by a build
 
 [ ] decide strategies for queuing builds after the pipeline graph
+
+[ ] poll build status to agent
  
  
 DONE
