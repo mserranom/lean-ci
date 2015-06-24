@@ -65,6 +65,7 @@ export module builder {
         private _terminalAPI : terminal.TerminalAPI;
 
         private _activeBuilds : Immutable.Map<string, BuildRequest> = Immutable.Map<string, BuildRequest>();
+        private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
 
         constructor(data : model.AllProjects, queue : model.BuildQueue,
                     service : BuildService, terminalAPI : terminal.TerminalAPI) {
@@ -110,6 +111,7 @@ export module builder {
             this._terminalAPI.createTerminalWithOpenPorts([64321])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
+                    this._agents = this._agents.set(req.id, terminal);
                     let agentURL = "http://" + terminal.subdomain + "-64321.terminal.com/start";
                     this._buildService.sendBuildRequest(agentURL, req);
                 })
@@ -130,6 +132,9 @@ export module builder {
             this._data.updateDependencies(project.repo, result.buildConfig.dependencies);
             this._activeBuilds = this._activeBuilds.delete(buildId);
             this._queue.finish(project);
+
+            this._terminalAPI.closeTerminal(this._agents.get(buildId));
+            this._agents = this._agents.remove(buildId);
         }
 
     }

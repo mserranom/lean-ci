@@ -32,10 +32,11 @@ describe('BuildScheduler: ', () => {
     var terminalApi : terminal.TerminalAPI;
     var sut : builder.BuildScheduler;
 
+    var terminalInfo = {subdomain : 'fooSubdomain', container_ip : 'foo', container_key : 'my_container_key'};
+
     var checkAndAcceptTerminalCreateRequest = function(times:number) {
         expect(terminalApi.createTerminalWithOpenPorts['callCount']).equals(times);
-        terminalDefer.resolve({
-            subdomain : 'fooSubdomain', container_ip : 'foo', container_key : 'foo'});
+        terminalDefer.resolve(terminalInfo);
     };
 
     var assertTerminalWasNotRequested = function() {
@@ -74,6 +75,7 @@ describe('BuildScheduler: ', () => {
         let terminalApiMock : any = {};
         terminalApi = terminalApiMock;
         terminalApi.createTerminalWithOpenPorts = simple.spy(ports => { return terminalDefer.promise();});
+        terminalApi.closeTerminal = simple.spy(function () {});
 
         sut = new builder.BuildScheduler(data, new model.BuildQueue(), service, terminalApi);
     });
@@ -138,6 +140,19 @@ describe('BuildScheduler: ', () => {
         sut.pingFinish(req.id, result);
 
         assertUpDownProjectDependenciesAreCorrect();
+    });
+
+    it('when a build is finished build agent is closed',() => {
+        sut.queueBuild(downProject.repo);
+        let req = sut.startBuild();
+
+        let result = new builder.BuildResult();
+        result.repo = downProject.repo;
+        result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
+        sut.pingFinish(req.id, result);
+
+        expect(terminalApi.closeTerminal['callCount']).equals(1);
+        expect(terminalApi.closeTerminal['lastCall'].args[0]).equals(terminalInfo);
     });
 
     it('attempting to finish a build that doesnt exist throw an error',() => {

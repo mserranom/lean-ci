@@ -1,8 +1,6 @@
 TODO
 ====
 
-[ ] make sure we're killing the terminal after the build
-
 [ ] remove ssh keys and add URLs and ports to config
 
 [ ] fix dependencies vs devDependencies
@@ -39,6 +37,8 @@ TODO
  
 DONE
 ====
+
+[x] make sure we're killing the terminal after the build
 
 [x] take dependency chain from build repos definition
  * all repos included build and read a config file, establishing a dependency chain
