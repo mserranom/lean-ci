@@ -16,11 +16,11 @@ export module model {
         dependencies : Array<string>;
     }
 
-    export class BuildResult {
+    export interface BuildResult {
         request : BuildRequest;
         succeeded : boolean;
         buildConfig : BuildConfig;
-        log : string = '';
+        log : string;
     }
 
     export interface ProjectDependency {

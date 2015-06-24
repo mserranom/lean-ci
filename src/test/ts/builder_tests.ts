@@ -19,6 +19,14 @@ export var defer = P.defer;
 
 var simple = require('simple-mock');
 
+class BuildResultImpl implements model.BuildResult {
+    request:model.BuildRequest;
+    succeeded:boolean;
+    buildConfig:model.BuildConfig;
+    log:string = '';
+    
+}
+
 describe('BuildScheduler: ', () => {
 
     var project : model.Project;
@@ -100,7 +108,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(project.repo);
         let req = sut.startBuild();
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
@@ -117,7 +125,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(project.repo);
         let req = sut.startBuild();
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
@@ -134,7 +142,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
@@ -146,7 +154,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
@@ -159,7 +167,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(upproject.repo);
         sut.startBuild();
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
 
@@ -175,7 +183,7 @@ describe('BuildScheduler: ', () => {
         let upstreamReq = sut.startBuild();
         expect(upstreamReq.repo).equals(upproject.repo);
 
-        let result = new model.BuildResult();
+        let result : model.BuildResult = new BuildResultImpl();
         result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
         sut.pingFinish(upstreamReq.id, result);
