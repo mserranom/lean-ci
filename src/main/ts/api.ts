@@ -24,7 +24,8 @@ export module api {
 
                 console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
                 let repo : string = req.body.repository.full_name;
-                this._builder.queueBuild(repo);
+                let commit : string = req.body.head_commit.id;
+                this._builder.queueBuild(repo, commit);
             });
 
             app.post('/build/start', (req, res) => {

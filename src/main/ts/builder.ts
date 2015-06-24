@@ -55,7 +55,10 @@ export module builder {
             this._terminalAPI = terminalAPI;
         }
 
-        queueBuild(repo : string) : model.BuildRequest {
+        queueBuild(repo : string, commit?:string) : model.BuildRequest {
+            if(!commit) {
+                commit = '';
+            }
             let project = this._data.getProject(repo);
             if(!project) {
                 throw new Error('unknown project: ' + repo);
@@ -67,7 +70,7 @@ export module builder {
                 let request : model.BuildRequest = {
                     id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
                     repo : repo,
-                    commit : '',
+                    commit : commit,
                     pingURL : pingURL,
                 };
 
