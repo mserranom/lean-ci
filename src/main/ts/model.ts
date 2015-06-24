@@ -17,8 +17,7 @@ export module model {
     }
 
     export class BuildResult {
-        repo : string;
-        commit : string;
+        request : BuildRequest;
         succeeded : boolean;
         buildConfig : BuildConfig;
         log : string = '';

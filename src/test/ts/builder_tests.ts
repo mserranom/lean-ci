@@ -101,7 +101,7 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result = new model.BuildResult();
-        result.repo = project.repo;
+        result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
 
@@ -118,7 +118,7 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result = new model.BuildResult();
-        result.repo = project.repo;
+        result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
 
@@ -135,7 +135,7 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result = new model.BuildResult();
-        result.repo = downProject.repo;
+        result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
 
@@ -147,7 +147,7 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result = new model.BuildResult();
-        result.repo = downProject.repo;
+        result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
 
@@ -160,7 +160,7 @@ describe('BuildScheduler: ', () => {
         sut.startBuild();
 
         let result = new model.BuildResult();
-        result.repo = upproject.repo;
+        result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
 
         let fn = () => sut.pingFinish('fakeId', result);
@@ -176,7 +176,7 @@ describe('BuildScheduler: ', () => {
         expect(upstreamReq.repo).equals(upproject.repo);
 
         let result = new model.BuildResult();
-        result.repo = upproject.repo;
+        result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
         sut.pingFinish(upstreamReq.id, result);
 

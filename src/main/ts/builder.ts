@@ -110,7 +110,7 @@ export module builder {
                 throw new Error('unable to find active build with id=' + buildId);
             }
 
-            let project = this._data.getProject(result.repo);
+            let project = this._data.getProject(result.request.repo);
             this._data.updateDependencies(project.repo, result.buildConfig.dependencies);
             this._activeBuilds = this._activeBuilds.delete(buildId);
             this._queue.finish(project);
