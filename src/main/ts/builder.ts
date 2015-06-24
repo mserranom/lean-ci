@@ -113,7 +113,7 @@ export module builder {
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
                     let agentURL = "http://" + terminal.subdomain + "-64321.terminal.com/start";
-                    setTimeout(() =>  this._buildService.sendBuildRequest(agentURL, req), 9000);
+                    this._buildService.sendBuildRequest(agentURL, req);
                 })
                 .fail(error => this._queue.finish(repo));
 

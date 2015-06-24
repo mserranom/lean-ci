@@ -7,7 +7,7 @@ TODO
  * A and B build, the dependency chain is stablished for B. Then, if B is built, it should trigger A
  * unit tests for AllProject and BuildScheduler
 
-[ ] remove ssh keys
+[ ] remove ssh keys and add URLs and ports to config
 
 [ ] fix dependencies vs devDependencies
 
