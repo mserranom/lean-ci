@@ -109,9 +109,9 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
+        result.request = req;
         result.buildConfig = { command : 'mvn', dependencies : [] };
-        sut.pingFinish(req.id, result);
+        sut.pingFinish(result);
 
         terminalDefer = defer<terminal.TerminalInfo>(); // clean up
 
@@ -126,9 +126,9 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : project.repo, commit : '', pingURL : 'url'};
+        result.request = req;
         result.buildConfig = { command : 'mvn', dependencies : [] };
-        sut.pingFinish(req.id, result);
+        sut.pingFinish(result);
 
         terminalDefer = defer<terminal.TerminalInfo>(); // clean up
 
@@ -143,9 +143,9 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
+        result.request = req;
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
-        sut.pingFinish(req.id, result);
+        sut.pingFinish(result);
 
         assertUpDownProjectDependenciesAreCorrect();
     });
@@ -155,9 +155,9 @@ describe('BuildScheduler: ', () => {
         let req = sut.startBuild();
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : downProject.repo, commit : '', pingURL : 'url'};
+        result.request = req;
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
-        sut.pingFinish(req.id, result);
+        sut.pingFinish(result);
 
         expect(terminalApi.closeTerminal['callCount']).equals(1);
         expect(terminalApi.closeTerminal['lastCall'].args[0]).equals(terminalInfo);
@@ -165,14 +165,15 @@ describe('BuildScheduler: ', () => {
 
     it('attempting to finish a build that doesnt exist throw an error',() => {
         sut.queueBuild(upproject.repo);
-        sut.startBuild();
+        let req = sut.startBuild();
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
+        result.request = req;
+        result.request.id = 'nonExistentId';
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
 
-        let fn = () => sut.pingFinish('fakeId', result);
-        expect(fn).to.throw(/fakeId/);
+        let fn = () => sut.pingFinish(result);
+        expect(fn).to.throw(/nonExistentId/);
     });
 
     it('a downstream dependency build can be started after the upstream is finished',() => {
@@ -184,9 +185,9 @@ describe('BuildScheduler: ', () => {
         expect(upstreamReq.repo).equals(upproject.repo);
 
         let result : model.BuildResult = new BuildResultImpl();
-        result.request = {id : 'fakeId', repo : upproject.repo, commit : '', pingURL : 'url'};
+        result.request = upstreamReq;
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
-        sut.pingFinish(upstreamReq.id, result);
+        sut.pingFinish(result);
 
         let downstreamReq = sut.startBuild();
         expect(downstreamReq.repo).equals(downProject.repo);

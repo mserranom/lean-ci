@@ -49,55 +49,54 @@ export module model {
 
     export class BuildQueue {
 
-        private _queue : Array<Project> = [];
+        private _queue : Array<BuildRequest> = [];
 
-        private _finished : Array<Project> = [];
+        private _finished : Array<BuildRequest> = [];
 
-        private _activeBuilds : Immutable.Set<Project> = Immutable.Set<Project>();
+        private _activeBuilds : Immutable.Set<BuildRequest> = Immutable.Set<BuildRequest>();
 
         /** adds a project to the queue */
-        add(repo : Project) {
+        add(repo : BuildRequest) {
             this._queue.push(repo);
         }
 
         /** moves a project to active builds and returns the activated project */
-        next() : Project {
+        next() : BuildRequest {
            if(this.queueIsEmpty() || this.maxConcurrentBuildsReached()){
                return null;
            }
            for(let i = 0; i < this._queue.length; i++) {
-               let repo = this._queue[i];
-               if(!this.isActive(repo)) {
-                   this._activeBuilds = this._activeBuilds.add(repo);
+               let nextRequest = this._queue[i];
+               if(!this.isActive(nextRequest.repo)) {
+                   this._activeBuilds = this._activeBuilds.add(nextRequest);
                    this._queue.splice(i, 1);
-                   return repo;
+                   return nextRequest;
                }
            }
            return null;
         }
 
         /** finishes an active build, removing it from the set of active builds */
-        finish(repo : Project) {
+        finish(repo : BuildRequest) {
             this._activeBuilds = this._activeBuilds.delete(repo);
-            repo.downstreamDependencies.forEach(dep => this.add(dep.downstream));
             this._finished.push(repo);
         }
 
         /** project builds that are active at the moment */
-        activeBuilds() : Immutable.Set<Project> {
+        activeBuilds() : Immutable.Set<BuildRequest> {
             return this._activeBuilds;
         }
 
-        queue() : Array<Project> {
+        queue() : Array<BuildRequest> {
             return this._queue;
         }
 
-        finished() : Array<Project> {
+        finished() : Array<BuildRequest> {
             return this._finished;
         }
 
-        private isActive(build:Project) : boolean {
-            return this._activeBuilds.some(activeBuild => activeBuild.repo == build.repo);
+        private isActive(repo:string) : boolean {
+            return this._activeBuilds.some(activeBuild => activeBuild.repo == repo);
         }
 
         private maxConcurrentBuildsReached() : boolean {

@@ -13,8 +13,6 @@ import Immutable = require('immutable');
 
 export module builder {
 
-
-
     export class BuildService {
 
         sendBuildRequest(agentURL:string, req:model.BuildRequest) {
@@ -57,54 +55,57 @@ export module builder {
             this._terminalAPI = terminalAPI;
         }
 
-        queueBuild(repo : string) {
+        queueBuild(repo : string) : model.BuildRequest {
             let project = this._data.getProject(repo);
             if(!project) {
-                console.error('unknown project: ' + repo);
+                throw new Error('unknown project: ' + repo);
             } else {
                 console.log('adding project to build queue: ' + project.repo);
-                this._queue.add(this._data.getProject(repo));
+
+                let pingURL = config.appUrl + '/build/pingFinish';
+
+                let request : model.BuildRequest = {
+                    id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
+                    repo : repo,
+                    commit : '',
+                    pingURL : pingURL,
+                };
+
+                this._queue.add(request);
+
                 if(project.downstreamDependencies.size > 0) {
                     project.downstreamDependencies.forEach(dep => this.queueBuild(dep.downstream.repo));
                 }
+                return request;
             }
         }
 
         startBuild() : model.BuildRequest {
 
-            let repo = this._queue.next();
-            if(!repo) {
+            let nextRequest = this._queue.next();
+            if(!nextRequest) {
                 return null;
             }
+            console.log('starting build on repo: ' + nextRequest.repo);
 
-            let pingURL = config.appUrl + '/build/pingFinish';
-
-            console.log('starting build on repo: ' + repo.repo);
-
-            let req : model.BuildRequest = {
-                id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
-                repo : repo.repo,
-                commit : '',
-                pingURL : pingURL,
-            };
-
-            this._activeBuilds = this._activeBuilds.set(req.id, req);
+            this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
             this._terminalAPI.createTerminalWithOpenPorts([config.defaultPort])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
-                    this._agents = this._agents.set(req.id, terminal);
+                    this._agents = this._agents.set(nextRequest.id, terminal);
                     let agentURL = 'http://' + terminal.subdomain + "-" + config.defaultPort + '.terminal.com/start';
-                    this._buildService.sendBuildRequest(agentURL, req);
+                    this._buildService.sendBuildRequest(agentURL, nextRequest);
                 })
-                .fail(error => this._queue.finish(repo));
+                .fail(error => this._queue.finish(nextRequest));
 
-            return req;
+            return nextRequest;
         }
 
-        pingFinish(buildId : string, result : model.BuildResult) {
+        pingFinish(result : model.BuildResult) {
 
-            let build = this._activeBuilds.get(buildId);
+            let buildId = result.request.id;
+            let build = this._activeBuilds.get(result.request.id);
 
             if(!build) {
                 throw new Error('unable to find active build with id=' + buildId);
@@ -112,9 +113,15 @@ export module builder {
 
             let project = this._data.getProject(result.request.repo);
             this._data.updateDependencies(project.repo, result.buildConfig.dependencies);
-            this._activeBuilds = this._activeBuilds.delete(buildId);
-            this._queue.finish(project);
 
+            this._queue.finish(build);
+
+            this._activeBuilds = this._activeBuilds.delete(buildId);
+
+            this.terminateAgent(buildId);
+        }
+
+        private terminateAgent(buildId : string) {
             this._terminalAPI.closeTerminal(this._agents.get(buildId));
             this._agents = this._agents.remove(buildId);
         }

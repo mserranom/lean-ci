@@ -6,15 +6,24 @@
 import {model} from '../../../src/main/ts/model';
 import {expect} from 'chai';
 
+class BuildRequestImpl implements model.BuildRequest {
+
+    constructor(repo : string) {
+       this.repo = repo;
+    }
+
+    id:string;
+    repo:string;
+    commit:string;
+    pingURL:string;
+
+}
+
 describe('BuildQueue: ', () => {
 
-    let repo1Build = new model.Project('repo1');
-    let repo1Build2 = new model.Project('repo1');
-    let repo2Build = new model.Project('repo');
-
-    let dep : model.ProjectDependency = {upstream : repo1Build, downstream : repo2Build};
-    repo1Build.downstreamDependencies = repo1Build.downstreamDependencies.add(dep);
-    repo2Build.upstreamDependencies = repo2Build.upstreamDependencies.add(dep);
+    let repo1Build = new BuildRequestImpl('repo1');
+    let repo1Build2 = new BuildRequestImpl('repo1');
+    let repo2Build = new BuildRequestImpl('repo');
 
     it('next() should be initially null',() => {
         let queue = new model.BuildQueue();
@@ -54,16 +63,6 @@ describe('BuildQueue: ', () => {
         queue.add(repo1Build2);
         expect(queue.next()).to.be.null;
         expect(queue.activeBuilds().contains(repo1Build2)).to.be.false;
-    });
-
-    it('downstream dependencies should be added to the queue when a project has finished',() => {
-        let queue = new model.BuildQueue();
-        queue.add(repo1Build);
-        queue.next();
-        queue.finish(repo1Build);
-        expect(queue.next()).equals(repo2Build);
-        queue.finish(repo2Build);
-        expect(queue.next()).to.be.null;
     });
 
     it('being 1 the max concurrent builds, projects shouldnt be added to activeBuilds with next() ',() => {
