@@ -1,11 +1,5 @@
 TODO
 ====
- 
-[ ] take dependency chain from build repos definition
- * all repos included build and read a config file, establishing a dependency chain
- * the dependency chain is on sync with the repos
- * A and B build, the dependency chain is stablished for B. Then, if B is built, it should trigger A
- * unit tests for AllProject and BuildScheduler
 
 [ ] remove ssh keys and add URLs and ports to config
 
@@ -41,6 +35,12 @@ TODO
  
 DONE
 ====
+
+[x] take dependency chain from build repos definition
+ * all repos included build and read a config file, establishing a dependency chain
+ * the dependency chain is on sync with the repos
+ * A and B build, the dependency chain is stablished for B. Then, if B is built, it should trigger A
+ * unit tests for AllProject and BuildScheduler
 
 [x] rest api to check active builds, build queue and past builds
  * each build is assigned an id (repo + commit)
