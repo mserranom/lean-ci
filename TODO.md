@@ -1,8 +1,6 @@
 TODO
 ====
 
-[ ] make sure we're checking out the latest commit triggering the hook or we can specify the commit from github
-
 [ ] setup npm repository for builds
 
 [ ] UI for active builds, build queue and past builds
@@ -31,6 +29,8 @@ TODO
  
 DONE
 ====
+
+[x] make sure we're checking out the latest commit triggering the hook or we can specify the commit from github
 
 [x] fix security / config issues
 
