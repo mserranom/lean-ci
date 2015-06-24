@@ -11,6 +11,8 @@ TODO
 
 [ ] fix dependencies vs devDependencies
 
+[ ] fix security / config issues
+
 [ ] make sure we're checking out the latest commit triggering the hook or we can specify the commit from github
 
 [ ] setup npm repository for builds

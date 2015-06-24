@@ -46,7 +46,7 @@ export module api {
                 res.send(JSON.stringify(result));
             });
 
-            app.get('/build/pingFinish', (req, res) => {
+            app.post('/build/pingFinish', (req, res) => {
                 let buildId : string = req.query.id;
                 console.log('received /build/pingFinish GET request, build id=' + buildId);
                 this._builder.pingFinish(buildId, req.body);
