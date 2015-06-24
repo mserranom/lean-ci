@@ -1,5 +1,4 @@
 ///<reference path="terminal.ts"/>
-///<reference path="ssh.ts"/>
 ///<reference path="config.ts"/>
 ///<reference path="model.ts"/>
 ///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
@@ -8,7 +7,6 @@
 import {terminal} from './terminal';
 import {util} from './util';
 import {config} from './config';
-import {ssh} from './ssh';
 import {model} from './model';
 
 import Immutable = require('immutable');
