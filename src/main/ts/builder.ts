@@ -13,29 +13,11 @@ import Immutable = require('immutable');
 
 export module builder {
 
-    interface BuildRequest {
-        id : string,
-        repo : string;
-        commit : string;
-        pingURL : string;
-    }
 
-    export interface BuildConfig {
-        command : string;
-        dependencies : Array<string>;
-    }
-
-    export class BuildResult {
-        repo : string;
-        commit : string;
-        succeeded : boolean;
-        buildConfig : BuildConfig;
-        log : string = '';
-    }
 
     export class BuildService {
 
-        sendBuildRequest(agentURL:string, req:BuildRequest) {
+        sendBuildRequest(agentURL:string, req:model.BuildRequest) {
             console.log('sending build request to ' + agentURL + ", data: " + JSON.stringify(req));
             var request : any = require('request');
             let args = {
@@ -64,7 +46,7 @@ export module builder {
         private _buildService : BuildService;
         private _terminalAPI : terminal.TerminalAPI;
 
-        private _activeBuilds : Immutable.Map<string, BuildRequest> = Immutable.Map<string, BuildRequest>();
+        private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
         private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
 
         constructor(data : model.AllProjects, queue : model.BuildQueue,
@@ -88,7 +70,7 @@ export module builder {
             }
         }
 
-        startBuild() : BuildRequest {
+        startBuild() : model.BuildRequest {
 
             let repo = this._queue.next();
             if(!repo) {
@@ -99,7 +81,7 @@ export module builder {
 
             console.log('starting build on repo: ' + repo.repo);
 
-            let req : BuildRequest = {
+            let req : model.BuildRequest = {
                 id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
                 repo : repo.repo,
                 commit : '',
@@ -120,7 +102,7 @@ export module builder {
             return req;
         }
 
-        pingFinish(buildId : string, result : BuildResult) {
+        pingFinish(buildId : string, result : model.BuildResult) {
 
             let build = this._activeBuilds.get(buildId);
 

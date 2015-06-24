@@ -100,7 +100,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(project.repo);
         let req = sut.startBuild();
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = project.repo;
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
@@ -117,7 +117,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(project.repo);
         let req = sut.startBuild();
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = project.repo;
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(req.id, result);
@@ -134,7 +134,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = downProject.repo;
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
@@ -146,7 +146,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = downProject.repo;
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(req.id, result);
@@ -159,7 +159,7 @@ describe('BuildScheduler: ', () => {
         sut.queueBuild(upproject.repo);
         sut.startBuild();
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = upproject.repo;
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
 
@@ -175,7 +175,7 @@ describe('BuildScheduler: ', () => {
         let upstreamReq = sut.startBuild();
         expect(upstreamReq.repo).equals(upproject.repo);
 
-        let result = new builder.BuildResult();
+        let result = new model.BuildResult();
         result.repo = upproject.repo;
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
         sut.pingFinish(upstreamReq.id, result);

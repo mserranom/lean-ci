@@ -4,6 +4,50 @@ import Immutable = require('immutable');
 
 export module model {
 
+    export interface BuildRequest {
+        id : string,
+        repo : string;
+        commit : string;
+        pingURL : string;
+    }
+
+    export interface BuildConfig {
+        command : string;
+        dependencies : Array<string>;
+    }
+
+    export class BuildResult {
+        repo : string;
+        commit : string;
+        succeeded : boolean;
+        buildConfig : BuildConfig;
+        log : string = '';
+    }
+
+    export interface ProjectDependency {
+        upstream : Project;
+        downstream : Project;
+    }
+
+    export class Project {
+        repo : string;
+        upstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
+        downstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
+
+        constructor(repo : string) {
+            this.repo = repo;
+        }
+
+        toJSONObject() {
+            let result : any =  {repo : this.repo};
+            result.upstreamDependencies = [];
+            result.downstreamDependencies = [];
+            this.upstreamDependencies.forEach(dep => result.upstreamDependencies.push(dep.upstream.repo));
+            this.downstreamDependencies.forEach(dep => result.downstreamDependencies.push(dep.downstream.repo));
+            return result;
+        }
+    }
+
     export class BuildQueue {
 
         private _queue : Array<Project> = [];
@@ -65,30 +109,6 @@ export module model {
              return this._queue.length <= 0
         }
 
-    }
-
-    export interface ProjectDependency {
-        upstream : Project;
-        downstream : Project;
-    }
-
-    export class Project {
-        repo : string;
-        upstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
-        downstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
-
-        constructor(repo : string) {
-            this.repo = repo;
-        }
-
-        toJSONObject() {
-            let result : any =  {repo : this.repo};
-            result.upstreamDependencies = [];
-            result.downstreamDependencies = [];
-            this.upstreamDependencies.forEach(dep => result.upstreamDependencies.push(dep.upstream.repo));
-            this.downstreamDependencies.forEach(dep => result.downstreamDependencies.push(dep.downstream.repo));
-            return result;
-        }
     }
 
     export class AllProjects {
