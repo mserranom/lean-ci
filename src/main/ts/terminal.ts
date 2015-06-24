@@ -73,7 +73,7 @@ export module terminal {
                 data: {
                     'snapshot_id': this._config.buildAgentId,
                     'publicKey': this._sshKey,
-                    'keep_ram': false,
+                    'keep_ram': true,
                     'temporary': true
                  }
             };

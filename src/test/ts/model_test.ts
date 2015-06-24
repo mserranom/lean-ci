@@ -150,12 +150,11 @@ describe('AllProjects: ', () => {
         sut.setDependency('group/repo1', 'group/repo2');
 
         let newDeps = sut.updateDependencies('group/repo2', ['group/repo3']);
+        newDeps.first();
 
         expect(newDeps.size).equals(1);
-        newDeps.forEach(dep => {
-            expect(repo2.upstreamDependencies.contains(dep)).to.be.true;
-            expect(repo3.downstreamDependencies.contains(dep)).to.be.true;
-        })
+        expect(repo2.upstreamDependencies.contains(newDeps.first())).to.be.true;
+        expect(repo3.downstreamDependencies.contains(newDeps.first())).to.be.true;
     });
 
     it('should be able to update multiple dependencies on projects',() => {

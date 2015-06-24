@@ -38,6 +38,7 @@ export module builder {
     export class BuildService {
 
         sendBuildRequest(agentURL:string, req:BuildRequest) {
+            console.log('sending build request to ' + agentURL + ", data: " + JSON.stringify(req));
             var request : any = require('request');
             let args = {
                 headers: {
@@ -111,10 +112,8 @@ export module builder {
             this._terminalAPI.createTerminalWithOpenPorts([64321])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
-                    let agentURL = "http://" + terminal.subdomain + "-64321.terminal.com:";
-
-                    this._buildService.sendBuildRequest(agentURL, req);
-
+                    let agentURL = "http://" + terminal.subdomain + "-64321.terminal.com/start";
+                    setTimeout(() =>  this._buildService.sendBuildRequest(agentURL, req), 9000);
                 })
                 .fail(error => this._queue.finish(repo));
 
