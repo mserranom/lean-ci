@@ -30,11 +30,9 @@ export module terminal {
         private static CREATE_TERMINAL_TIMEOUT = 60000;
 
         private _config;
-        private _sshKey;
 
-        constructor(config:TerminalConfig, sshKey:string) {
+        constructor(config:TerminalConfig) {
             this._config = config;
-            this._sshKey = sshKey;
         }
 
         createTerminalWithOpenPorts(ports : Array<number>) : Promise<TerminalInfo> {
@@ -72,7 +70,6 @@ export module terminal {
                 requireAuthentication: true,
                 data: {
                     'snapshot_id': this._config.buildAgentId,
-                    'publicKey': this._sshKey,
                     'keep_ram': true,
                     'temporary': true
                  }

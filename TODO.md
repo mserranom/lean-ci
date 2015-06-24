@@ -1,8 +1,6 @@
 TODO
 ====
 
-[ ] remove ssh keys and add URLs and ports to config
-
 [ ] fix dependencies vs devDependencies
 
 [ ] fix security / config issues
@@ -37,6 +35,8 @@ TODO
  
 DONE
 ====
+
+[x] remove ssh keys and add URLs and ports to config
 
 [x] make sure we're killing the terminal after the build
 

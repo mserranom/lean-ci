@@ -51,7 +51,7 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(multer()); // for parsing multipart/form-data
 
-var server = app.listen(64321, function () {
+var server = app.listen(config.defaultPort, function () {
     var host = server.address().address;
     var port = server.address().port;
     console.log('http server listening at http://%s:%s', host, port);
@@ -61,7 +61,7 @@ var server = app.listen(64321, function () {
 
 // setup builder
 
-var terminalApi = new terminal.TerminalAPI(config.terminal, config.sshPubKey);
+var terminalApi = new terminal.TerminalAPI(config.terminal);
 var scheduler = new builder.BuildScheduler(projects, queue, new builder.BuildService(), terminalApi);
 setInterval(() => scheduler.startBuild(), 1000);
 
