@@ -1,8 +1,6 @@
 TODO
 ====
 
-[ ] fix dependencies vs devDependencies
-
 [ ] fix security / config issues
 
 [ ] make sure we're checking out the latest commit triggering the hook or we can specify the commit from github
@@ -35,6 +33,8 @@ TODO
  
 DONE
 ====
+
+[x] fix dependencies vs devDependencies
 
 [x] remove ssh keys and add URLs and ports to config
 

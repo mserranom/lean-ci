@@ -1,12 +1,8 @@
 {
   "name": "lean-ci",
   "version": "0.1.0",
-  "devDependencies": {
-    "body-parser": "^1.12.4",
+  "dependencies": {
     "chai": "2.0.0",
-    "colors": "^1.1.0",
-    "express": "^4.12.4",
-    "github": "^0.2.4",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.4.0",
@@ -15,12 +11,18 @@
     "grunt-notify": "^0.4.1",
     "grunt-typescript": "0.6.2",
     "grunt-zip": "^0.16.2",
-    "immutable": "^3.7.3",
     "mocha": "2.0.1",
+    "simple-mock": "^0.3.1"
+  },
+  "devDependencies": {
+    "body-parser": "^1.12.4",
+    "colors": "^1.1.0",
+    "express": "^4.12.4",
+    "github": "^0.2.4",
+    "immutable": "^3.7.3",
     "multer": "^0.1.8",
     "request": "^2.57.0",
-    "shelljs": "0.5.0",
-    "simple-mock": "^0.3.1"
+    "shelljs": "0.5.0"
   },
   "scripts": {
     "clean": "grunt clean",
