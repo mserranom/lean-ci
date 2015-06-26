@@ -71,6 +71,38 @@ export module builder {
         }
     }
 
+    export class MockBuildService implements BuildService {
+
+        request(req:model.BuildRequest, onError:(any)=>void) {
+            var request : any = require('request');
+
+            let result : model.BuildResult = {
+                request : req,
+                succeeded : true,
+                buildConfig : {command : '', dependencies : []},
+                log : ''
+            };
+
+
+
+            let pingResult = function() {
+                console.log('pingFinish mock:' + req.id);
+                request.post({
+                    headers: {
+                        'content-type' : 'application/json'},
+                    'url': req.pingURL,
+                    'body': JSON.stringify(result)
+                });
+            };
+
+            setTimeout(pingResult, 3000 + Math.random() * 10000);
+        }
+
+        terminateAgent(buildId:string) {
+        }
+
+    }
+
     export class BuildScheduler {
 
         private _data : model.AllProjects;

@@ -19,7 +19,7 @@ export module api {
         start(app) {
 
             app.post('/github/push', (req, res) => {
-                console.log('received /github/push POST request');
+                console.info('received /github/push POST request');
                 res.end();
 
                 console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
@@ -29,7 +29,7 @@ export module api {
             });
 
             app.post('/build/start', (req, res) => {
-                console.log('received /build/start POST request');
+                console.info('received /build/start POST request');
                 res.end();
 
                 console.info(JSON.stringify(req.body));
@@ -39,23 +39,24 @@ export module api {
             });
 
             app.get('/build/queue', (req, res) => {
-                console.log('received /build/queue GET request');
+                console.info('received /build/queue GET request');
                 res.send(JSON.stringify(this._queue.queue()));
             });
 
             app.post('/build/pingFinish', (req, res) => {
                 let buildId : string = req.query.id;
-                console.log('received /build/pingFinish GET request, build id=' + buildId);
+                console.info('received /build/pingFinish GET request, build id=' + buildId);
                 this._builder.pingFinish(req.body);
+                res.end();
             });
 
             app.get('/build/active', (req, res) => {
-                console.log('received /build/active GET request');
+                console.info('received /build/active GET request');
                 res.send(JSON.stringify(this._queue.activeBuilds()));
             });
 
             app.get('/build/finished', (req, res) => {
-                console.log('received /build/active GET request');
+                console.info('received /build/active GET request');
                 res.send(JSON.stringify(this._queue.finished()));
             });
 
