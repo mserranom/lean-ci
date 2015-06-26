@@ -2,22 +2,22 @@ TODO
 ====
 
 [ ] Save past builds in DB (mongoDB?)
-  * past build reports are taken from DB
+ * past build reports are taken from DB
+
+[ ] write integration tests for the services implemented so far
 
 [ ] finish continuous deployment pipeline for lean-ci
  * builds the whole pipeline and run builds to deploy to agents
-
-[ ] write integration tests for the services implemented so far
- * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
-
-
-
-[ ] identify pipeline triggered by a build
+ * deploys are versioned and the result is pushed to a branch
 
 [ ] decide strategies for queuing builds after the pipeline graph
+ * create a pipeline datatype
+ * queue builds based on the pipeline after builds finish
+ * decide queueing strategie(s)
 
-[ ] poll build status to agent
- 
+[ ] show build status and log in UI
+
+[ ] stream log
  
 DONE
 ====
