@@ -33,32 +33,17 @@ describe('BuildScheduler: ', () => {
     var upproject : model.Project;
     var downProject : model.Project;
 
-    var terminalDefer = defer<terminal.TerminalInfo>();
-
     var data : model.AllProjects;
     var service : builder.BuildService;
-    var terminalApi : terminal.TerminalAPI;
     var sut : builder.BuildScheduler;
 
-    var terminalInfo = {subdomain : 'fooSubdomain', container_ip : 'foo', container_key : 'my_container_key'};
-
-    var checkAndAcceptTerminalCreateRequest = function(times:number) {
-        expect(terminalApi.createTerminalWithOpenPorts['callCount']).equals(times);
-        terminalDefer.resolve(terminalInfo);
-    };
-
-    var assertTerminalWasNotRequested = function() {
-        expect(terminalApi.createTerminalWithOpenPorts['callCount']).equals(0);
-    };
-
     var assertBuildWasRequested = function(times:number) {
-        expect(service.sendBuildRequest['callCount']).equals(times);
-        expect(service.sendBuildRequest['lastCall'].args[0]).to.contain('fooSubdomain');
-        expect(service.sendBuildRequest['lastCall'].args[1].repo).equals(project.repo);
+        expect(service.request['callCount']).equals(times);
+        expect(service.request['lastCall'].args[0].repo).equals(project.repo);
     };
 
     var assertBuildWasNotRequested = function() {
-        expect(service.sendBuildRequest['callCount']).equals(0);
+        expect(service.request['callCount']).equals(0);
     };
 
     var assertUpDownProjectDependenciesAreCorrect = function() {
@@ -78,28 +63,21 @@ describe('BuildScheduler: ', () => {
 
         let serviceMock : any = {};
         service = serviceMock;
-        service.sendBuildRequest = simple.spy(function () {});
+        service.request = simple.spy(function () {});
+        service.terminateAgent = simple.spy(function () {});
 
-        let terminalApiMock : any = {};
-        terminalApi = terminalApiMock;
-        terminalApi.createTerminalWithOpenPorts = simple.spy(ports => { return terminalDefer.promise();});
-        terminalApi.closeTerminal = simple.spy(function () {});
-
-        sut = new builder.BuildScheduler(data, new model.BuildQueue(), service, terminalApi);
+        sut = new builder.BuildScheduler(data, new model.BuildQueue(), service);
     });
 
     it('startBuild() should request a build for a submitted project',() => {
         sut.queueBuild(project.repo);
         sut.startBuild();
 
-        checkAndAcceptTerminalCreateRequest(1);
         assertBuildWasRequested(1);
     });
 
     it('startBuild() shouldnt request a build when there are no projects queued',() => {
         sut.startBuild();
-
-        assertTerminalWasNotRequested();
         assertBuildWasNotRequested();
     });
 
@@ -113,11 +91,8 @@ describe('BuildScheduler: ', () => {
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(result);
 
-        terminalDefer = defer<terminal.TerminalInfo>(); // clean up
-
         sut.startBuild();
 
-        checkAndAcceptTerminalCreateRequest(2);
         assertBuildWasRequested(2);
     });
 
@@ -130,11 +105,8 @@ describe('BuildScheduler: ', () => {
         result.buildConfig = { command : 'mvn', dependencies : [] };
         sut.pingFinish(result);
 
-        terminalDefer = defer<terminal.TerminalInfo>(); // clean up
-
         expect(sut.startBuild()).to.be.null;
 
-        checkAndAcceptTerminalCreateRequest(1);
         assertBuildWasRequested(1);
     });
 
@@ -150,7 +122,7 @@ describe('BuildScheduler: ', () => {
         assertUpDownProjectDependenciesAreCorrect();
     });
 
-    it('when a build is finished build agent is closed',() => {
+    it('when a build is finished build agent is terminated',() => {
         sut.queueBuild(downProject.repo);
         let req = sut.startBuild();
 
@@ -159,8 +131,8 @@ describe('BuildScheduler: ', () => {
         result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
         sut.pingFinish(result);
 
-        expect(terminalApi.closeTerminal['callCount']).equals(1);
-        expect(terminalApi.closeTerminal['lastCall'].args[0]).equals(terminalInfo);
+        expect(service.terminateAgent['callCount']).equals(1);
+        expect(service.terminateAgent['lastCall'].args[0]).equals(req.id);
     });
 
     it('attempting to finish a build that doesnt exist throw an error',() => {
@@ -214,4 +186,3 @@ describe('BuildScheduler: ', () => {
     });
 
 });
-

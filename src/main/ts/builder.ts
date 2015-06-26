@@ -13,9 +13,38 @@ import Immutable = require('immutable');
 
 export module builder {
 
-    export class BuildService {
+    export interface BuildService {
+        request(nextRequest : model.BuildRequest, onError : (any) => void);
+        terminateAgent(buildId : string);
+    }
 
-        sendBuildRequest(agentURL:string, req:model.BuildRequest) {
+    export class TerminalBuildService implements BuildService{
+
+        private _terminalAPI : terminal.TerminalAPI;
+
+        private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
+
+        constructor(terminalAPI : terminal.TerminalAPI) {
+            this._terminalAPI = terminalAPI;
+        }
+
+        request(nextRequest : model.BuildRequest, onError : (any) => void) {
+
+            console.log('starting build on repo: ' + nextRequest.repo);
+
+            this._terminalAPI.createTerminalWithOpenPorts([config.defaultPort])
+                .then(terminal => {
+                    console.log('key: ' + terminal.container_key);
+                    this._agents = this._agents.set(nextRequest.id, terminal);
+                    let agentURL = 'http://' + terminal.subdomain + "-" + config.defaultPort + '.terminal.com/start';
+                    this.sendBuildRequest(agentURL, nextRequest);
+                })
+                .fail(error => onError(error));
+
+            return nextRequest;
+        }
+
+        private sendBuildRequest(agentURL:string, req:model.BuildRequest) {
             console.log('sending build request to ' + agentURL + ", data: " + JSON.stringify(req));
             var request : any = require('request');
             let args = {
@@ -35,6 +64,11 @@ export module builder {
                 }
             });
         }
+
+        terminateAgent(buildId : string) {
+            this._terminalAPI.closeTerminal(this._agents.get(buildId));
+            this._agents = this._agents.remove(buildId);
+        }
     }
 
     export class BuildScheduler {
@@ -42,17 +76,13 @@ export module builder {
         private _data : model.AllProjects;
         private _queue : model.BuildQueue;
         private _buildService : BuildService;
-        private _terminalAPI : terminal.TerminalAPI;
 
         private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
-        private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
 
-        constructor(data : model.AllProjects, queue : model.BuildQueue,
-                    service : BuildService, terminalAPI : terminal.TerminalAPI) {
+        constructor(data : model.AllProjects, queue : model.BuildQueue, service : BuildService) {
             this._data = data;
             this._queue = queue;
             this._buildService = service;
-            this._terminalAPI = terminalAPI;
         }
 
         queueBuild(repo : string, commit?:string) : model.BuildRequest {
@@ -90,14 +120,7 @@ export module builder {
 
             this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
-            this._terminalAPI.createTerminalWithOpenPorts([config.defaultPort])
-                .then(terminal => {
-                    console.log('key: ' + terminal.container_key);
-                    this._agents = this._agents.set(nextRequest.id, terminal);
-                    let agentURL = 'http://' + terminal.subdomain + "-" + config.defaultPort + '.terminal.com/start';
-                    this._buildService.sendBuildRequest(agentURL, nextRequest);
-                })
-                .fail(error => this._queue.finish(nextRequest));
+            this._buildService.request(nextRequest, req => this._queue.finish(req));
 
             return nextRequest;
         }
@@ -122,7 +145,7 @@ export module builder {
                 this.queueDownstreamDependencies(project);
             }
 
-            this.terminateAgent(buildId);
+            this._buildService.terminateAgent(buildId);
         }
 
         private queueDownstreamDependencies(project:model.Project) {
@@ -131,10 +154,6 @@ export module builder {
             }
         }
 
-        private terminateAgent(buildId : string) {
-            this._terminalAPI.closeTerminal(this._agents.get(buildId));
-            this._agents = this._agents.remove(buildId);
-        }
 
     }
 

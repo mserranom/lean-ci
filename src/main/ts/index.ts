@@ -62,7 +62,7 @@ var server = app.listen(config.defaultPort, function () {
 // setup builder
 
 var terminalApi = new terminal.TerminalAPI(config.terminal);
-var scheduler = new builder.BuildScheduler(projects, queue, new builder.BuildService(), terminalApi);
+var scheduler = new builder.BuildScheduler(projects, queue, new builder.TerminalBuildService(terminalApi));
 setInterval(() => scheduler.startBuild(), 1000);
 
 
