@@ -176,7 +176,7 @@ describe('BuildScheduler: ', () => {
         expect(fn).to.throw(/nonExistentId/);
     });
 
-    it('a downstream dependency build can be started after the upstream is finished',() => {
+    it('a downstream dependency build can be started after the upstream is finished and succeeded',() => {
         data.setDependency(upproject.repo, downProject.repo);
         assertUpDownProjectDependenciesAreCorrect();
 
@@ -185,12 +185,32 @@ describe('BuildScheduler: ', () => {
         expect(upstreamReq.repo).equals(upproject.repo);
 
         let result : model.BuildResult = new BuildResultImpl();
+        result.succeeded = true;
         result.request = upstreamReq;
         result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
         sut.pingFinish(result);
 
         let downstreamReq = sut.startBuild();
+        expect(downstreamReq).not.null;
         expect(downstreamReq.repo).equals(downProject.repo);
+    });
+
+    it('a downstream dependency build shouldnt started after the upstream is finished when the upstream failed',() => {
+        data.setDependency(upproject.repo, downProject.repo);
+        assertUpDownProjectDependenciesAreCorrect();
+
+        sut.queueBuild(upproject.repo);
+        let upstreamReq = sut.startBuild();
+        expect(upstreamReq.repo).equals(upproject.repo);
+
+        let result : model.BuildResult = new BuildResultImpl();
+        result.succeeded = false;
+        result.request = upstreamReq;
+        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
+        sut.pingFinish(result);
+
+        let downstreamReq = sut.startBuild();
+        expect(downstreamReq).to.be.null;
     });
 
 });

@@ -76,9 +76,6 @@ export module builder {
 
                 this._queue.add(request);
 
-                if(project.downstreamDependencies.size > 0) {
-                    project.downstreamDependencies.forEach(dep => this.queueBuild(dep.downstream.repo));
-                }
                 return request;
             }
         }
@@ -121,7 +118,17 @@ export module builder {
 
             this._activeBuilds = this._activeBuilds.delete(buildId);
 
+            if(result.succeeded) {
+                this.queueDownstreamDependencies(project);
+            }
+
             this.terminateAgent(buildId);
+        }
+
+        private queueDownstreamDependencies(project:model.Project) {
+            if(project.downstreamDependencies.size > 0) {
+                project.downstreamDependencies.forEach(dep => this.queueBuild(dep.downstream.repo));
+            }
         }
 
         private terminateAgent(buildId : string) {
