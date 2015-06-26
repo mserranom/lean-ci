@@ -1,9 +1,6 @@
 TODO
 ====
 
-[ ] UI for active builds, build queue and past builds
- * data is in memory only
-
 [ ] Save past builds in DB (mongoDB?)
   * past build reports are taken from DB
 
@@ -27,6 +24,9 @@ TODO
  
 DONE
 ====
+
+[x] UI for active builds, build queue and past builds
+ * data is in memory only
 
 [x] setup npm repository for builds
 
