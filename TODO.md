@@ -1,16 +1,14 @@
 TODO
 ====
 
-[ ] setup npm repository for builds
-
 [ ] UI for active builds, build queue and past builds
  * data is in memory only
 
+[ ] Save past builds in DB (mongoDB?)
+  * past build reports are taken from DB
+
 [ ] finish continuous deployment pipeline for lean-ci
  * builds the whole pipeline and run builds to deploy to agents
-
-[ ] Save past builds in DB (mongoDB?)
- * past build reports are taken from DB
 
 [ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
@@ -29,6 +27,8 @@ TODO
  
 DONE
 ====
+
+[x] setup npm repository for builds
 
 [x] make sure we're checking out the latest commit triggering the hook or we can specify the commit from github
 
