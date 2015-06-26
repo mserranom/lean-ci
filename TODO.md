@@ -10,10 +10,7 @@ TODO
 [ ] write integration tests for the services implemented so far
  * explore test framework options (mocha? https://github.com/pghalliday/grunt-mocha-test)
 
-[ ] resolve agent security and ssh
- * use secure ssh communications
- * check if root usage in agent is safe
- * or use http server to activate the agent
+
 
 [ ] identify pipeline triggered by a build
 
@@ -24,6 +21,11 @@ TODO
  
 DONE
 ====
+
+[x] resolve agent security and ssh
+ * use secure ssh communications
+ * check if root usage in agent is safe
+ * or use http server to activate the agent
 
 [x] UI for active builds, build queue and past builds
  * data is in memory only
