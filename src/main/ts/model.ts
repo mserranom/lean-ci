@@ -135,8 +135,8 @@ export module model {
         }
 
         setDependency(upstream : string, downstream : string) : ProjectDependency {
-            let p1 = this._projects.get(upstream);
-            let p2 = this._projects.get(downstream);
+            let p1 : model.Project = this._projects.get(upstream);
+            let p2 : model.Project = this._projects.get(downstream);
             let dep : ProjectDependency = {upstream : p1, downstream : p2};
             p1.downstreamDependencies = p1.downstreamDependencies.add(dep);
             p2.upstreamDependencies = p2.upstreamDependencies.add(dep);
