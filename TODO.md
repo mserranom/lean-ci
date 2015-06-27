@@ -3,6 +3,9 @@ TODO
 
 [ ] Save past builds in DB (mongoDB?)
  * past build reports are taken from DB
+ * return paged past builds sort by date
+
+[ ] ability to define a file (or file pattern) and upload it to Nexus
 
 [ ] write integration tests for the services implemented so far
 
