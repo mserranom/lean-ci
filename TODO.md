@@ -7,6 +7,8 @@ TODO
 
 [ ] ability to define a file (or file pattern) and upload it to Nexus
 
+[ ] automate app to Heroku
+
 [ ] write integration tests for the services implemented so far
 
 [ ] finish continuous deployment pipeline for lean-ci
