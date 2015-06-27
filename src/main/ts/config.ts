@@ -20,6 +20,8 @@ if(fs.existsSync(path)) {
         appUrl : '',
         defaultPort : 64321,
 
+        mongodbUrl : 'mongodb://localhost/test',
+
         terminal: {
             userToken: '',
             accessToken: '',
