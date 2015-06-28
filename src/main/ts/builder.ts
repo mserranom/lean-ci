@@ -32,7 +32,7 @@ export module builder {
 
             console.log('starting build on repo: ' + nextRequest.repo);
 
-            this._terminalAPI.createTerminalWithOpenPorts([config.defaultPort])
+            this._terminalAPI.createTerminalWithOpenPorts([config.terminal.port])
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
                     this._agents = this._agents.set(nextRequest.id, terminal);
