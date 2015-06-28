@@ -36,7 +36,7 @@ export module builder {
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
                     this._agents = this._agents.set(nextRequest.id, terminal);
-                    let agentURL = 'http://' + terminal.subdomain + "-" + config.defaultPort + '.terminal.com/start';
+                    let agentURL = 'http://' + terminal.subdomain + "-" + config.terminal.port + '.terminal.com/start';
                     this.sendBuildRequest(agentURL, nextRequest);
                 })
                 .fail(error => onError(error));
