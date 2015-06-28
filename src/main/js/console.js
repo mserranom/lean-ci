@@ -48,9 +48,9 @@ var finishedTable = grid.set(3,0,3,1, contrib.table, {
 //allow control the table with the keyboard
 //queueTable.focus();
 
-setInterval(updateQueueList, 1000);
-setInterval(updateActiveList, 1000);
-setInterval(updateFinishedList, 1000);
+setInterval(updateQueueList, 3000);
+setInterval(updateActiveList, 3000);
+setInterval(updateFinishedList, 3000);
 
 
 screen.key(['escape', 'q', 'C-c'], function (ch, key) {
@@ -61,7 +61,7 @@ screen.render();
 
 function updateQueueList() {
     var request = require('request');
-    request('http://localhost:64322/build/queue', function (error, response, body) {
+    request('http://leanci.herokuapp.com/build/queue', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             updateQueueData(JSON.parse(body));
         }
@@ -79,7 +79,7 @@ function updateQueueData(queue) {
 
 function updateActiveList() {
     var request = require('request');
-    request('http://localhost:64322/build/active', function (error, response, body) {
+    request('http://leanci.herokuapp.com/build/active', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             updateActiveData(JSON.parse(body));
         }
@@ -96,7 +96,7 @@ function updateActiveData(queue) {
 
 function updateFinishedList() {
     var request = require('request');
-    request('http://localhost:64322/build/finished', function (error, response, body) {
+    request('http://leanci.herokuapp.com/build/finished', function (error, response, body) {
         if (!error && response.statusCode == 200) {
             updateFinishedData(JSON.parse(body));
         }
