@@ -1,6 +1,3 @@
-///<reference path="terminal.ts"/>
-///<reference path="config.ts"/>
-///<reference path="model.ts"/>
 ///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
 
 
@@ -8,6 +5,7 @@ import {terminal} from './terminal';
 import {util} from './util';
 import {config} from './config';
 import {model} from './model';
+import {repository} from './repository'
 
 import Immutable = require('immutable');
 
@@ -80,17 +78,17 @@ export module builder {
                 request : req,
                 succeeded : true,
                 buildConfig : {command : '', dependencies : []},
-                log : ''
+                log : '',
+                startedTimestamp : new Date(),
+                finishedTimestamp : new Date(),
             };
 
-
-
             let pingResult = function() {
-                console.log('pingFinish mock:' + req.id);
+                console.log('mock agent pingFinish to,' + req.pingURL + ' id=' + req.id);
                 request.post({
                     headers: {
                         'content-type' : 'application/json'},
-                    'url': req.pingURL,
+                    'url': req.pingURL + '?id=' + req.id,
                     'body': JSON.stringify(result)
                 });
             };
@@ -108,13 +106,16 @@ export module builder {
         private _data : model.AllProjects;
         private _queue : model.BuildQueue;
         private _buildService : BuildService;
+        private _repository : repository.MongoDBRepository<model.BuildResult>;
 
         private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
 
-        constructor(data : model.AllProjects, queue : model.BuildQueue, service : BuildService) {
+        constructor(data : model.AllProjects, queue : model.BuildQueue,
+                    service : BuildService, repository : repository.MongoDBRepository<model.BuildResult>) {
             this._data = data;
             this._queue = queue;
             this._buildService = service;
+            this._repository = repository;
         }
 
         queueBuild(repo : string, commit?:string) : model.BuildRequest {
@@ -131,9 +132,12 @@ export module builder {
 
                 let request : model.BuildRequest = {
                     id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
+                    user : 'user',
                     repo : repo,
                     commit : commit,
                     pingURL : pingURL,
+                    requestTimestamp : new Date(),
+                    processedTimestamp : null
                 };
 
                 this._queue.add(request);
@@ -153,6 +157,8 @@ export module builder {
             this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
             this._buildService.request(nextRequest, req => this._queue.finish(req));
+
+            nextRequest.processedTimestamp = new Date();
 
             return nextRequest;
         }
@@ -176,6 +182,8 @@ export module builder {
             if(result.succeeded) {
                 this.queueDownstreamDependencies(project);
             }
+
+            this._repository.save(result, (err) => console.error(err), () => {});
 
             this._buildService.terminateAgent(buildId);
         }

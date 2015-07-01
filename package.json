@@ -25,7 +25,8 @@
     "mongodb": "^2.0.35",
     "multer": "^0.1.8",
     "request": "^2.57.0",
-    "shelljs": "0.5.0"
+    "shelljs": "0.5.0",
+    "tingodb": "^0.3.4"
   },
   "scripts": {
     "clean": "grunt clean",

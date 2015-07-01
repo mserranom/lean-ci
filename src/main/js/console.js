@@ -106,7 +106,7 @@ function updateFinishedList() {
 function updateFinishedData(queue) {
     finishedTable.setData({
             headers: ['repo', 'id'],
-            data: queue.map(function(item){return [item.repo, item.id]})}
+            data: queue.map(function(item){return [item.request.repo, item.request.id]})}
     );
     screen.render();
 }

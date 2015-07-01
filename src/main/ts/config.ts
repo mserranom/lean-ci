@@ -6,12 +6,15 @@ import fs = require("fs");
 
 export var config;
 
+
 var path = process.env.HOME + '/lean-ci-config.json';
 var path2 = './lean-ci-config.json';
 console.log('looking up config.json in ' + path);
 console.log('looking up config.json in ' + path2);
 
-if(process.env.LEANCI_CONFIG) {
+if(config) {
+    //config already set
+} else if(process.env.LEANCI_CONFIG) {
     console.log('found LEANCI_CONFIG environment variable');
     let b = new Buffer(process.env.LEANCI_CONFIG, 'base64');
     config = JSON.parse(b.toString());
@@ -23,14 +26,15 @@ if(process.env.LEANCI_CONFIG) {
     config = JSON.parse(fs.readFileSync(path2, 'utf8'));
 } else {
 
-    console.log(path + ' not found, applying default config');
+    console.log(path + ' not found, applying mock config');
 
     config = {
 
-        appUrl : '',
-        defaultPort : 64321,
+        // appUrl may or not include the port, in Heroku defaultPort is the internal port, and 80 is the external
+        appUrl : 'http://0.0.0.0:8091',
+        defaultPort : 8091,
 
-        mongodbUrl : 'mongodb://localhost/test',
+        mongodbUrl : '',
 
         terminal: {
             userToken: '',
@@ -53,4 +57,4 @@ if(process.env.PORT) {
     console.log('PORT environment variable applied to configuration: ' + config.defaultPort);
 }
 
-console.info('applied configuration: \n' + config);
+console.info('applied configuration: \n' + JSON.stringify(config));

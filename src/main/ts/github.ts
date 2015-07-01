@@ -4,6 +4,12 @@ import {P} from './promises';
 
 export module github {
 
+    export function registerWebhook(api : GithubAPI, repo : string , hookUrl : string) {
+        api.setupWebhook(hookUrl, repo)
+            .then(id => console.log('hook ' + id + ' available!'))
+            .fail(error => console.warn('there was an issue: ' + error.message));
+    }
+
     export class GithubAPI {
 
         private _service:any;

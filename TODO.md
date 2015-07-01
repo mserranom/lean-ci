@@ -9,6 +9,8 @@ TODO
 
 [ ] automate app to Heroku
 
+[ ] extract class per file
+
 [ ] write integration tests for the services implemented so far
 
 [ ] finish continuous deployment pipeline for lean-ci
@@ -20,9 +22,9 @@ TODO
  * queue builds based on the pipeline after builds finish
  * decide queueing strategie(s)
 
-[ ] show build status and log in UI
+[ ] show build status and build log in UI
 
-[ ] stream log
+[ ] stream build log to UI
  
 DONE
 ====

@@ -11,6 +11,7 @@ import {builder} from '../../../src/main/ts/builder';
 import {model} from '../../../src/main/ts/model';
 import {terminal} from '../../../src/main/ts/terminal';
 import {P} from '../../../src/main/ts/promises';
+import {repository} from '../../../src/main/ts/repository';
 import {expect} from 'chai';
 
 import Immutable = require('immutable');
@@ -20,6 +21,8 @@ export var defer = P.defer;
 var simple = require('simple-mock');
 
 class BuildResultImpl implements model.BuildResult {
+    startedTimestamp:Date;
+    finishedTimestamp:Date;
     request:model.BuildRequest;
     succeeded:boolean;
     buildConfig:model.BuildConfig;
@@ -66,7 +69,10 @@ describe('BuildScheduler: ', () => {
         service.request = simple.spy(function () {});
         service.terminateAgent = simple.spy(function () {});
 
-        sut = new builder.BuildScheduler(data, new model.BuildQueue(), service);
+        let repoMock : any = {};
+        repoMock.save = (function () {});
+        sut = new builder.BuildScheduler(data, new model.BuildQueue(), service, repoMock);
+
     });
 
     it('startBuild() should request a build for a submitted project',() => {

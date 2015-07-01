@@ -6,9 +6,12 @@ export module model {
 
     export interface BuildRequest {
         id : string,
+        user : string;
         repo : string;
         commit : string;
         pingURL : string;
+        requestTimestamp : Date;
+        processedTimestamp : Date;
     }
 
     export interface BuildConfig {
@@ -21,6 +24,8 @@ export module model {
         succeeded : boolean;
         buildConfig : BuildConfig;
         log : string;
+        startedTimestamp : Date;
+        finishedTimestamp : Date;
     }
 
     export interface ProjectDependency {
@@ -51,8 +56,6 @@ export module model {
 
         private _queue : Array<BuildRequest> = [];
 
-        private _finished : Array<BuildRequest> = [];
-
         private _activeBuilds : Immutable.Set<BuildRequest> = Immutable.Set<BuildRequest>();
 
         /** adds a project to the queue */
@@ -79,7 +82,6 @@ export module model {
         /** finishes an active build, removing it from the set of active builds */
         finish(repo : BuildRequest) {
             this._activeBuilds = this._activeBuilds.delete(repo);
-            this._finished.push(repo);
         }
 
         /** project builds that are active at the moment */
@@ -89,10 +91,6 @@ export module model {
 
         queue() : Array<BuildRequest> {
             return this._queue;
-        }
-
-        finished() : Array<BuildRequest> {
-            return this._finished;
         }
 
         private isActive(repo:string) : boolean {

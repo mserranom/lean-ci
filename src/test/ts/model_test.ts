@@ -12,6 +12,9 @@ class BuildRequestImpl implements model.BuildRequest {
        this.repo = repo;
     }
 
+    user:string;
+    requestTimestamp:Date;
+    processedTimestamp:Date;
     id:string;
     repo:string;
     commit:string;
