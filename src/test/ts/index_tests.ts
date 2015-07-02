@@ -24,11 +24,11 @@ describe('index_mock', () => {
         tearDown();
     });
 
-    it('should return 200 on ping', (done) => {
-        http.get(config.appUrl + '/ping', function (res) {
-            expect(res.statusCode).equals(200);
-            done();
-        });
-    });
+    //it('should return 200 on ping', (done) => {
+    //    http.get(config.appUrl + '/ping', function (res) {
+    //        expect(res.statusCode).equals(200);
+    //        done();
+    //    });
+    //});
 
 });

@@ -47,7 +47,7 @@ export module repository {
     }
 
     export interface CursorFilter {
-        sort(value:number);
+        sort(value:any);
     }
 
     export class MongoDBRepository<T> {
@@ -81,13 +81,16 @@ export module repository {
         }
 
         fetch(query : any, page : number, perPage : number,
-              onError:(any) => void, onResult:(data:Array<T>) => void) : CursorFilter {
+              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : CursorFilter {
             // scales badly perhaps http://blog.mongodirector.com/fast-paging-with-mongodb/
             // http://docs.mongodb.org/manual/reference/method/cursor.skip/
             let index = page - 1;
             index = Math.max(0, index);
             let cursor = this._collection.find(query)
                 .skip(index * perPage).limit(perPage);
+            if(cursorDecorator) {
+                cursorDecorator(cursor);
+            }
             this.requestFetch(cursor, onError, onResult);
             return cursor;
         }

@@ -96,7 +96,10 @@ export module api {
                     res.status = 500;
                     res.end();
                 };
-                this._resultRepository.fetch({}, 1, 10, onError, onResult);
+                let page = req.query.page ? parseInt(req.query.page) : 1;
+                let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
+                this._resultRepository.fetch({}, page, perPage, onError, onResult,
+                    cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
 
         }
