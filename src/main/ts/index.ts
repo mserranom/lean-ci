@@ -6,6 +6,8 @@ import {terminal} from './terminal';
 import {repository} from './repository';
 import {context} from './context';
 
+require('newrelic');
+
 util.overrideConsoleColors();
 
 class AppContext extends context.BaseContext{
