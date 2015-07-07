@@ -15,42 +15,19 @@ export module repository {
         setTimeout(() => callback(null, new engine.Db(path, {})), 1);
     }
 
-    export interface BuildResultRepository {
-        save(result : model.BuildResult, onResult?:(any) => void, onError?:(any) => void);
-        saveAll(result : Array<model.BuildResult>, onResult?:(any) => void, onError?:(any) => void);
-        fetch(onResult:(data:Array<model.BuildResult>) => void, pageSize : number, pageStart : number, onError?:(any) => void);
-    }
-
-    export class MockBuildResultRepository implements BuildResultRepository {
-
-        private _data : Array<model.BuildResult> = [];
-
-        save(result:model.BuildResult, onResult:(p1:any)=>void, onError?:(any) => void) {
-            this._data.push(result);
-            if(onResult) {
-                onResult('success');
-            }
-        }
-
-        saveAll(results:Array<model.BuildResult>, onResult:(p1:any)=>void, onError?:(any) => void) {
-            results.forEach(res => this._data.push(res));
-            if(onResult) {
-                onResult('success');
-            }
-
-        }
-
-        fetch(onResult:(p1:Array<model.BuildResult>)=>void, pageSize:number, pageStart:number, onError?:(any) => void) {
-            let data = (this._data.length < pageStart) ? [] : this._data.slice(pageStart, pageStart + pageSize);
-            setTimeout(100, () => onResult(data));
-        }
-    }
-
     export interface CursorFilter {
         sort(value:any);
     }
 
-    export class MongoDBRepository<T> {
+    export interface DocumentRepository<T> {
+        removeAll(onError: (error) => void, onResult:() => void) : void;
+        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
+        fetch(query : any, page : number, perPage : number,
+              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : CursorFilter;
+        fetchFirst(query : any, onError:(any) => void, onResult:(T) => void ) : void
+    }
+
+    export class MongoDBRepository<T> implements DocumentRepository<T> {
 
         private _collection : any;
 
@@ -58,7 +35,7 @@ export module repository {
             this._collection = db.collection(collectionName);
         }
 
-        removeAll(onError: (error) => void, onResult:() => void) {
+        removeAll(onError: (error) => void, onResult:() => void) : void {
             this._collection.remove({}, (err, numberOfRemovedDocs) => {
                 if(err) {
                     onError(err);
@@ -68,7 +45,7 @@ export module repository {
             });
         }
 
-        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) {
+        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void {
             console.info('mongodb insert requested');
             this._collection.insert(data, (err,res) => {
                 if(err) {
@@ -93,6 +70,10 @@ export module repository {
             }
             this.requestFetch(cursor, onError, onResult);
             return cursor;
+        }
+
+        fetchFirst(query:any, onError:(any)=>void, onResult:(T)=>void):void {
+            this.fetch(query, 1, 1, onError, (data:Array<T>) => onResult(data[0]));
         }
 
         private requestFetch<T>(cursor : any, onError: (any) => void, onResult: (T) => void) {

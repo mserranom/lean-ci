@@ -84,6 +84,21 @@ describe('MongoDBRepository', () => {
         });
     });
 
+    it('should allow fetching a single item', (done) => {
+        let items = new Array<MyType>();
+        for(let i = 0; i < 100; i++) {
+            let item = new MyType();
+            item.id = i;
+            items.push(item);
+        }
+        sut.save(items, errorHandler, () => {
+            sut.fetchFirst({id : 45}, errorHandler, (result) => {
+                expect(result.id).equals(45);
+                done();
+            });
+        });
+    });
+
 });
 
 
