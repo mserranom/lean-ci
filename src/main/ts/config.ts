@@ -44,8 +44,8 @@ if(config) {
         },
 
         github : {
-            username : '',
-            password : '',
+            appClientId : '',
+            appClientSecret : '',
             hookUrl : '',
         }
     };

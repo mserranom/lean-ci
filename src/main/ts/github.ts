@@ -4,17 +4,11 @@ import {P} from './promises';
 
 export module github {
 
-    export function registerWebhook(api : GithubAPI, repo : string , hookUrl : string) {
-        api.setupWebhook(hookUrl, repo)
-            .then(id => console.log('hook ' + id + ' available!'))
-            .fail(error => console.warn('there was an issue: ' + error.message));
-    }
-
     export class GithubAPI {
 
         private _service:any;
 
-        constructor(user:string, pass:string) {
+        constructor() {
             var GitHubApi:any = require("github");
             this._service = new GitHubApi({
                 // required
@@ -28,11 +22,29 @@ export module github {
                     "user-agent": "lean-ci" // GitHub is happy with a unique user agent
                 }
             });
+        }
+
+        authenticate(githubToken:String) {
+            console.log('authenticating: ' + githubToken);
             this._service.authenticate({
-                type: "basic",
-                username: user,
-                password: pass
+                type: "oauth",
+                token: githubToken
             });
+        }
+
+        user(id : string) : P.Promise<any> {
+            var d = P.defer<any>();
+            this._service.user.get({'id' : id}, (err, res) => {
+                if (err) {
+                    let errorMessage = "github 'user' request error: " + err;
+                    console.error(errorMessage);
+                    d.reject({message: errorMessage});
+                } else {
+                    console.info("github 'user; request result: " + JSON.stringify(res));
+                    d.resolve(res);
+                }
+            });
+            return d.promise();
         }
 
         setupWebhook(url:string, repo:string):P.Promise<string> {
@@ -93,7 +105,7 @@ export module github {
             }, (err, res) => {
                 if (err) {
                     let errorMessage = "github 'createHook' request error: " + err;
-                    console.log(errorMessage);
+                    console.error(errorMessage);
                     d.reject({message: errorMessage});
                 } else {
                     console.info('github request result: ' + JSON.stringify(res));
@@ -103,7 +115,5 @@ export module github {
 
             return d.promise();
         }
-
     }
-
 }

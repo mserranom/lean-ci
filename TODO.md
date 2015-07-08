@@ -3,15 +3,13 @@ TODO
 
 [ ] ability to define a file (or file pattern) and upload it to Nexus
 
-[ ] automate app to Heroku
+[ ] finish continuous deployment pipeline for lean-ci
+ * builds the whole pipeline and run builds to deploy to agents
+ * deploys are versioned and the result is pushed to a branch
 
 [ ] extract class per file
 
 [ ] write integration tests for the services implemented so far
-
-[ ] finish continuous deployment pipeline for lean-ci
- * builds the whole pipeline and run builds to deploy to agents
- * deploys are versioned and the result is pushed to a branch
 
 [ ] decide strategies for queuing builds after the pipeline graph
  * create a pipeline datatype

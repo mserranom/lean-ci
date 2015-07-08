@@ -4,6 +4,11 @@ import Immutable = require('immutable');
 
 export module model {
 
+    export interface UserCredentials {
+        userId : string;
+        token : string;
+    }
+
     export interface BuildRequest {
         id : string,
         user : string;

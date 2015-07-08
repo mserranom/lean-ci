@@ -2,6 +2,7 @@ import {model} from './model';
 import {builder} from './builder';
 import {repository} from './repository';
 import {config} from './config';
+import {auth} from './auth';
 
 export module api {
 
@@ -37,17 +38,41 @@ export module api {
 
         private _queue : model.BuildQueue;
         private _builder : builder.BuildScheduler;
-        private _resultRepository : repository.MongoDBRepository<model.BuildResult>;
+        private _resultRepository : repository.DocumentRepository<model.BuildResult>;
+        private _auth : auth.AuthenticationService;
 
-        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler, repo : repository.MongoDBRepository<model.BuildResult>) {
+        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler, repo : repository.DocumentRepository<model.BuildResult>,
+                        auth : auth.AuthenticationService) {
             this._queue = queue;
             this._builder = builder;
             this._resultRepository = repo;
+            this._auth = auth;
+        }
+
+        private authenticate(req, res, next) {
+            let userId = req.get('x-lean-ci-user-id');
+            let userToken = req.get('x-lean-ci-user-token');
+            let githubToken = req.get('x-lean-ci-github-token');
+
+            console.info('login headers read: (' + userId + ',' + userToken + ',' + githubToken + ')');
+
+            let onSuccess = (credentials : model.UserCredentials) => {
+                res.set('x-lean-ci-user-id', credentials.userId);
+                res.set('x-lean-ci-user-token', credentials.userId);
+                res.set('x-lean-ci-github-token', githubToken);
+                next();
+            };
+
+            let onError = (error) => res.sendStatus(401);
+
+            this._auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
 
         setup(app) {
 
-            app.get('/ping', (req, res) => {
+            let auth = (req, res,next) => this.authenticate(req, res,next);
+
+            app.get('/ping', auth, (req, res) => {
                 console.info('received /ping GET request');
                 res.send('pong');
             });
@@ -88,6 +113,12 @@ export module api {
                 console.info('received /build/active GET request');
                 res.send(JSON.stringify(this._queue.activeBuilds()));
             });
+
+            app.post('/auth', (req, res) => {
+                console.info('received /build/active GET request');
+                res.send(JSON.stringify(this._queue.activeBuilds()));
+            });
+
 
             app.get('/build/finished', (req, res) => {
                 console.info('received /build/active GET request');

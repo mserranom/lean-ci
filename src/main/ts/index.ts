@@ -12,7 +12,6 @@ util.overrideConsoleColors();
 
 class AppContext extends context.BaseContext{
 
-    githubAPI : github.GithubAPI = new github.GithubAPI(config.github.username, config.github.password);
     terminalApi : terminal.TerminalAPI = new terminal.TerminalAPI(config.terminal);
     buildService = new builder.TerminalBuildService(this.terminalApi);
 }
@@ -20,9 +19,6 @@ class AppContext extends context.BaseContext{
 function startApp(context : AppContext) {
 
     context.projects.populateTestData();
-
-    // setup hooks for github
-    context.projects.getProjects().forEach(project => context.githubAPI.setupWebhook(config.github.hookUrl, project.repo));
 
     context.restApi.setup(context.expressServer.start());
 
