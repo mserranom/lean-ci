@@ -106,12 +106,12 @@ export module builder {
         private _data : model.AllProjects;
         private _queue : model.BuildQueue;
         private _buildService : BuildService;
-        private _repository : repository.MongoDBRepository<model.BuildResult>;
+        private _repository : repository.DocumentRepository<model.BuildResult>;
 
         private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
 
         constructor(data : model.AllProjects, queue : model.BuildQueue,
-                    service : BuildService, repository : repository.MongoDBRepository<model.BuildResult>) {
+                    service : BuildService, repository : repository.DocumentRepository<model.BuildResult>) {
             this._data = data;
             this._queue = queue;
             this._buildService = service;
