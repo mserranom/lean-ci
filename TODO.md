@@ -1,6 +1,12 @@
 TODO
 ====
 
+[ ] ability to login with a github token
+ * login in the cli, save the token and call an authenticated /ping
+ * logout in the cli
+ * ping
+ * set unique ids for credentials in mongodb and allow to update credentials with new tokens
+
 [ ] ability to define a file (or file pattern) and upload it to Nexus
 
 [ ] finish continuous deployment pipeline for lean-ci

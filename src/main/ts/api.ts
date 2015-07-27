@@ -58,7 +58,7 @@ export module api {
 
             let onSuccess = (credentials : model.UserCredentials) => {
                 res.set('x-lean-ci-user-id', credentials.userId);
-                res.set('x-lean-ci-user-token', credentials.userId);
+                res.set('x-lean-ci-user-token', credentials.token);
                 res.set('x-lean-ci-github-token', githubToken);
                 next();
             };
@@ -114,13 +114,8 @@ export module api {
                 res.send(JSON.stringify(this._queue.activeBuilds()));
             });
 
-            app.post('/auth', (req, res) => {
-                console.info('received /build/active GET request');
-                res.send(JSON.stringify(this._queue.activeBuilds()));
-            });
 
-
-            app.get('/build/finished', (req, res) => {
+            app.get('/build/finished', auth, (req, res) => {
                 console.info('received /build/active GET request');
                 let onResult = (data : Array<model.BuildResult>) => res.send(JSON.stringify(data));
                 let onError = (error) => {

@@ -66,6 +66,7 @@ export module auth {
         }
 
         private startAuth() {
+            console.info(`authorising: {${this._userId}, ${this._userToken}, ${this._githubToken}}`);
             this.fetchUserCredentials();
         }
 
@@ -76,10 +77,12 @@ export module auth {
         }
 
         private checkCredentials(credentials : model.UserCredentials) {
+            console.info('retrieved credentials: ' + JSON.stringify(credentials));
             if(credentials && this._userId == credentials.userId && this._userToken == credentials.token) {
                 console.info('valid credentials');
                 this._onAuthSuccess(credentials);
             } else {
+                console.info('invalid credentials credentials');
                 this.reauthorise();
             }
         }
