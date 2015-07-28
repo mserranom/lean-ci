@@ -3,6 +3,7 @@ import {builder} from './builder';
 import {repository} from './repository';
 import {config} from './config';
 import {auth} from './auth';
+import {github} from './github';
 
 export module api {
 
@@ -38,15 +39,25 @@ export module api {
 
         private _queue : model.BuildQueue;
         private _builder : builder.BuildScheduler;
-        private _resultRepository : repository.DocumentRepository<model.BuildResult>;
+        private _buildResults : repository.DocumentRepository<model.BuildResult>;
+        private _repositories : repository.DocumentRepository<model.Repository>;
         private _auth : auth.AuthenticationService;
+        private _github : github.GithubAPI;
 
-        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler, repo : repository.DocumentRepository<model.BuildResult>,
-                        auth : auth.AuthenticationService) {
+        private _app : any;
+
+        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler,
+                    buildResults : repository.DocumentRepository<model.BuildResult>,
+                    repositories : repository.DocumentRepository<model.Repository>,
+                    auth : auth.AuthenticationService,
+                    githubApi : github.GithubAPI) {
+
             this._queue = queue;
             this._builder = builder;
-            this._resultRepository = repo;
+            this._buildResults = buildResults;
+            this._repositories = repositories;
             this._auth = auth;
+            this._github = githubApi;
         }
 
         private authenticate(req, res, next) {
@@ -70,7 +81,9 @@ export module api {
 
         setup(app) {
 
-            let auth = (req, res,next) => this.authenticate(req, res,next);
+            this._app = app;
+
+            let auth = (req, res, next) => this.authenticate(req, res,next);
 
             app.get('/ping', auth, (req, res) => {
                 console.info('received /ping GET request');
@@ -124,12 +137,69 @@ export module api {
                 };
                 let page = req.query.page ? parseInt(req.query.page) : 1;
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
-                this._resultRepository.fetch({}, page, perPage, onError, onResult,
+                this._buildResults.fetch({}, page, perPage, onError, onResult,
                     cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
 
+            app.post('/repositories/:name', auth, (req,res) => {
+                let userId = req.get('x-lean-ci-user-id');
+                let repoName : string = req.params.name;
+
+                console.info(`received /repositories/${repoName} POST request`);
+
+                var data : model.Repository = {userId : userId, name : repoName};
+
+                var onError = (error) => {
+                    res.status = 500;
+                    res.send(error);
+                };
+
+                let saveNewRepo = () => {
+                    let onResult = () => res.end();
+                    this._repositories.save(data, onError, onResult);
+                };
+
+                this._repositories.fetch(data, 1, 1, onError, (result) => {
+                        if(result.length > 0) {
+                            res.end();
+                        } else {
+                            this._github.getRepo(repoName)
+                                .then(saveNewRepo).fail(onError);
+                        }
+                    });
+            });
+
+            app.delete('/repositories/:name', auth, (req,res) => {
+                let userId = req.get('x-lean-ci-user-id');
+                let repoName : string = req.params.name;
+
+                console.info(`received /repositories/${repoName} DELETE request`);
+
+                let onResult = () => res.end();
+
+                let onError = (error) => {
+                    res.status = 500;
+                    res.end();
+                };
+
+                let query : model.Repository = {userId : userId, name : repoName};
+
+                this._repositories.remove(query, onError, onResult);
+            });
+
+            app.get('/repositories', auth, (req,res) => {
+                console.info('received /repositories GET request');
+                let userId = req.get('x-lean-ci-user-id');
+                let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
+                let onError = (error) => {
+                    res.status = 500;
+                    res.end();
+                };
+                let page = req.query.page ? parseInt(req.query.page) : 1;
+                let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
+                this._repositories.fetch({userId : userId}, page, perPage, onError, onResult,
+                        cursor => cursor.sort({'finishedTimestamp' : -1}));
+            });
         }
-
     }
-
 }
