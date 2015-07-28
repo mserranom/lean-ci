@@ -1,6 +1,10 @@
 TODO
 ====
 
+[ ] when adding and removing repos, webhooks must be added/removed too
+
+[ ] move all endpoints to authenticated, listing only data relevant to the given user
+
 [ ] ability to define a file (or file pattern) and upload it to Nexus
 
 [ ] finish continuous deployment pipeline for lean-ci
@@ -22,6 +26,8 @@ TODO
  
 DONE
 ====
+
+[x] ability to add, remove and list repositories for a given user
 
 [x] ability to login with a github token
  * login in the cli, save the token and call an authenticated /ping

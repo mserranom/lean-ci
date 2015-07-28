@@ -9,6 +9,11 @@ export module model {
         token : string;
     }
 
+    export interface Repository {
+        userId : string;
+        name : string;
+    }
+
     export interface BuildRequest {
         id : string,
         user : string;
