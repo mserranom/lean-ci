@@ -108,7 +108,7 @@ export module auth {
                    token : new Date().getTime() + '-' + Math.floor(Math.random() * 100000000000)
                };
 
-            this._repo.save(this._newCredentials,
+            this._repo.update({userId : this._userId}, this._newCredentials,
                 (message) => this.onCredentialsSaveFailed(message),
                 () => this.onCredentialsSavedSuccess());
         }

@@ -22,6 +22,7 @@ export module repository {
     export interface DocumentRepository<T> {
         removeAll(onError: (error) => void, onResult:() => void) : void;
         save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
+        update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void;
         fetch(query : any, page : number, perPage : number,
               onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : CursorFilter;
         fetchFirst(query : any, onError:(any) => void, onResult:(T) => void ) : void
@@ -52,6 +53,18 @@ export module repository {
                     onError(err);
                 } else {
                     console.info('mongodb insert success');
+                    onResult();
+                }
+            });
+        }
+
+        update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void {
+            console.info('mongodb update requested');
+            this._collection.update(query, data, {upsert : true}, (err,res) => {
+                if(err) {
+                    onError(err);
+                } else {
+                    console.info('mongodb update success');
                     onResult();
                 }
             });

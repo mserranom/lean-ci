@@ -31,13 +31,13 @@ describe('AuthenticationService', () => {
     let failedFirstFetchMock = (query, onError: (string) => void, onResult) => onError('failed');
     let firstFetchWithInvalidCredentialsMock = (query, onError, onResult: (any) => void ) => onResult(null);
 
-    let successfulSaveMock = (data, onError, onResult:() => void) => onResult();
-    let failedSaveMock = (data, onError:(any) => void, onResult) => onError('save failed');
+    let successfulUpdateMock = (query, data, onError, onResult:() => void) => onResult();
+    let failedUpdateMock = (query, data, onError:(any) => void, onResult) => onError('update failed');
 
     let githubUserPromise : any;
 
     beforeEach(() => {
-        repoMock = createMock(['fetchFirst', 'save']);
+        repoMock = createMock(['fetchFirst', 'update']);
         githubMock = createMock(['authenticate']);
 
         githubUserPromise = P.defer();
@@ -132,27 +132,27 @@ describe('AuthenticationService', () => {
         githubUserPromise.reject('/user failed');
     });
 
-    it('should save user and token in the repository when github is authorised', (done) => {
+    it('should update user and token in the repository when github is authorised', (done) => {
 
         simple.mock(repoMock, 'fetchFirst').callFn(firstFetchWithInvalidCredentialsMock);
 
-        let checkSaveWasCalled = () => {
-            expect(repoMock.save['callCount']).equals(1);
-            expect(repoMock.save['lastCall'].args[0]).not.to.be.null;
+        let checkUpdateWasCalled = () => {
+            expect(repoMock.update['callCount']).equals(1);
+            expect(repoMock.update['lastCall'].args[0]).not.to.be.null;
             done()
         };
 
         sut.authenticate('', '', 'myGithubToken', () => {}, () => {});
         githubUserPromise.resolve({});
 
-        setTimeout( () => checkSaveWasCalled() , 1 );
+        setTimeout( () => checkUpdateWasCalled() , 1 );
 
     });
 
-    it('should fail when new credentials cannot be saved', (done) => {
+    it('should fail when new credentials cannot be updated', (done) => {
 
         simple.mock(repoMock, 'fetchFirst').callFn(firstFetchWithInvalidCredentialsMock);
-        simple.mock(repoMock, 'save').callFn(failedSaveMock);
+        simple.mock(repoMock, 'update').callFn(failedUpdateMock);
 
         sut.authenticate('', '', 'myGithubToken',
             (error) => done(),
@@ -165,7 +165,7 @@ describe('AuthenticationService', () => {
     it('should succeed when github is authorised', (done) => {
 
         simple.mock(repoMock, 'fetchFirst').callFn(firstFetchWithInvalidCredentialsMock);
-        simple.mock(repoMock, 'save').callFn(successfulSaveMock);
+        simple.mock(repoMock, 'update').callFn(successfulUpdateMock);
 
         sut.authenticate('', '', 'myGithubToken',
             (error) => {throw error},
