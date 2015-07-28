@@ -71,7 +71,7 @@ export module auth {
         }
 
         private fetchUserCredentials() {
-            let onError = (error) => this._onAuthError('error fetching credentials from repository: ' + error);
+            let onError = (error) => { this.dispatchError('error fetching credentials from repository: ' + error); };
             let onSuccess = (credentials) => this.checkCredentials(credentials);
             this._repo.fetchFirst({'userId' : this._userId}, onError, onSuccess);
         }
@@ -80,7 +80,7 @@ export module auth {
             console.info('retrieved credentials: ' + JSON.stringify(credentials));
             if(credentials && this._userId == credentials.userId && this._userToken == credentials.token) {
                 console.info('valid credentials');
-                this._onAuthSuccess(credentials);
+                this.dispatchSuccess(credentials);
             } else {
                 console.info('invalid credentials credentials');
                 this.reauthorise();
@@ -89,7 +89,7 @@ export module auth {
 
         private reauthorise() {
             console.log('checking user authentication in github');
-            let onError = (error) => this._onAuthError('unable to reauthenticate user in github');
+            let onError = (error) => { this.dispatchError('unable to reauthenticate user in github'); };
             let onSuccess = (userData) => this.onGithubCredentialsSuccess(userData);
 
             this._github.authenticate(this._githubToken);
@@ -103,26 +103,44 @@ export module auth {
         }
 
         private createNewCredentials() : void {
-           this._newCredentials = {
-               userId : this._userId,
-               token : new Date().getTime() + '-' + Math.floor(Math.random() * 100000000000)
-           };
+               this._newCredentials = {
+                   userId : this._userId,
+                   token : new Date().getTime() + '-' + Math.floor(Math.random() * 100000000000)
+               };
 
             this._repo.save(this._newCredentials,
                 (message) => this.onCredentialsSaveFailed(message),
                 () => this.onCredentialsSavedSuccess());
         }
 
-        private onCredentialsSaveFailed(message:any) {
+        private onCredentialsSaveFailed(message:any) : void {
             let log = 'failed to store user credentials: ' + message;
             console.error(log);
-            this._onAuthError(log);
+            this.dispatchError(log);
         }
 
         private onCredentialsSavedSuccess() {
-            this._onAuthSuccess(this._newCredentials);
+            this.dispatchSuccess(this._newCredentials);
         }
 
-        // TODO : dispose variables
+        private dispatchError(log : string) : void {
+            this._onAuthError(log);
+            this.dispose();
+        }
+
+        private dispatchSuccess(credentials : model.UserCredentials) : void {
+            this._onAuthSuccess(credentials);
+            this.dispose();
+        }
+
+        private dispose() {
+            this._repo = null;
+            this._github = null;
+            this._userId = null;
+            this._userToken = null;
+            this._githubToken = null;
+            this._onAuthError = null;
+            this._onAuthSuccess = null;
+        }
     }
 }
