@@ -15,8 +15,6 @@
     "simple-mock": "^0.3.1"
   },
   "devDependencies": {
-    "blessed": "^0.1.61",
-    "blessed-contrib": "^2.2.0",
     "body-parser": "^1.12.4",
     "colors": "^1.1.0",
     "express": "^4.12.4",
