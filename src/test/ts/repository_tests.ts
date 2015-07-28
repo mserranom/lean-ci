@@ -123,6 +123,22 @@ describe('MongoDBRepository', () => {
         });
     });
 
+    it('should allow removing a single item', (done) => {
+        let item = new MyType();
+        item.id = 101;
+
+        let query = {id : 101};
+
+        sut.save(item, errorHandler, () => {
+            sut.remove(query, errorHandler, () =>{
+                sut.fetchFirst(query, errorHandler, (result) => {
+                    expect(result).to.be.empty;
+                    done();
+                });
+            });
+        });
+    });
+
 });
 
 

@@ -21,6 +21,7 @@ export module repository {
 
     export interface DocumentRepository<T> {
         removeAll(onError: (error) => void, onResult:() => void) : void;
+        remove(query : Object, onError: (error) => void, onResult:() => void) : void;
         save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void;
         fetch(query : any, page : number, perPage : number,
@@ -36,14 +37,18 @@ export module repository {
             this._collection = db.collection(collectionName);
         }
 
-        removeAll(onError: (error) => void, onResult:() => void) : void {
-            this._collection.remove({}, (err, numberOfRemovedDocs) => {
+        remove(query : Object, onError: (error) => void, onResult:() => void) : void {
+            this._collection.remove(query, (err, numberOfRemovedDocs) => {
                 if(err) {
                     onError(err);
                 } else {
                     onResult();
                 }
             });
+        }
+
+        removeAll(onError: (error) => void, onResult:() => void) : void {
+            this.remove({}, onError, onResult)
         }
 
         save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void {
