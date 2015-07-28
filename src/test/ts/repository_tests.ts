@@ -9,6 +9,7 @@ let TINGODB_PATH = 'target/test';
 
 class MyType {
     id:number = 1;
+    name:string;
 }
 
 describe('MongoDBRepository', () => {
@@ -64,6 +65,29 @@ describe('MongoDBRepository', () => {
                 expect(results.length).equals(10);
                 expect(results.every(item => {return item.id < 10})).to.be.true;
                 done();
+            });
+        });
+    });
+
+    it('should allow updating saved items', (done) => {
+        let item = new MyType();
+        item.id = 101;
+        item.name = 'testName';
+
+        let updateItem = new MyType();
+        updateItem.id = 101;
+        updateItem.name = 'testNameUpdated';
+
+        let query = {id : 101};
+
+        sut.save(item, errorHandler, () => {
+
+            sut.update(query, updateItem, errorHandler, () => {
+
+                sut.fetch(query, 1, 10, errorHandler, (results) => {
+                    expect(results.every(item => {return item.name === 'testNameUpdated'})).to.be.true;
+                    done();
+                });
             });
         });
     });
