@@ -47,6 +47,23 @@ export module github {
             return d.promise();
         }
 
+        getRepo(name : string) : P.Promise<any> {
+            let repo = name.split('/')[1];
+            let owner = name.split('/')[0];
+            var d = P.defer<any>();
+            this._service.repos.get({user : owner, repo : repo}, (err, res) => {
+                if (err) {
+                    let errorMessage = "github 'repos' request error: " + err;
+                    console.error(errorMessage);
+                    d.reject({message: errorMessage});
+                } else {
+                    console.info("github 'user; request result: " + JSON.stringify(res));
+                    d.resolve(res);
+                }
+            });
+            return d.promise();
+        }
+
         setupWebhook(url:string, repo:string):P.Promise<string> {
             var d = P.defer<string>();
 
