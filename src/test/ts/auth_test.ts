@@ -43,7 +43,9 @@ describe('AuthenticationService', () => {
         githubUserPromise = P.defer();
         githubMock.user = (id) => githubUserPromise.promise();
 
-        sut = new auth.AuthenticationService(repoMock, githubMock);
+        sut = new auth.AuthenticationService();
+        sut.repo = repoMock;
+        sut.github = githubMock;
     });
 
     afterEach(() => {

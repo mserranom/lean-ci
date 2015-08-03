@@ -3,17 +3,17 @@ import {repository} from './repository'
 import {model} from './model'
 import {github} from './github'
 
+import {Inject} from '../../../node_modules/container-ts/src/container';
+
 export module auth {
 
     export class AuthenticationService {
 
-        private _repo : repository.DocumentRepository<model.UserCredentials>;
-        private _github : github.GithubAPI;
+        @Inject('userCredentialsRepository')
+        repo : repository.DocumentRepository<model.UserCredentials>;
 
-        constructor(repo : repository.DocumentRepository<model.UserCredentials>, github : github.GithubAPI) {
-            this._repo = repo;
-            this._github = github;
-        }
+        @Inject('githubApi')
+        github : github.GithubAPI;
 
         authenticate(userId:string, userToken : string, githubToken : string,
                      onError:(string) => void,
@@ -29,7 +29,7 @@ export module auth {
                 return;
             }
 
-            let service = new Authenticator(this._repo, this._github);
+            let service = new Authenticator(this.repo, this.github);
             service.authenticate(userId, userToken, githubToken, onError, onResult);
         }
     }

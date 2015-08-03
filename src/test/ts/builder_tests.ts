@@ -71,7 +71,11 @@ describe('BuildScheduler: ', () => {
 
         let repoMock : any = {};
         repoMock.save = (function () {});
-        sut = new builder.BuildScheduler(data, new model.BuildQueue(), service, repoMock);
+        sut = new builder.BuildScheduler();
+        sut.data = data;
+        sut.queue = new model.BuildQueue();
+        sut.buildService = service;
+        sut.repository = repoMock;
 
     });
 

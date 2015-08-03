@@ -37,28 +37,25 @@ export module api {
 
     export class LeanCIApi {
 
-        private _queue : model.BuildQueue;
-        private _builder : builder.BuildScheduler;
-        private _buildResults : repository.DocumentRepository<model.BuildResult>;
-        private _repositories : repository.DocumentRepository<model.Repository>;
-        private _auth : auth.AuthenticationService;
-        private _github : github.GithubAPI;
+        @Inject('buildQueue')
+        queue : model.BuildQueue;
+
+        @Inject('buildScheduler')
+        builder : builder.BuildScheduler;
+
+        @Inject('buildResultsRepository')
+        buildResults : repository.DocumentRepository<model.BuildResult>;
+
+        @Inject('repositoriesRepository')
+        repositories : repository.DocumentRepository<model.Repository>;
+
+        @Inject('authenticationService')
+        auth : auth.AuthenticationService;
+
+        @Inject('githubApi')
+        github : github.GithubAPI;
 
         private _app : any;
-
-        constructor(queue : model.BuildQueue, builder : builder.BuildScheduler,
-                    buildResults : repository.DocumentRepository<model.BuildResult>,
-                    repositories : repository.DocumentRepository<model.Repository>,
-                    auth : auth.AuthenticationService,
-                    githubApi : github.GithubAPI) {
-
-            this._queue = queue;
-            this._builder = builder;
-            this._buildResults = buildResults;
-            this._repositories = repositories;
-            this._auth = auth;
-            this._github = githubApi;
-        }
 
         private authenticate(req, res, next) {
             let userId = req.get('x-lean-ci-user-id');
@@ -76,7 +73,7 @@ export module api {
 
             let onError = (error) => res.sendStatus(401);
 
-            this._auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
+            this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
 
         setup(app) {
@@ -97,7 +94,7 @@ export module api {
                 console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
                 let repo : string = req.body.repository.full_name;
                 let commit : string = req.body.head_commit.id;
-                this._builder.queueBuild(repo, commit);
+                this.builder.queueBuild(repo, commit);
             });
 
             app.post('/build/start', (req, res) => {
@@ -107,24 +104,24 @@ export module api {
                 console.info(JSON.stringify(req.body));
                 let repo : string = req.body.repo;
                 console.log(repo);
-                this._builder.queueBuild(repo);
+                this.builder.queueBuild(repo);
             });
 
             app.get('/build/queue', (req, res) => {
                 console.info('received /build/queue GET request');
-                res.send(JSON.stringify(this._queue.queue()));
+                res.send(JSON.stringify(this.queue.queue()));
             });
 
             app.post('/build/pingFinish', (req, res) => {
                 let buildId : string = req.query.id;
                 console.info('received /build/pingFinish GET request, build id=' + buildId);
-                this._builder.pingFinish(req.body);
+                this.builder.pingFinish(req.body);
                 res.end();
             });
 
             app.get('/build/active', (req, res) => {
                 console.info('received /build/active GET request');
-                res.send(JSON.stringify(this._queue.activeBuilds()));
+                res.send(JSON.stringify(this.queue.activeBuilds()));
             });
 
 
@@ -137,7 +134,7 @@ export module api {
                 };
                 let page = req.query.page ? parseInt(req.query.page) : 1;
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
-                this._buildResults.fetch({}, page, perPage, onError, onResult,
+                this.buildResults.fetch({}, page, perPage, onError, onResult,
                     cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
 
@@ -156,14 +153,14 @@ export module api {
 
                 let saveNewRepo = () => {
                     let onResult = () => res.end();
-                    this._repositories.save(data, onError, onResult);
+                    this.repositories.save(data, onError, onResult);
                 };
 
-                this._repositories.fetch(data, 1, 1, onError, (result) => {
+                this.repositories.fetch(data, 1, 1, onError, (result) => {
                         if(result.length > 0) {
                             res.end();
                         } else {
-                            this._github.getRepo(repoName)
+                            this.github.getRepo(repoName)
                                 .then(saveNewRepo).fail(onError);
                         }
                     });
@@ -184,7 +181,7 @@ export module api {
 
                 let query : model.Repository = {userId : userId, name : repoName};
 
-                this._repositories.remove(query, onError, onResult);
+                this.repositories.remove(query, onError, onResult);
             });
 
             app.get('/repositories', auth, (req,res) => {
@@ -197,7 +194,7 @@ export module api {
                 };
                 let page = req.query.page ? parseInt(req.query.page) : 1;
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
-                this._repositories.fetch({userId : userId}, page, perPage, onError, onResult,
+                this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
                         cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
         }

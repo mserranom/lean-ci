@@ -9,6 +9,8 @@ import {repository} from './repository'
 
 import Immutable = require('immutable');
 
+import {Inject} from '../../../node_modules/container-ts/src/container';
+
 export module builder {
 
     export interface BuildService {
@@ -18,13 +20,10 @@ export module builder {
 
     export class TerminalBuildService implements BuildService{
 
-        private _terminalAPI : terminal.TerminalAPI;
+        @Inject('terminalApi')
+         _terminalAPI : terminal.TerminalAPI;
 
         private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
-
-        constructor(terminalAPI : terminal.TerminalAPI) {
-            this._terminalAPI = terminalAPI;
-        }
 
         request(nextRequest : model.BuildRequest, onError : (any) => void) {
 
@@ -103,26 +102,25 @@ export module builder {
 
     export class BuildScheduler {
 
-        private _data : model.AllProjects;
-        private _queue : model.BuildQueue;
-        private _buildService : BuildService;
-        private _repository : repository.DocumentRepository<model.BuildResult>;
+        @Inject('allProjects')
+        data : model.AllProjects;
+
+        @Inject('buildQueue')
+        queue : model.BuildQueue;
+
+        @Inject('buildService')
+        buildService : BuildService;
+
+        @Inject('buildResultsRepository')
+        repository : repository.DocumentRepository<model.BuildResult>;
 
         private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
-
-        constructor(data : model.AllProjects, queue : model.BuildQueue,
-                    service : BuildService, repository : repository.DocumentRepository<model.BuildResult>) {
-            this._data = data;
-            this._queue = queue;
-            this._buildService = service;
-            this._repository = repository;
-        }
 
         queueBuild(repo : string, commit?:string) : model.BuildRequest {
             if(!commit) {
                 commit = '';
             }
-            let project = this._data.getProject(repo);
+            let project = this.data.getProject(repo);
             if(!project) {
                 throw new Error('unknown project: ' + repo);
             } else {
@@ -140,7 +138,7 @@ export module builder {
                     processedTimestamp : null
                 };
 
-                this._queue.add(request);
+                this.queue.add(request);
 
                 return request;
             }
@@ -148,7 +146,7 @@ export module builder {
 
         startBuild() : model.BuildRequest {
 
-            let nextRequest = this._queue.next();
+            let nextRequest = this.queue.next();
             if(!nextRequest) {
                 return null;
             }
@@ -156,7 +154,7 @@ export module builder {
 
             this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
-            this._buildService.request(nextRequest, req => this._queue.finish(req));
+            this.buildService.request(nextRequest, req => this.queue.finish(req));
 
             nextRequest.processedTimestamp = new Date();
 
@@ -172,10 +170,10 @@ export module builder {
                 throw new Error('unable to find active build with id=' + buildId);
             }
 
-            let project = this._data.getProject(result.request.repo);
-            this._data.updateDependencies(project.repo, result.buildConfig.dependencies);
+            let project = this.data.getProject(result.request.repo);
+            this.data.updateDependencies(project.repo, result.buildConfig.dependencies);
 
-            this._queue.finish(build);
+            this.queue.finish(build);
 
             this._activeBuilds = this._activeBuilds.delete(buildId);
 
@@ -183,9 +181,9 @@ export module builder {
                 this.queueDownstreamDependencies(project);
             }
 
-            this._repository.save(result, (err) => console.error(err), () => {});
+            this.repository.save(result, (err) => console.error(err), () => {});
 
-            this._buildService.terminateAgent(buildId);
+            this.buildService.terminateAgent(buildId);
         }
 
         private queueDownstreamDependencies(project:model.Project) {
