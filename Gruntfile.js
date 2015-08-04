@@ -57,7 +57,7 @@ module.exports = function (grunt) {
         },
 
         zip: {
-            'dist.zip': ['src/main/ts/*.js', 'node_modules/**/*']
+            'dist.zip': ['src/main/ts/*.js', 'node_modules/**/*', 'lib/**/*']
         },
 
         watch: {

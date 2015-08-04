@@ -5,6 +5,8 @@ import {config} from './config';
 import {auth} from './auth';
 import {github} from './github';
 
+import {Inject} from '../../../lib/container';
+
 export module api {
 
     export class ExpressServer {
@@ -196,6 +198,15 @@ export module api {
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
                 this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
                         cursor => cursor.sort({'finishedTimestamp' : -1}));
+            });
+
+            app.get('/nexus/credentials', auth, (req,res) => {
+                let credentials = {
+                    url : 'http://mserranom217-8081.terminal.com',
+                    user: 'admin',
+                    pass: 'Malaga1'
+                };
+                res.send(JSON.stringify(credentials));
             });
         }
     }

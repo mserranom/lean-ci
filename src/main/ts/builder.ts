@@ -9,7 +9,7 @@ import {repository} from './repository'
 
 import Immutable = require('immutable');
 
-import {Inject} from '../../../node_modules/container-ts/src/container';
+import {Inject} from '../../../lib/container';
 
 export module builder {
 

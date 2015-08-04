@@ -1,5 +1,3 @@
-/// <reference path="../../../lib/container.d.ts" />
-
 import {config} from './config';
 import {builder} from './builder';
 import {model} from './model';
@@ -9,7 +7,7 @@ import {auth} from './auth';
 import {github} from './github';
 import {terminal} from './terminal';
 
-import {Container, ContainerBuilder} from '../../../node_modules/container-ts/src/container';
+import {Container, ContainerBuilder} from '../../../lib/container';
 
 class App {
 

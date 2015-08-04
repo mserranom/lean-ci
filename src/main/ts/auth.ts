@@ -3,7 +3,7 @@ import {repository} from './repository'
 import {model} from './model'
 import {github} from './github'
 
-import {Inject} from '../../../node_modules/container-ts/src/container';
+import {Inject} from '../../../lib/container';
 
 export module auth {
 

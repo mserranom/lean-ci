@@ -1,11 +1,11 @@
 TODO
 ====
 
+[ ] ability to define a file (or file pattern) and upload to/ download from to Nexus
+
 [ ] when adding and removing repos, webhooks must be added/removed too
 
 [ ] move all endpoints to authenticated, listing only data relevant to the given user
-
-[ ] ability to define a file (or file pattern) and upload it to Nexus
 
 [ ] finish continuous deployment pipeline for lean-ci
  * builds the whole pipeline and run builds to deploy to agents
