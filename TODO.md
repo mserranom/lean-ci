@@ -1,6 +1,8 @@
 TODO
 ====
 
+[ ] move all endpoints to authenticated, listing only data relevant to the given user
+
 [ ] when adding and removing repos, webhooks must be added/removed too
 
 [ ] finish continuous deployment pipeline for lean-ci
@@ -24,8 +26,6 @@ DONE
 ====
 
 [x] ability to define a file (or file pattern) and upload to/ download from to Nexus
-
-[x] move all endpoints to authenticated, listing only data relevant to the given user
 
 [x] ability to add, remove and list repositories for a given user
 
