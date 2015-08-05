@@ -3,11 +3,19 @@ TODO
 
 [ ] move all endpoints to authenticated, listing only data relevant to the given user
 
+[ ] move the app to stateless
+
 [ ] when adding and removing repos, webhooks must be added/removed too
 
 [ ] finish continuous deployment pipeline for lean-ci
  * builds the whole pipeline and run builds to deploy to agents
  * deploys are versioned and the result is pushed to a branch
+
+[ ] BUG: timeouts setting up an agent seem to not to clear the build queue
+
+[ ] BUG: building a project with dependencies that are not projects in the model make the dependency resolution fail
+
+[ ] timeout after a build request is sent but there's no response (a status would be nice)
 
 [ ] extract class per file
 

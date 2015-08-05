@@ -116,7 +116,7 @@ export module api {
 
             app.post('/build/pingFinish', (req, res) => {
                 let buildId : string = req.query.id;
-                console.info('received /build/pingFinish GET request, build id=' + buildId);
+                console.info('received /build/pingFinish POST request, build id=' + buildId);
                 this.builder.pingFinish(req.body);
                 res.end();
             });

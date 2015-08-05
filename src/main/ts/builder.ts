@@ -63,8 +63,13 @@ export module builder {
         }
 
         terminateAgent(buildId : string) {
-            this._terminalAPI.closeTerminal(this._agents.get(buildId));
-            this._agents = this._agents.remove(buildId);
+            let agent = this._agents.get(buildId);
+            if(!agent) {
+                console.warn('agent for buildId=' + buildId + 'not found, cannot be terminated');
+            } else {
+                this._terminalAPI.closeTerminal(agent);
+                this._agents = this._agents.remove(buildId);
+            }
         }
     }
 
@@ -154,7 +159,19 @@ export module builder {
 
             this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
-            this.buildService.request(nextRequest, req => this.queue.finish(req));
+            let onBuildError = (error : any) => {
+                console.error('build request ' + nextRequest.id + ' failed for ' + nextRequest.repo);
+                this.pingFinish({
+                    request : nextRequest,
+                    succeeded : false,
+                    buildConfig : null,
+                    log : error.message,
+                    startedTimestamp : new Date(),
+                    finishedTimestamp : new Date()
+                });
+            } ;
+
+            this.buildService.request(nextRequest, onBuildError);
 
             nextRequest.processedTimestamp = new Date();
 
@@ -171,7 +188,9 @@ export module builder {
             }
 
             let project = this.data.getProject(result.request.repo);
-            this.data.updateDependencies(project.repo, result.buildConfig.dependencies);
+            if(result.buildConfig && result.buildConfig.dependencies) {
+                this.data.updateDependencies(project.repo, result.buildConfig.dependencies);
+            }
 
             this.queue.finish(build);
 
