@@ -1,3 +1,7 @@
+///<reference path="../../../lib/Q.d.ts"/>
+
+var Q = require('Q');
+
 import {model} from './model';
 import {config} from './config';
 
@@ -15,8 +19,13 @@ export module repository {
         setTimeout(() => callback(null, new engine.Db(path, {})), 1);
     }
 
-    export interface CursorFilter {
-        sort(value:any);
+    export interface DocumentRepositoryQ<T> {
+        removeAllQ() : Q.Promise<void>;
+        removeQ(query : Object) : Q.Promise<void>;
+        saveQ(data : T | Array<T>) : Q.Promise<void>;
+        updateQ(query : Object, data : T) : Q.Promise<void>;
+        fetchQ(query : any, page : number, perPage : number, cursorDecorator? : (any) => void) : Q.Promise<Array<T>>;
+        fetchFirstQ(query : any, cursorDecorator? : (any) => void) : Q.Promise<T>;
     }
 
     export interface DocumentRepository<T> {
@@ -25,16 +34,22 @@ export module repository {
         save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void;
         fetch(query : any, page : number, perPage : number,
-              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : CursorFilter;
-        fetchFirst(query : any, onError:(any) => void, onResult:(T) => void ) : void
+              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : void;
+        fetchFirst(query : any, onError:(any) => void, onResult:(T) => void, cursorDecorator? : (any) => void) : void
     }
 
-    export class MongoDBRepository<T> implements DocumentRepository<T> {
+    export class MongoDBRepository<T> implements DocumentRepository<T>, DocumentRepositoryQ<T> {
 
         private _collection : any;
 
         constructor(collectionName : string, db : any) {
             this._collection = db.collection(collectionName);
+        }
+
+        removeQ(query : Object) : Q.Promise<void> {
+            let defer : Q.Deferred<void> = Q.defer();
+            this.remove(query, (error) => defer.reject(error), () => defer.resolve());
+            return defer.promise;
         }
 
         remove(query : Object, onError: (error) => void, onResult:() => void) : void {
@@ -47,8 +62,20 @@ export module repository {
             });
         }
 
+        removeAllQ() : Q.Promise<void> {
+            let defer : Q.Deferred<void> = Q.defer();
+            this.removeAll((error) => defer.reject(error), () => defer.resolve());
+            return defer.promise;
+        }
+
         removeAll(onError: (error) => void, onResult:() => void) : void {
             this.remove({}, onError, onResult)
+        }
+
+        saveQ(data : T | Array<T>) : Q.Promise<void> {
+            let defer : Q.Deferred<void> = Q.defer();
+            this.save(data, (error) => defer.reject(error), () => defer.resolve());
+            return defer.promise;
         }
 
         save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void {
@@ -63,6 +90,12 @@ export module repository {
             });
         }
 
+        updateQ(query : Object, data : T) : Q.Promise<void> {
+            let defer : Q.Deferred<void> = Q.defer();
+            this.update(query, data, (error) => defer.reject(error), () => defer.resolve());
+            return defer.promise;
+        }
+
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void {
             console.info('mongodb update requested');
             this._collection.update(query, data, {upsert : true}, (err,res) => {
@@ -75,8 +108,14 @@ export module repository {
             });
         }
 
+        fetchQ(query : any, page : number, perPage : number, cursorDecorator? : (any) => void) : Q.Promise<Array<T>> {
+            let defer : Q.Deferred<Array<T>> = Q.defer();
+            this.fetch(query, page, perPage, (error) => defer.reject(error), (result) => defer.resolve(result), cursorDecorator);
+            return defer.promise;
+        }
+
         fetch(query : any, page : number, perPage : number,
-              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : CursorFilter {
+              onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : void {
             // scales badly perhaps http://blog.mongodirector.com/fast-paging-with-mongodb/
             // http://docs.mongodb.org/manual/reference/method/cursor.skip/
             let index = page - 1;
@@ -87,11 +126,22 @@ export module repository {
                 cursorDecorator(cursor);
             }
             this.requestFetch(cursor, onError, onResult);
-            return cursor;
         }
 
-        fetchFirst(query:any, onError:(any)=>void, onResult:(T)=>void):void {
-            this.fetch(query, 1, 1, onError, (data:Array<T>) => onResult(data[0]));
+        fetchFirstQ(query : any, cursorDecorator? : (any) => void) : Q.Promise<T> {
+            let defer : Q.Deferred<T> = Q.defer();
+            this.fetchFirst(query, (error) => defer.reject(error), (result) => defer.resolve(result));
+            return defer.promise;
+        }
+
+        fetchFirst(query:any, onError:(any)=>void, onResult:(T)=>void, cursorDecorator? : (any) => void):void {
+            this.fetch(query, 1, 1, onError, (data:Array<T>) => {
+                if(data.length > 0) {
+                    onResult(data[0]);
+                } else {
+                    onResult(undefined);
+                }
+            }, cursorDecorator);
         }
 
         private requestFetch<T>(cursor : any, onError: (any) => void, onResult: (T) => void) {

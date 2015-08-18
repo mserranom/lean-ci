@@ -27,7 +27,7 @@ class BuildResultImpl implements model.BuildResult {
     succeeded:boolean;
     buildConfig:model.BuildConfig;
     log:string = '';
-    
+
 }
 
 describe('BuildScheduler: ', () => {
@@ -75,7 +75,7 @@ describe('BuildScheduler: ', () => {
         sut.data = data;
         sut.queue = new model.BuildQueue();
         sut.buildService = service;
-        sut.repository = repoMock;
+        sut.buildResultsRepository = repoMock;
 
     });
 

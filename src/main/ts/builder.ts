@@ -1,4 +1,7 @@
 ///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
+///<reference path="../../../lib/Q.d.ts"/>
+
+var Q = require('Q');
 
 
 import {terminal} from './terminal';
@@ -14,7 +17,8 @@ import {Inject} from '../../../lib/container';
 export module builder {
 
     export interface BuildService {
-        request(nextRequest : model.BuildRequest, onError : (any) => void);
+        request(nextRequest : model.BuildRequest, onError : (any) => void)  : Q.Promise<model.ActiveBuild>;
+        getStatus(scheduledBuild : model.ActiveBuild) : Q.Promise<string>;
         terminateAgent(buildId : string);
     }
 
@@ -25,7 +29,9 @@ export module builder {
 
         private _agents : Immutable.Map<string, terminal.TerminalInfo> = Immutable.Map<string, terminal.TerminalInfo>();
 
-        request(nextRequest : model.BuildRequest, onError : (any) => void) {
+        request(nextRequest : model.BuildRequest, onError : (any) => void) : Q.Promise<model.ActiveBuild> {
+
+            let defer : Q.Deferred<model.ActiveBuild> = Q.defer();
 
             console.log('starting build on repo: ' + nextRequest.repo);
 
@@ -33,12 +39,23 @@ export module builder {
                 .then(terminal => {
                     console.log('key: ' + terminal.container_key);
                     this._agents = this._agents.set(nextRequest.id, terminal);
-                    let agentURL = 'http://' + terminal.subdomain + "-" + config.terminal.port + '.terminal.com/start';
-                    this.sendBuildRequest(agentURL, nextRequest);
-                })
-                .fail(error => onError(error));
 
-            return nextRequest;
+                    let agentUrl = 'http://' + terminal.subdomain + "-" + config.terminal.port + '.terminal.com';
+                    let startUrl = agentUrl + '/start';
+                    this.sendBuildRequest(startUrl, nextRequest);
+
+                    defer.resolve({
+                        buildRequestId : nextRequest.id,
+                        agentURL : agentUrl,
+                        buildRequest : nextRequest
+                    });
+                })
+                .fail(error => {
+                    onError(error);
+                    defer.reject(error);
+                });
+
+            return defer.promise;
         }
 
         private sendBuildRequest(agentURL:string, req:model.BuildRequest) {
@@ -62,6 +79,25 @@ export module builder {
             });
         }
 
+        getStatus(scheduledBuild : model.ActiveBuild) : Q.Promise<string> {
+            let defer : Q.Deferred<string> = Q.defer();
+
+            var request : any = require('request');
+
+            request.get(scheduledBuild.agentURL , (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    defer.resolve(body);
+                } else if (error){
+                    defer.reject('unable to request build status: ' + error);
+                } else {
+                    defer.reject('unable to request build status: ' + response.statusCode);
+                }
+            });
+
+            return defer.promise;
+        }
+
+
         terminateAgent(buildId : string) {
             let agent = this._agents.get(buildId);
             if(!agent) {
@@ -75,7 +111,10 @@ export module builder {
 
     export class MockBuildService implements BuildService {
 
-        request(req:model.BuildRequest, onError:(any)=>void) {
+        request(req:model.BuildRequest, onError:(any)=>void) : Q.Promise<model.ActiveBuild> {
+
+            let defer : Q.Deferred<model.ActiveBuild> = Q.defer();
+
             var request : any = require('request');
 
             let result : model.BuildResult = {
@@ -95,9 +134,23 @@ export module builder {
                     'url': req.pingURL + '?id=' + req.id,
                     'body': JSON.stringify(result)
                 });
+
+                defer.resolve({
+                    buildRequestId : req.id,
+                    agentURL : 'http://localhost:64321',
+                    buildRequest : req
+                });
             };
 
             setTimeout(pingResult, 3000 + Math.random() * 10000);
+
+            return defer.promise;
+        }
+
+        getStatus(scheduledBuild : model.ActiveBuild) : Q.Promise<string> {
+            let defer : Q.Deferred<string> = Q.defer();
+            setImmediate(() => {defer.resolve('status: mock')}, 10);
+            return defer.promise;
         }
 
         terminateAgent(buildId:string) {
@@ -117,7 +170,10 @@ export module builder {
         buildService : BuildService;
 
         @Inject('buildResultsRepository')
-        repository : repository.DocumentRepository<model.BuildResult>;
+        buildResultsRepository : repository.DocumentRepository<model.BuildResult>;
+
+        @Inject('activeBuildsRepository')
+        activeBuildsRepository : repository.DocumentRepository<model.ActiveBuild>;
 
         private _activeBuilds : Immutable.Map<string, model.BuildRequest> = Immutable.Map<string, model.BuildRequest>();
 
@@ -159,23 +215,47 @@ export module builder {
 
             this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
 
-            let onBuildError = (error : any) => {
-                console.error('build request ' + nextRequest.id + ' failed for ' + nextRequest.repo);
-                this.pingFinish({
-                    request : nextRequest,
-                    succeeded : false,
-                    buildConfig : null,
-                    log : error.message,
-                    startedTimestamp : new Date(),
-                    finishedTimestamp : new Date()
-                });
-            } ;
+            let onBuildError = (error : any) => this.onStartBuildError(error, nextRequest);
 
             this.buildService.request(nextRequest, onBuildError);
 
             nextRequest.processedTimestamp = new Date();
 
             return nextRequest;
+        }
+
+        startBuild2() : model.BuildRequest {
+
+            let nextRequest = this.queue.next();
+            if(!nextRequest) {
+                return null;
+            }
+            console.log('starting build on repo: ' + nextRequest.repo);
+
+            this._activeBuilds = this._activeBuilds.set(nextRequest.id, nextRequest);
+
+            let onBuildError = (error : any) => this.onStartBuildError(error, nextRequest);
+
+            this.buildService.request(nextRequest, onBuildError)
+                .then((activeBuildInfo : model.ActiveBuild) =>
+                    this.activeBuildsRepository.save(activeBuildInfo, (err) => console.error(err), () => {}))
+                .fail((reason) => console.error(reason));
+
+            nextRequest.processedTimestamp = new Date();
+
+            return nextRequest;
+        }
+
+        private onStartBuildError(error : any, buildRequest : model.BuildRequest) : void {
+            console.error('build request ' + buildRequest.id + ' failed for ' + buildRequest.repo);
+            this.pingFinish({
+                request : buildRequest,
+                succeeded : false,
+                buildConfig : null,
+                log : error.message,
+                startedTimestamp : new Date(),
+                finishedTimestamp : new Date()
+            });
         }
 
         pingFinish(result : model.BuildResult) {
@@ -200,7 +280,7 @@ export module builder {
                 this.queueDownstreamDependencies(project);
             }
 
-            this.repository.save(result, (err) => console.error(err), () => {});
+            this.buildResultsRepository.save(result, (err) => console.error(err), () => {});
 
             this.buildService.terminateAgent(buildId);
         }

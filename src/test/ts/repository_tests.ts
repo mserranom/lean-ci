@@ -1,15 +1,25 @@
-///<reference path="../../../lib/chai.d.ts"/>
-///<reference path="../../../lib/mocha.d.ts"/>
-
 import {repository} from '../../../src/main/ts/repository';
 import {model} from '../../../src/main/ts/model';
 import {expect} from 'chai';
 
-let TINGODB_PATH = 'target/test';
+import {setupChai, TINGODB_PATH} from './test_utils'
+
+setupChai();
 
 class MyType {
     id:number = 1;
     name:string;
+    timestamp : Date = new Date();
+}
+
+function createItems(count : Number) : Array<MyType> {
+    let items : Array<MyType> = [];
+    for(let i = 0; i < count; i++) {
+        let item = new MyType();
+        item.id = i;
+        items.push(item);
+    }
+    return items;
 }
 
 describe('MongoDBRepository', () => {
@@ -19,10 +29,6 @@ describe('MongoDBRepository', () => {
     let errorHandler = (error) => { throw 'failed: ' + JSON.stringify(error) };
 
     beforeEach( (done) => {
-
-        // CHANGE THIS TO EXECUTE AGAINST A MONGO DB
-        //repository.mongodbConnect(MONGO_URL, (err,db) => {
-        
         repository.tingodbConnect(TINGODB_PATH, (err,db) => {
             if(err) {
                 throw err;
@@ -53,13 +59,18 @@ describe('MongoDBRepository', () => {
         });
     });
 
+    it('(with promise) should allow insertion of elements and then retrieval', (done) => {
+        let item = new MyType();
+
+        sut.saveQ(item)
+            .then(() => { return sut.fetchQ({}, 1, 10) })
+            .should.eventually.have.lengthOf(1)
+            .and.satisfy(items => { return items[0].id == '1' })
+            .and.notify(done);
+    });
+
     it('should allow fetching saved items', (done) => {
-        let items = new Array<MyType>();
-        for(let i = 0; i < 100; i++) {
-            let item = new MyType();
-            item.id = i;
-            items.push(item);
-        }
+        let items = createItems(100);
         sut.save(items, errorHandler, () => {
             sut.fetch({}, 1, 10, errorHandler, (results) => {
                 expect(results.length).equals(10);
@@ -67,6 +78,15 @@ describe('MongoDBRepository', () => {
                 done();
             });
         });
+    });
+
+    it('(with promise) should allow fetching saved items', (done) => {
+        let items = createItems(100);
+        sut.saveQ(items)
+            .then(() => { return sut.fetchQ({}, 1, 10) })
+            .should.eventually.have.lengthOf(10)
+            .and.satisfy(items => { return items.every(item => {return item.id < 10})})
+            .and.notify(done);
     });
 
     it('should allow updating saved items', (done) => {
@@ -92,13 +112,26 @@ describe('MongoDBRepository', () => {
         });
     });
 
+    it('(with promises) should allow updating saved items', (done) => {
+        let item = new MyType();
+        item.id = 101;
+        item.name = 'testName';
+
+        let updateItem = new MyType();
+        updateItem.id = 101;
+        updateItem.name = 'testNameUpdated';
+
+        let query = {id : 101};
+
+        sut.saveQ(item)
+            .then(() => { return sut.updateQ(query, updateItem) })
+            .then(() => { return sut.fetchQ(query, 1, 10)})
+            .should.eventually.satisfy(items => { return items.every(item => {return item.name === 'testNameUpdated'})})
+            .and.notify(done);
+    });
+
     it('pagination returns the correct items', (done) => {
-        let items = new Array<MyType>();
-        for(let i = 0; i < 100; i++) {
-            let item = new MyType();
-            item.id = i;
-            items.push(item);
-        }
+        let items = createItems(100);
         sut.save(items, errorHandler, () => {
             sut.fetch({}, 3, 20, errorHandler, (results) => {
                 expect(results.length).equals(20);
@@ -108,19 +141,32 @@ describe('MongoDBRepository', () => {
         });
     });
 
+    it('(with promises) pagination returns the correct items', (done) => {
+        let items = createItems(100);
+
+        sut.saveQ(items)
+            .then(() => {return sut.fetchQ({}, 3, 20)})
+            .should.eventually.have.lengthOf(20)
+            .and.satisfy(results => {return results.every(item => {return item.id < 60 && item.id > 39})})
+            .and.notify(done);
+    });
+
     it('should allow fetching a single item', (done) => {
-        let items = new Array<MyType>();
-        for(let i = 0; i < 100; i++) {
-            let item = new MyType();
-            item.id = i;
-            items.push(item);
-        }
+        let items = createItems(100);
         sut.save(items, errorHandler, () => {
             sut.fetchFirst({id : 45}, errorHandler, (result) => {
                 expect(result.id).equals(45);
                 done();
             });
         });
+    });
+
+    it('(with promises) should allow fetching a single item', (done) => {
+        let items = createItems(100);
+        sut.saveQ(items)
+            .then(() => sut.fetchFirstQ({id : 45}))
+            .should.eventually.satisfy(item => {return item.id === 45})
+            .and.notify(done);
     });
 
     it('should allow removing a single item', (done) => {
@@ -137,6 +183,79 @@ describe('MongoDBRepository', () => {
                 });
             });
         });
+    });
+
+    it('(with promises) should allow removing a single item', (done) => {
+        let item = new MyType();
+        item.id = 101;
+
+        let query = {id : 101};
+
+        sut.saveQ(item)
+            .then(() => { return sut.removeQ(query)})
+            .then(() => { return sut.fetchFirstQ(query)})
+            .should.eventually.be.empty
+            .and.notify(done);
+    });
+
+    it('should return items ordered by ascending date when the old item is added first', (done) => {
+        let oldItem = new MyType();
+        oldItem.id = 112512;
+        let newItem = new MyType();
+        newItem.id = 45745845;
+        oldItem.timestamp.setTime(new Date().getTime() - 10000);
+
+
+        sut.saveQ([oldItem, newItem])
+            .then(() => { return sut.fetchQ({}, 1, 10, (cursor) => {cursor.sort({'timestamp' : 'ascending'})})})
+            .should.eventually.have.lengthOf(2)
+            .and.satisfy(items => {return items[0].id == oldItem.id && items[1].id == newItem.id})
+            .and.notify(done);
+    });
+
+    it('should return items ordered by ascending date when the new item is added first', (done) => {
+        let oldItem = new MyType();
+        oldItem.id = 112512;
+        let newItem = new MyType();
+        newItem.id = 45745845;
+        oldItem.timestamp.setTime(new Date().getTime() - 10000);
+
+
+        sut.saveQ([newItem, oldItem])
+            .then(() => { return sut.fetchQ({}, 1, 10, (cursor) => {cursor.sort({'timestamp' : 'ascending'})})})
+            .should.eventually.have.lengthOf(2)
+            .and.satisfy(items => {return items[0].id == oldItem.id && items[1].id == newItem.id})
+            .and.notify(done);
+    });
+
+    it('should return items ordered by descending date when the old item is added first', (done) => {
+        let oldItem = new MyType();
+        oldItem.id = 112512;
+        let newItem = new MyType();
+        newItem.id = 45745845;
+        oldItem.timestamp.setTime(new Date().getTime() - 10000);
+
+
+        sut.saveQ([oldItem,  newItem])
+            .then(() => { return sut.fetchQ({}, 1, 10, (cursor) => {cursor.sort({'timestamp' : 'descending'})})})
+            .should.eventually.have.lengthOf(2)
+            .and.satisfy(items => {return items[1].id == oldItem.id && items[0].id == newItem.id})
+            .and.notify(done);
+    });
+
+    it('should return items ordered by descending date when the new item is added first', (done) => {
+        let oldItem = new MyType();
+        oldItem.id = 112512;
+        let newItem = new MyType();
+        newItem.id = 45745845;
+        oldItem.timestamp.setTime(new Date().getTime() - 10000);
+
+
+        sut.saveQ([newItem, oldItem])
+            .then(() => { return sut.fetchQ({}, 1, 10, (cursor) => {cursor.sort({'timestamp' : 'descending'})})})
+            .should.eventually.have.lengthOf(2)
+            .and.satisfy(items => {return items[1].id == oldItem.id && items[0].id == newItem.id})
+            .and.notify(done);
     });
 
 });

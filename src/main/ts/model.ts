@@ -24,6 +24,11 @@ export module model {
         processedTimestamp : Date;
     }
 
+    export interface ActiveBuild {
+        agentURL : string;
+        buildRequest : BuildRequest;
+    }
+
     export interface BuildConfig {
         command : string;
         dependencies : Array<string>;

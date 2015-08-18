@@ -28,11 +28,11 @@ module.exports = function (grunt) {
 
         typescript: {
             base: {
-                src: [project.srcDir + '/*.ts'],
+                src: [project.srcDir + '/**/*.ts'],
                 dest: project.targetJs
             },
             test: {
-                src: [project.testDir + '/*.ts'],
+                src: [project.testDir + '/**/*.ts'],
                 dest: project.targetTestJs
             },
             options: {
@@ -52,7 +52,7 @@ module.exports = function (grunt) {
                     quiet: false, // Optionally suppress output to standard out (defaults to false)
                     clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
                 },
-                src: [project.testDir + '/*.js']
+                src: [project.testDir + '/**/*.js']
             }
         },
 

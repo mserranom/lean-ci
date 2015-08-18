@@ -94,19 +94,31 @@ export module api {
                 res.end();
 
                 console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-                let repo : string = req.body.repository.full_name;
+                let repo : string = req.body.buildResultsRepository.full_name;
                 let commit : string = req.body.head_commit.id;
                 this.builder.queueBuild(repo, commit);
             });
 
             app.post('/build/start', (req, res) => {
                 console.info('received /build/start POST request');
-                res.end();
-
-                console.info(JSON.stringify(req.body));
                 let repo : string = req.body.repo;
                 console.log(repo);
-                this.builder.queueBuild(repo);
+                let request = this.builder.queueBuild(repo);
+                res.send(JSON.stringify(request));
+            });
+
+            app.get('/build/:id/log', (req, res) => {
+                let buildId : string = req.params.id;
+                let onResult = (data : model.BuildResult) => {
+                    // TODO: what to do when it's undefined?
+                    // TODO: proxy to the agent to stream the logs
+                    res.send(JSON.stringify(data.log));
+                };
+                let onError = (error) => {
+                    res.status = 500;
+                    res.end();
+                };
+                this.buildResults.fetchFirst({"request.id" : buildId}, onError, onResult);
             });
 
             app.get('/build/queue', (req, res) => {

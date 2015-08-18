@@ -6,6 +6,7 @@ import {repository} from './repository';
 import {auth} from './auth';
 import {github} from './github';
 import {terminal} from './terminal';
+import {PersistedBuildQueue} from './build/BuildQueue'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
@@ -19,6 +20,9 @@ class App {
         this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
         this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
+        this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
+
         this.container.add(new terminal.TerminalAPI(config.terminal), 'terminalApi');
         this.container.add(new builder.TerminalBuildService(), 'buildService');
         this.container.add(new builder.BuildScheduler(), 'buildScheduler');
@@ -28,6 +32,8 @@ class App {
         this.container.add(new model.BuildQueue(), 'buildQueue');
         this.container.add(new api.ExpressServer(), 'expressServer');
         this.container.add(new github.GithubAPI(), 'githubApi');
+
+        this.container.add(new PersistedBuildQueue(), 'foo');
 
         this.container.init();
 

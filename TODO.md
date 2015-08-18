@@ -7,6 +7,8 @@ TODO
 
 [ ] publish to Nexus
 
+[ ] write acceptance tests for the services implemented so far
+
 [ ] agent timeout after 4' makes the build fail and proceed with the queue
 
 [ ] move the app to stateless, removing completely AllProjects model
@@ -24,8 +26,6 @@ TODO
 [ ] BUG: building a project with dependencies that are not projects in the model make the dependency resolution fail
 
 [ ] extract class per file
-
-[ ] write integration tests for the services implemented so far
 
 [ ] decide strategies for queuing builds after the pipeline graph
  * create a pipeline datatype
