@@ -45,7 +45,6 @@ export module builder {
                     this.sendBuildRequest(startUrl, nextRequest);
 
                     defer.resolve({
-                        buildRequestId : nextRequest.id,
                         agentURL : agentUrl,
                         buildRequest : nextRequest
                     });
@@ -136,7 +135,6 @@ export module builder {
                 });
 
                 defer.resolve({
-                    buildRequestId : req.id,
                     agentURL : 'http://localhost:64321',
                     buildRequest : req
                 });

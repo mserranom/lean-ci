@@ -9,7 +9,7 @@ var simple = require('simple-mock');
 var Q = require('Q');
 simple.Promise = Q;
 
-export var TINGODB_PATH = 'target/test';
+export var TINGODB_PATH = 'dist';
 
 export function setupChai() {
     var chai = require('chai');

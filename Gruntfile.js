@@ -5,8 +5,8 @@ module.exports = function (grunt) {
     var project = {
         srcDir : 'src/main/ts',
         testDir : 'src/test/ts',
-        targetDir : 'target',
-        targetTestDir : 'target/test',
+        targetDir : 'dist',
+        targetTestDir : 'dist/src/test/ts',
         name : '<%= pkg.name %>',
         version : '<%= pkg.version %>',
         extension : 'ts'
@@ -22,25 +22,28 @@ module.exports = function (grunt) {
 
         clean:{
             target:[ project.targetDir,'_SpecRunner.html', project.srcDir + '/**/*.js', project.srcDir + '/**/*.js.map',
+                project.srcDir + '/**/*.d.ts', project.testDir + '/**/*.d.ts',
                 project.srcDir + '/**/*.html', project.testDir + '/**/*.js',  project.testDir + '/**/*.js.map',
                 project.testDir + '/**/*.html', 'dist.zip']
         },
 
-        typescript: {
-            base: {
-                src: [project.srcDir + '/**/*.ts'],
-                dest: project.targetJs
-            },
-            test: {
-                src: [project.testDir + '/**/*.ts'],
-                dest: project.targetTestJs
-            },
+        // Commented out, has problems to run with exclusions. replaced with shell:compile
+
+        //ts: {
+        //    options: {
+        //        compiler: '/usr/local/bin/tsc'
+        //    },
+        //    default: {
+        //        tsconfig: './tsconfig.json'
+        //    }
+        //},
+
+        shell: {
             options: {
-                module: 'commonjs',
-                target: 'ES5',
-                basePath: project.srcDir,
-                sourceMap: false,
-                declaration: false
+                stderr: false
+            },
+            compile: {
+                command: 'tsc'
             }
         },
 
@@ -48,16 +51,16 @@ module.exports = function (grunt) {
             test: {
                 options: {
                     reporter: 'spec',
-                    captureFile: project.targetTestDir + '/results.txt', // Optionally capture the reporter output to a file
+                    captureFile: project.targetDir + '/test-results.txt', // Optionally capture the reporter output to a file
                     quiet: false, // Optionally suppress output to standard out (defaults to false)
                     clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
                 },
-                src: [project.testDir + '/**/*.js']
+                src: [project.targetTestDir + '/**/*.js']
             }
         },
 
         zip: {
-            'dist.zip': ['src/main/ts/**/*.js', 'node_modules/**/*.*', 'lib/**/*']
+            'dist.zip': ['dist/src/main/**/*.js', 'dist/lib/**/*', 'node_modules/**/*.*']
         },
 
         watch: {
@@ -82,13 +85,14 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-clean");
-    grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-ts');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-zip');
 
-    grunt.registerTask("compile", ["clean", "typescript"]);
+    grunt.registerTask("compile", ["clean", "shell:compile"]);
     grunt.registerTask("test", ["compile", "mochaTest"]);
     grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["package"]);
