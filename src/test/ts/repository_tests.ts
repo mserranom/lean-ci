@@ -112,7 +112,7 @@ describe('MongoDBRepository', () => {
         });
     });
 
-    it('(with promises) should allow updating saved items', (done) => {
+    it('(with promises) should allow updating saved items', async function(done) {
         let item = new MyType();
         item.id = 101;
         item.name = 'testName';
@@ -123,11 +123,13 @@ describe('MongoDBRepository', () => {
 
         let query = {id : 101};
 
-        sut.saveQ(item)
-            .then(() => { return sut.updateQ(query, updateItem) })
-            .then(() => { return sut.fetchQ(query, 1, 10)})
-            .should.eventually.satisfy(items => { return items.every(item => {return item.name === 'testNameUpdated'})})
-            .and.notify(done);
+        await sut.saveQ(item);
+        await sut.updateQ(query, updateItem);
+        let items : any = await sut.fetchQ(query, 1, 10);
+
+        expect(items.every(item => {return item.name === 'testNameUpsdated'}));
+
+        done();
     });
 
     it('pagination returns the correct items', (done) => {

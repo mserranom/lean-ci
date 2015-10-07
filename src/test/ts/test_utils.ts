@@ -2,6 +2,9 @@
 ///<reference path="../../../lib/chai.d.ts"/>
 ///<reference path="../../../lib/chai-as-promised.d.ts"/>
 
+// required to enable async/await
+require("babel/polyfill");
+
 import {model} from '../../../src/main/ts/model';
 
 var simple = require('simple-mock');
