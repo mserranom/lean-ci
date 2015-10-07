@@ -1,8 +1,8 @@
 ///<reference path="../../../lib/node-0.10.d.ts"/>
 ///<reference path="promises.ts"/>
 
-import http = require("http");
-import https = require("https")
+import * as http from "http"
+import * as https from "https"
 
 import {P} from './promises';
 export var defer = P.defer;

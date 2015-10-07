@@ -1,6 +1,6 @@
 ///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
 
-import Immutable = require('immutable');
+import * as Immutable from "immutable"
 
 export module model {
 

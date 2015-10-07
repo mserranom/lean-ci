@@ -10,7 +10,7 @@ import {config} from './config';
 import {model} from './model';
 import {repository} from './repository'
 
-import Immutable = require('immutable');
+import * as Immutable from "immutable"
 
 import {Inject} from '../../../lib/container';
 

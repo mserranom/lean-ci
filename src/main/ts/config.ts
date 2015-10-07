@@ -1,7 +1,7 @@
 ///<reference path="../../../lib/node-0.10.d.ts"/>
 
 
-import fs = require("fs");
+import * as fs from "fs"
 //import process = require("process");
 
 export var config;

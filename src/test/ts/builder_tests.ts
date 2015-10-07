@@ -14,7 +14,7 @@ import {P} from '../../../src/main/ts/promises';
 import {repository} from '../../../src/main/ts/repository';
 import {expect} from 'chai';
 
-import Immutable = require('immutable');
+import * as Immutable from "immutable"
 
 export var defer = P.defer;
 
