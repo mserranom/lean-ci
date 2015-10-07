@@ -1,6 +1,6 @@
-import {setupChai, createBuildRequest, createBuildResult, TINGODB_PATH} from '../test_utils'
+import {createBuildRequest, createBuildResult, TINGODB_PATH} from '../test_utils'
 
-import {PersistedBuildQueue, BuildQueue} from '../../../../src/main/ts/build/BuildQueue';
+import {PersistedBuildQueue} from '../../../../src/main/ts/build/BuildQueue';
 import {repository} from '../../../../src/main/ts/repository';
 import {model} from '../../../../src/main/ts/model';
 

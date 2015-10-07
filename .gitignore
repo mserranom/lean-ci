@@ -32,6 +32,7 @@ _SpecRunner.html
 *.iml
 *.ipr
 *.iws
+*.ids
 
 src/main/ts/*.js
 src/test/ts/*.js

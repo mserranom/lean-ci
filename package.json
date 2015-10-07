@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "chai": "2.1.2",
-    "container-ts": "^0.4.1",
+    "container-ts": "0.4.1",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-clean": "0.4.0",
@@ -36,7 +36,7 @@
   "scripts": {
     "clean": "grunt clean",
     "test": "grunt test",
-    "install": "grunt"
+    "build": "grunt"
   },
   "repository": {
     "type": "git",

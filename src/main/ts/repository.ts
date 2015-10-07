@@ -1,6 +1,6 @@
 ///<reference path="../../../lib/Q.d.ts"/>
 
-var Q = require('Q');
+var Q = require('q');
 
 import {model} from './model';
 import {config} from './config';

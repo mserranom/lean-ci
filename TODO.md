@@ -32,6 +32,8 @@ TODO
  * queue builds based on the pipeline after builds finish
  * decide queueing strategie(s)
 
+[ ] repositories: log errors, reject promises with meaningful messages
+
 
 DONE
 ====

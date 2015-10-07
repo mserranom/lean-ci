@@ -5,12 +5,12 @@ import {repository} from '../repository';
 
 import {Inject} from '../../../../lib/container'
 
-var Q = require('Q');
+var Q = require('q');
 
 export interface BuildQueue {
     add(repo : model.BuildRequest) : Q.Promise<void>;
     nextScheduledBuild() : Q.Promise<model.BuildRequest>;
-    start(buildId : string, agentURL : string) : Q.Promise<void>;
+    start(buildRequestId : string, agentURL : string) : Q.Promise<void>;
     finish(buildResult : model.BuildResult) : Q.Promise<void>;
     scheduledBuilds(page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
     activeBuilds(page : number, perPage : number) : Q.Promise<Array<model.ActiveBuild>>;
@@ -36,8 +36,8 @@ export class PersistedBuildQueue implements BuildQueue {
         return this.scheduledBuilds(1, 1).then((items) => { return items[0]});
     }
 
-    start(buildId : string, agentURL : string) : Q.Promise<void> {
-        return this.queuedBuildsRepository.fetchFirstQ({id : buildId})
+    start(buildRequestId : string, agentURL : string) : Q.Promise<void> {
+        return this.queuedBuildsRepository.fetchFirstQ({id : buildRequestId})
             .then(buildRequest => {
                 return Q.all([
                     this.queuedBuildsRepository.removeQ({id : buildRequest.id}),

@@ -10,6 +10,11 @@ import {PersistedBuildQueue} from './build/BuildQueue'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
+let args = {
+    localDeploy : process.argv.indexOf("-local") != -1,
+    mockAgents : process.argv.indexOf("-mockAgents") != -1
+};
+
 class App {
 
     private container : Container;
@@ -17,23 +22,30 @@ class App {
     init(db) {
         this.container = ContainerBuilder.create();
 
+
         this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
         this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
         this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
         this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
 
-        this.container.add(new terminal.TerminalAPI(config.terminal), 'terminalApi');
-        this.container.add(new builder.TerminalBuildService(), 'buildService');
+        if(args.mockAgents) {
+            this.container.add(new builder.MockBuildService(), 'buildService');
+        } else {
+            this.container.add(new terminal.TerminalAPI(config.terminal), 'terminalApi');
+            this.container.add(new builder.TerminalBuildService(), 'buildService');
+        }
+
         this.container.add(new builder.BuildScheduler(), 'buildScheduler');
         this.container.add(new auth.AuthenticationService(), 'authenticationService');
         this.container.add(new api.LeanCIApi(), 'leanCIApi');
         this.container.add(new model.AllProjects(), 'allProjects');
+
         this.container.add(new model.BuildQueue(), 'buildQueue');
+        this.container.add(new PersistedBuildQueue(), 'buildQueue2');
+
         this.container.add(new api.ExpressServer(), 'expressServer');
         this.container.add(new github.GithubAPI(), 'githubApi');
-
-        this.container.add(new PersistedBuildQueue(), 'foo');
 
         this.container.init();
 
@@ -53,11 +65,26 @@ class App {
     }
 }
 
-repository.mongodbConnect(config.mongodbUrl, (err, db) => {
-    if(err) {
-        throw new Error('couldnt establish mongodb connection: ' + err)
+function start() {
+    let onDBConnect = (err, db) => {
+        if(err) {
+            throw new Error('couldnt establish mongodb connection: ' + err)
+        } else {
+            let app = new App();
+            app.init(db);
+        }
+    };
+
+    if(args.localDeploy) {
+        repository.tingodbConnect('LEANCI_TINGO_DB', onDBConnect);
     } else {
-        let app = new App();
-        app.init(db);
+        repository.mongodbConnect(config.mongodbUrl, onDBConnect);
     }
-});
+}
+
+
+start();
+
+
+
+

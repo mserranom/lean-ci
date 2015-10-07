@@ -4,6 +4,11 @@
 
 import {model} from '../../../src/main/ts/model';
 
+var simple = require('simple-mock');
+
+var Q = require('Q');
+simple.Promise = Q;
+
 export var TINGODB_PATH = 'target/test';
 
 export function setupChai() {
@@ -18,15 +23,41 @@ export function setupChai() {
     chai.use(chaiThings);
 }
 
+export function spy(methods : Array<string>) : any {
+    let mock = {};
+    methods.forEach(method => mock[method] = simple.spy(() => {}));
+    return mock;
+}
+
+export function stubPromise(value? : any) : any {
+    return simple.stub().returnWith(Q.Promise.resolve(value));
+}
+
+export function stubRejectedPromise(reason? : string) : any {
+    return simple.stub().rejectWith(reason);
+}
+
 
 export function createBuildRequest() : model.BuildRequest {
     return new BuildRequestImpl();
 }
 
 export function createBuildResult() : model.BuildResult {
-    return new BuildResultImpl();
+    let result = new BuildResultImpl();
+    result.request = new BuildRequestImpl();
+    return result;
 }
 
+export function createActiveBuild() : model.ActiveBuild {
+    let result = new ActiveBuildImpl();
+    result.buildRequest = new BuildRequestImpl();
+    return result;
+}
+
+class ActiveBuildImpl implements model.ActiveBuild {
+    agentURL : string = 'http://test_agent_host';
+    buildRequest : model.BuildRequest;
+}
 
 class BuildResultImpl implements model.BuildResult {
     request : model.BuildRequest;

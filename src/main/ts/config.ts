@@ -40,7 +40,7 @@ if(config) {
             userToken: '',
             accessToken: '',
             buildAgentId: '',
-            port: ''
+            port: 8092
         },
 
         github : {

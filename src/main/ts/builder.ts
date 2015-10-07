@@ -1,7 +1,7 @@
 ///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
 ///<reference path="../../../lib/Q.d.ts"/>
 
-var Q = require('Q');
+var Q = require('q');
 
 
 import {terminal} from './terminal';
@@ -284,6 +284,22 @@ export module builder {
 
             this.buildService.terminateAgent(buildId);
         }
+
+        //pingFinish2(result : model.BuildResult) {
+        //
+        //    let buildId = result.request.id;
+        //
+        //    let onFetchActiveBuildError = (error) => {
+        //        console.error('unable to find active build with id=' + buildId);
+        //    };
+        //
+        //    let onActiveBuildFetched = (activeBuild:model.ActiveBuild) => {
+        //
+        //        this.repository.save(result, (err) => console.error(err), () => {
+        //        });
+        //        this.buildService.terminateAgent(buildId);
+        //    };
+        //}
 
         private queueDownstreamDependencies(project:model.Project) {
             if(project.downstreamDependencies.size > 0) {
