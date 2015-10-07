@@ -12,7 +12,8 @@ import {Container, ContainerBuilder} from '../../../lib/container';
 
 let args = {
     localDeploy : process.argv.indexOf("-local") != -1,
-    mockAgents : process.argv.indexOf("-mockAgents") != -1
+    mockAgents : process.argv.indexOf("-mockAgents") != -1,
+    mockAuth : process.argv.indexOf("-mockAuth") != -1
 };
 
 class App {
@@ -36,7 +37,13 @@ class App {
         }
 
         this.container.add(new builder.BuildScheduler(), 'buildScheduler');
-        this.container.add(new auth.AuthenticationService(), 'authenticationService');
+
+        if(args.mockAuth) {
+            this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
+        } else {
+            this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
+        }
+
         this.container.add(new api.LeanCIApi(), 'leanCIApi');
         this.container.add(new model.AllProjects(), 'allProjects');
 

@@ -12,9 +12,9 @@ import {expect} from 'chai';
 var simple = require('simple-mock');
 
 
-describe('AuthenticationService', () => {
+describe('GithubAuthenticationService', () => {
 
-    let sut : auth.AuthenticationService;
+    let sut : auth.GithubAuthenticationService;
 
     let repoMock : repository.DocumentRepository<model.UserCredentials>;
     let githubMock : github.GithubAPI;
@@ -43,7 +43,7 @@ describe('AuthenticationService', () => {
         githubUserPromise = P.defer();
         githubMock.user = (id) => githubUserPromise.promise();
 
-        sut = new auth.AuthenticationService();
+        sut = new auth.GithubAuthenticationService();
         sut.repo = repoMock;
         sut.github = githubMock;
     });

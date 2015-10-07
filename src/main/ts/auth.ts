@@ -7,7 +7,25 @@ import {Inject} from '../../../lib/container';
 
 export module auth {
 
-    export class AuthenticationService {
+    export interface AuthenticationService {
+
+        authenticate(userId:string, userToken : string, githubToken : string,
+                     onError:(string) => void,
+                     onResult:(data:model.UserCredentials) => void) : void;
+
+    }
+
+    export class MockAuthenticationService implements AuthenticationService {
+
+        authenticate(userId:string, userToken : string, githubToken : string,
+                     onError:(string) => void,
+                     onResult:(data:model.UserCredentials) => void) : void {
+
+            setTimeout(() => onResult({userId : userId, token : "mock_token" }), 1)
+        }
+    }
+
+    export class GithubAuthenticationService implements AuthenticationService {
 
         @Inject('userCredentialsRepository')
         repo : repository.DocumentRepository<model.UserCredentials>;
