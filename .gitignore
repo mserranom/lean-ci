@@ -37,4 +37,7 @@ _SpecRunner.html
 src/main/ts/*.js
 src/test/ts/*.js
 
+.tscache
+
+dist
 dist.zip
