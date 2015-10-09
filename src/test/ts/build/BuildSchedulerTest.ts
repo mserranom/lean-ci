@@ -8,7 +8,7 @@ import {expect} from 'chai';
 
 var simple = require('simple-mock');
 
-var Q = require('Q');
+var Q = require('q');
 
 describe('BuildScheduler', () => {
 

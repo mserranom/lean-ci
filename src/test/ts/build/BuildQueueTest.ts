@@ -6,7 +6,7 @@ import {model} from '../../../../src/main/ts/model';
 
 import {expect} from 'chai';
 
-var Q = require('Q');
+var Q = require('q');
 
 describe('PersistedBuildQueue', () => {
 
