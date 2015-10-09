@@ -9,7 +9,7 @@ import {model} from '../../../src/main/ts/model';
 
 var simple = require('simple-mock');
 
-var Q = require('Q');
+var Q = require('q');
 simple.Promise = Q;
 
 export var TINGODB_PATH = 'dist';
