@@ -48,14 +48,17 @@ module.exports = function (grunt) {
         },
 
         mochaTest: {
-            test: {
-                options: {
-                    reporter: 'spec',
-                    captureFile: project.targetDir + '/test-results.txt', // Optionally capture the reporter output to a file
-                    quiet: false, // Optionally suppress output to standard out (defaults to false)
-                    clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
-                },
-                src: [project.targetTestDir + '/**/*.js']
+            options: {
+                reporter: 'spec',
+                captureFile: project.targetDir + '/test-results.txt', // Optionally capture the reporter output to a file
+                quiet: false, // Optionally suppress output to standard out (defaults to false)
+                clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
+            },
+            unit: {
+                src: [project.targetTestDir + '/**/*.js', '!' + project.targetTestDir + '/**/integration/**/*.js']
+            },
+            integration: {
+                src: [project.targetTestDir + '/**/integration/**/*.js']
             }
         },
 
@@ -110,7 +113,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-zip');
 
     grunt.registerTask("compile", ["clean", "shell:compile", "babel"]);
-    grunt.registerTask("test", ["compile", "mochaTest"]);
+    grunt.registerTask("test", ["compile", "mochaTest:unit", "mochaTest:integration"]);
     grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["package"]);
 

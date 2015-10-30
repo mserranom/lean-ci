@@ -3,7 +3,13 @@
 ///<reference path="../../../lib/chai-as-promised.d.ts"/>
 
 // required to enable async/await
-require("babel/polyfill");
+try  {
+    require("babel/polyfill");
+}
+catch(error) {
+    // no action, this in case it tryes to be required twice
+}
+
 
 import {model} from '../../../src/main/ts/model';
 
