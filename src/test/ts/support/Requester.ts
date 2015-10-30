@@ -22,7 +22,7 @@ function request(endpoint, method, data) : Q.Promise<any> {
         url: 'http://localhost:8091' + endpoint,
         headers: {
             'x-lean-ci-user-id': 'aaaa',
-            'x-lean-ci-user-token': 'aaaa',
+            'x-lean-ci-user-token': 'mock_token',
             'x-lean-ci-github-token': 'aaaa'
         },
         formData: null

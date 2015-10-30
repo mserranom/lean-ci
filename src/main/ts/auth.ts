@@ -21,7 +21,11 @@ export module auth {
                      onError:(string) => void,
                      onResult:(data:model.UserCredentials) => void) : void {
 
-            setTimeout(() => onResult({userId : userId, token : "mock_token" }), 1)
+            if(userToken == 'mock_token') {
+                setTimeout(() => onResult({userId : userId, token : "mock_token" }), 1)
+            } else {
+                setTimeout(() => onError('auth failed'), 1)
+            }
         }
     }
 
