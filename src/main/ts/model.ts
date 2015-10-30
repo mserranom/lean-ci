@@ -31,7 +31,6 @@ export module model {
 
     export interface BuildConfig {
         command : string;
-        dependencies : Array<string>;
     }
 
     export interface BuildResult {
@@ -43,28 +42,8 @@ export module model {
         finishedTimestamp : Date;
     }
 
-    export interface ProjectDependency {
-        upstream : Project;
-        downstream : Project;
-    }
-
     export class Project {
         repo : string;
-        upstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
-        downstreamDependencies : Immutable.Set<ProjectDependency> = Immutable.Set<ProjectDependency>();
-
-        constructor(repo : string) {
-            this.repo = repo;
-        }
-
-        toJSONObject() {
-            let result : any =  {repo : this.repo};
-            result.upstreamDependencies = [];
-            result.downstreamDependencies = [];
-            this.upstreamDependencies.forEach(dep => result.upstreamDependencies.push(dep.upstream.repo));
-            this.downstreamDependencies.forEach(dep => result.downstreamDependencies.push(dep.downstream.repo));
-            return result;
-        }
     }
 
     export class BuildQueue {
@@ -143,37 +122,8 @@ export module model {
         }
 
         addNewProject(repo : string) {
-            let project = new Project(repo);
+            let project : Project =  { repo : repo };
             this._projects = this._projects.set(repo, project);
-        }
-
-        setDependency(upstream : string, downstream : string) : ProjectDependency {
-            let p1 : model.Project = this._projects.get(upstream);
-            let p2 : model.Project = this._projects.get(downstream);
-            let dep : ProjectDependency = {upstream : p1, downstream : p2};
-            p1.downstreamDependencies = p1.downstreamDependencies.add(dep);
-            p2.upstreamDependencies = p2.upstreamDependencies.add(dep);
-            return dep;
-        }
-
-        private clearDependency(upstream : string, downstream : string) {
-            let up = this.getProject(upstream);
-            let down = this.getProject(downstream);
-
-            let dep = up.downstreamDependencies.find((element, index, array) => element.downstream.repo == downstream
-                        && element.upstream.repo == upstream);
-
-            up.downstreamDependencies = up.downstreamDependencies.remove(dep);
-            down.upstreamDependencies = down.upstreamDependencies.remove(dep);
-        }
-
-        updateDependencies(repo : string, upstreamDependencies : Array<string>) : Immutable.Set<ProjectDependency> {
-            let project = this.getProject(repo);
-
-            project.upstreamDependencies.forEach(dep => this.clearDependency(dep.upstream.repo, dep.downstream.repo));
-
-            return Immutable.Set(upstreamDependencies.map(upstreamDep => this.setDependency(upstreamDep, repo)));
-
         }
 
     }

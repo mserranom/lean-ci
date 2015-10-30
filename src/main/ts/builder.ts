@@ -119,7 +119,7 @@ export module builder {
             let result : model.BuildResult = {
                 request : req,
                 succeeded : true,
-                buildConfig : {command : '', dependencies : []},
+                buildConfig : {command : ''},
                 log : '',
                 startedTimestamp : new Date(),
                 finishedTimestamp : new Date(),
@@ -266,45 +266,15 @@ export module builder {
             }
 
             let project = this.data.getProject(result.request.repo);
-            if(result.buildConfig && result.buildConfig.dependencies) {
-                this.data.updateDependencies(project.repo, result.buildConfig.dependencies);
-            }
 
             this.queue.finish(build);
 
             this._activeBuilds = this._activeBuilds.delete(buildId);
 
-            if(result.succeeded) {
-                this.queueDownstreamDependencies(project);
-            }
-
             this.buildResultsRepository.save(result, (err) => console.error(err), () => {});
 
             this.buildService.terminateAgent(buildId);
         }
-
-        //pingFinish2(result : model.BuildResult) {
-        //
-        //    let buildId = result.request.id;
-        //
-        //    let onFetchActiveBuildError = (error) => {
-        //        console.error('unable to find active build with id=' + buildId);
-        //    };
-        //
-        //    let onActiveBuildFetched = (activeBuild:model.ActiveBuild) => {
-        //
-        //        this.repository.save(result, (err) => console.error(err), () => {
-        //        });
-        //        this.buildService.terminateAgent(buildId);
-        //    };
-        //}
-
-        private queueDownstreamDependencies(project:model.Project) {
-            if(project.downstreamDependencies.size > 0) {
-                project.downstreamDependencies.forEach(dep => this.queueBuild(dep.downstream.repo));
-            }
-        }
-
 
     }
 

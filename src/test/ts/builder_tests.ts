@@ -49,11 +49,6 @@ describe('BuildScheduler: ', () => {
         expect(service.request['callCount']).equals(0);
     };
 
-    var assertUpDownProjectDependenciesAreCorrect = function() {
-        expect(upproject.downstreamDependencies.some(dep => dep.downstream == downProject)).to.be.true;
-        expect(downProject.upstreamDependencies.some(dep => dep.upstream == upproject)).to.be.true;
-    };
-
     beforeEach(function(){
         data = new model.AllProjects();
         data.addNewProject('myuser/myrepo');
@@ -98,7 +93,7 @@ describe('BuildScheduler: ', () => {
 
         let result : model.BuildResult = new BuildResultImpl();
         result.request = req;
-        result.buildConfig = { command : 'mvn', dependencies : [] };
+        result.buildConfig = { command : 'mvn' };
         sut.pingFinish(result);
 
         sut.startBuild();
@@ -112,24 +107,12 @@ describe('BuildScheduler: ', () => {
 
         let result : model.BuildResult = new BuildResultImpl();
         result.request = req;
-        result.buildConfig = { command : 'mvn', dependencies : [] };
+        result.buildConfig = { command : 'mvn' };
         sut.pingFinish(result);
 
         expect(sut.startBuild()).to.be.null;
 
         assertBuildWasRequested(1);
-    });
-
-    it('when a build is finished downstream dependencies are registered',() => {
-        sut.queueBuild(downProject.repo);
-        let req = sut.startBuild();
-
-        let result : model.BuildResult = new BuildResultImpl();
-        result.request = req;
-        result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
-        sut.pingFinish(result);
-
-        assertUpDownProjectDependenciesAreCorrect();
     });
 
     it('when a build is finished build agent is terminated',() => {
@@ -138,7 +121,7 @@ describe('BuildScheduler: ', () => {
 
         let result : model.BuildResult = new BuildResultImpl();
         result.request = req;
-        result.buildConfig = { command : 'mvn', dependencies : [upproject.repo] };
+        result.buildConfig = { command : 'mvn' };
         sut.pingFinish(result);
 
         expect(service.terminateAgent['callCount']).equals(1);
@@ -152,47 +135,10 @@ describe('BuildScheduler: ', () => {
         let result : model.BuildResult = new BuildResultImpl();
         result.request = req;
         result.request.id = 'nonExistentId';
-        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
+        result.buildConfig = { command : 'mvn' };
 
         let fn = () => sut.pingFinish(result);
         expect(fn).to.throw(/nonExistentId/);
-    });
-
-    it('a downstream dependency build can be started after the upstream is finished and succeeded',() => {
-        data.setDependency(upproject.repo, downProject.repo);
-        assertUpDownProjectDependenciesAreCorrect();
-
-        sut.queueBuild(upproject.repo);
-        let upstreamReq = sut.startBuild();
-        expect(upstreamReq.repo).equals(upproject.repo);
-
-        let result : model.BuildResult = new BuildResultImpl();
-        result.succeeded = true;
-        result.request = upstreamReq;
-        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
-        sut.pingFinish(result);
-
-        let downstreamReq = sut.startBuild();
-        expect(downstreamReq).not.null;
-        expect(downstreamReq.repo).equals(downProject.repo);
-    });
-
-    it('a downstream dependency build shouldnt started after the upstream is finished when the upstream failed',() => {
-        data.setDependency(upproject.repo, downProject.repo);
-        assertUpDownProjectDependenciesAreCorrect();
-
-        sut.queueBuild(upproject.repo);
-        let upstreamReq = sut.startBuild();
-        expect(upstreamReq.repo).equals(upproject.repo);
-
-        let result : model.BuildResult = new BuildResultImpl();
-        result.succeeded = false;
-        result.request = upstreamReq;
-        result.buildConfig = { command : 'mvn', dependencies : [downProject.repo] };
-        sut.pingFinish(result);
-
-        let downstreamReq = sut.startBuild();
-        expect(downstreamReq).to.be.null;
     });
 
 });
