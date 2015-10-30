@@ -102,7 +102,6 @@ export module api {
             app.post('/build/start', (req, res) => {
                 console.info('received /build/start POST request');
                 let repo : string = req.body.repo;
-                console.log(repo);
                 let request = this.builder.queueBuild(repo);
                 res.send(JSON.stringify(request));
             });
