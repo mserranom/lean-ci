@@ -4,7 +4,37 @@ import {P} from './promises';
 
 export module github {
 
-    export class GithubAPI {
+    export interface GitService {
+        authenticate(token:String);
+        user(id : string) : P.Promise<any>;
+        getRepo(name : string) : P.Promise<any>
+        setupWebhook(url:string, repo:string):P.Promise<string>;
+    }
+
+    export class GitServiceMock implements GitService {
+
+        authenticate(githubToken:String) { }
+
+        user(id : string) : P.Promise<any> {
+            var d = P.defer<any>();
+            setTimeout(() => d.resolve({id : id}), 1);
+            return d.promise();
+        }
+
+        getRepo(name : string) : P.Promise<any> {
+            var d = P.defer<any>();
+            setTimeout(() => d.resolve({name : name}), 1);
+            return d.promise();
+        }
+
+        setupWebhook(url:string, repo:string):P.Promise<string> {
+            var d = P.defer<string>();
+            setTimeout(() => d.resolve('hookId'), 1);
+            return d.promise();
+        }
+    }
+
+    export class GithubAPI implements GitService {
 
         private _service:any;
 

@@ -2,6 +2,8 @@
 
 var Q = require('q');
 
+export const USER_ID : string = 'aaaa';
+
 export function doGet(endpoint) : Q.Promise<any> {
     return request(endpoint, 'get', null);
 }
@@ -21,7 +23,7 @@ function request(endpoint, method, data) : Q.Promise<any> {
     var options = {
         url: 'http://localhost:8091' + endpoint,
         headers: {
-            'x-lean-ci-user-id': 'aaaa',
+            'x-lean-ci-user-id': USER_ID,
             'x-lean-ci-user-token': 'mock_token',
             'x-lean-ci-github-token': 'aaaa'
         },
@@ -43,8 +45,14 @@ function request(endpoint, method, data) : Q.Promise<any> {
             defer.reject(error);
         } else if (response.statusCode != 200) {
             defer.reject('server status code: ' + response.statusCode);
+        } else if (body){
+            try {
+                defer.resolve(JSON.parse(body));
+            } catch(error) {
+                defer.resolve(body);
+            }
         } else {
-            defer.resolve(body);
+            defer.resolve(undefined);
         }
     });
 

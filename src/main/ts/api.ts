@@ -7,6 +7,8 @@ import {github} from './github';
 
 import {Inject} from '../../../lib/container';
 
+// TODO: add validation https://www.npmjs.com/package/express-validation
+
 export module api {
 
     export class ExpressServer {
@@ -151,11 +153,11 @@ export module api {
                     cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
 
-            app.post('/repositories/:name', auth, (req,res) => {
+            app.post('/repositories', auth, (req,res) => {
                 let userId = req.get('x-lean-ci-user-id');
-                let repoName : string = req.params.name;
+                let repoName : string = req.body.name;
 
-                console.info(`received /repositories/${repoName} POST request`);
+                console.info('received /repositories POST request');
 
                 var data : model.Repository = {userId : userId, name : repoName};
 

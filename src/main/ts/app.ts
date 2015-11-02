@@ -10,6 +10,8 @@ import {PersistedBuildQueue} from './build/BuildQueue'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
+var fs = require('fs-extra');
+
 export interface BootstrapArguments {
     local : boolean;
     mockAgents : boolean;
@@ -57,7 +59,12 @@ export class App {
         this.container.add(new PersistedBuildQueue(), 'buildQueue2');
 
         this.container.add(new api.ExpressServer(), 'expressServer');
-        this.container.add(new github.GithubAPI(), 'githubApi');
+
+        if(this.arguments.local) {
+            this.container.add(new github.GitServiceMock(), 'githubApi');
+        } else {
+            this.container.add(new github.GithubAPI(), 'githubApi');
+        }
 
         this.container.init();
 
@@ -82,6 +89,8 @@ export class App {
     }
 }
 
+let tingoDBLocation = 'dist/tingodb_data';
+
 export function start(bootstrapArgs : BootstrapArguments) : App {
     let app = new App(bootstrapArgs);
     let onDBConnect = (err, db) => {
@@ -94,7 +103,9 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
     };
 
     if(bootstrapArgs.local) {
-        repository.tingodbConnect('LEANCI_TINGO_DB', onDBConnect);
+        console.log('using local TingoDB connection for persistence');
+        fs.mkdirsSync(tingoDBLocation);
+        repository.tingodbConnect(tingoDBLocation, onDBConnect);
     } else {
         repository.mongodbConnect(config.mongodbUrl, onDBConnect);
     }
@@ -102,6 +113,9 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
     return app;
 }
 
+export function cleanup() {
+    fs.removeSync(tingoDBLocation);
+}
 
 
 
