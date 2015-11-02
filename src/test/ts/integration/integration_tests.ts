@@ -1,6 +1,6 @@
 import {start, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
-import {doGet, doPost, USER_ID} from '../support/Requester';
+import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
 import {expect} from 'chai';
 
 import {setupChai} from '../test_utils'
@@ -38,7 +38,7 @@ describe('integration tests:', () => {
 
     describe('/repositories', () => {
 
-        it('POST single repository',  async function(done) {
+        it('POST repository',  async function(done) {
             await doPost('/repositories', {name : 'organisation/repo1'});
 
             let repositories : Array<model.Repository> = await doGet('/repositories');
@@ -48,15 +48,47 @@ describe('integration tests:', () => {
             done();
         });
 
-        //it('GET single repository',  async function(done) {
-        //    let repo = {repo : 'organisation/repo1'};
-        //    await doPost('/repositories', repo);
-        //
-        //    let fetchedRepo : model.Repository = await doGet('/repositories/' + encodeURIComponent('organisation/repo1'));
-        //    //expect(fetchedRepo.name).equals('organisation/repo1');
-        //    //expect(fetchedRepo.userId).equals(USER_ID);
-        //    done();
-        //});
+        it('GET single repository',  async function(done) {
+            await doPost('/repositories', {name : 'organisation/repo1'});
+
+            let repositories : Array<model.Repository> = await doGet('/repositories');
+
+            let automaticallyGivenID = 2;
+            let repository : model.Repository = await doGet('/repositories/' + automaticallyGivenID);
+
+            expect(repository.name).equals('organisation/repo1');
+            expect(repository.userId).equals(USER_ID);
+            done();
+        });
+
+        it('GET paged repositories',  async function(done) {
+            for(var i = 0; i < 15; i++) {
+                await doPost('/repositories', {name : 'organisation/repo' + i});
+            }
+
+            let repositories : Array<model.Repository> = await doGet('/repositories');
+
+            let pageSize = 10;
+            expect(repositories.length).equals(pageSize);
+            done();
+        });
+
+        it('DELETE single repository',  async function(done) {
+            await doPost('/repositories', {name : 'organisation/repo1'});
+
+            let repositories : Array<model.Repository> = await doGet('/repositories');
+            expect(repositories.length).equals(1);
+
+            let id = repositories[0]._id;
+
+            await doDel('/repositories/' + id);
+
+            repositories = await doGet('/repositories');
+
+            expect(repositories.length).equals(0);
+            done();
+        });
+
     });
 
 });

@@ -5,6 +5,7 @@
     "babel": "^5.8.23",
     "chai": "2.1.2",
     "container-ts": "0.4.1",
+    "express-validation": "^0.4.5",
     "fs-extra": "^0.26.0",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
@@ -14,6 +15,7 @@
     "grunt-notify": "^0.4.1",
     "grunt-ts": "5.0.0-beta.6",
     "grunt-zip": "^0.16.2",
+    "joi": "^7.0.0",
     "mocha": "2.0.1",
     "q": "^1.4.1",
     "simple-mock": "^0.3.1"

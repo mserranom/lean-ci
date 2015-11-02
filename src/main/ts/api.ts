@@ -7,7 +7,8 @@ import {github} from './github';
 
 import {Inject} from '../../../lib/container';
 
-// TODO: add validation https://www.npmjs.com/package/express-validation
+var validate = require('express-validation');
+var Joi = require('joi');
 
 export module api {
 
@@ -153,7 +154,11 @@ export module api {
                     cursor => cursor.sort({'finishedTimestamp' : -1}));
             });
 
-            app.post('/repositories', auth, (req,res) => {
+            let repoVal =  {
+                body: { name : Joi.string().required() }
+            };
+
+            app.post('/repositories', validate(repoVal), auth, (req,res) => {
                 let userId = req.get('x-lean-ci-user-id');
                 let repoName : string = req.body.name;
 
@@ -181,11 +186,11 @@ export module api {
                     });
             });
 
-            app.delete('/repositories/:name', auth, (req,res) => {
+            app.delete('/repositories/:id', auth, (req,res) => {
                 let userId = req.get('x-lean-ci-user-id');
-                let repoName : string = req.params.name;
+                let id : string = req.params.id;
 
-                console.info(`received /repositories/${repoName} DELETE request`);
+                console.info(`received /repositories/${id} DELETE request`);
 
                 let onResult = () => res.end();
 
@@ -194,7 +199,7 @@ export module api {
                     res.end();
                 };
 
-                let query : model.Repository = {userId : userId, name : repoName};
+                let query : any = {userId : userId, _id : id};
 
                 this.repositories.remove(query, onError, onResult);
             });
@@ -211,6 +216,20 @@ export module api {
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
                 this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
                         cursor => cursor.sort({'finishedTimestamp' : -1}));
+            });
+
+            app.get('/repositories/:id', auth, (req,res) => {
+                console.info('received /repositories GET request');
+                let userId = req.get('x-lean-ci-user-id');
+                let id : string = req.params.id;
+
+                let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
+                let onError = (error) => {
+                    res.status = 500;
+                    res.end();
+                };
+
+                this.repositories.fetchFirst({userId : userId, _id : id}, onError, onResult);
             });
 
             app.get('/nexus/credentials', auth, (req,res) => {

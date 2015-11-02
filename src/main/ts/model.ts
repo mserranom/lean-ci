@@ -10,6 +10,7 @@ export module model {
     }
 
     export interface Repository {
+        _id? : string;
         userId : string;
         name : string;
     }
