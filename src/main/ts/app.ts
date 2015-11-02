@@ -14,8 +14,6 @@ var fs = require('fs-extra');
 
 export interface BootstrapArguments {
     local : boolean;
-    mockAgents : boolean;
-    mockAuth : boolean;
 }
 
 export class App {
@@ -37,7 +35,7 @@ export class App {
         this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
         this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
 
-        if(this.arguments.mockAgents) {
+        if(this.arguments.local) {
             this.container.add(new builder.MockBuildService(), 'buildService');
         } else {
             this.container.add(new terminal.TerminalAPI(config.terminal), 'terminalApi');
@@ -46,7 +44,7 @@ export class App {
 
         this.container.add(new builder.BuildScheduler(), 'buildScheduler');
 
-        if(this.arguments.mockAuth) {
+        if(this.arguments.local) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
         } else {
             this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
