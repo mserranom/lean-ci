@@ -103,14 +103,8 @@ export module api {
         @Inject('buildResultsRepository')
         buildResults : repository.DocumentRepository<model.BuildResult>;
 
-        @Inject('repositoriesRepository')
-        repositories : repository.DocumentRepository<model.Repository>;
-
         @Inject('authenticationService')
         auth : auth.AuthenticationService;
-
-        @Inject('githubApi')
-        github : github.GithubAPI;
 
         private _app : any;
 
@@ -121,11 +115,6 @@ export module api {
             let app = this._app;
 
             let auth = (req, res, next) => this.expressServer.authenticate(req, res,next);
-
-            app.get('/ping', auth, (req, res) => {
-                console.info('received /ping GET request');
-                res.send('pong');
-            });
 
             app.post('/github/push', (req, res) => {
                 console.info('received /github/push POST request');
