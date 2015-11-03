@@ -51,6 +51,25 @@ describe('integration tests:', () => {
             expect(request.processedTimestamp).to.be.null
             done();
         });
+
+        it('GET paged build requests',  async function(done) {
+
+            let repoName = 'organisation/repo1';
+            await doPost('/repositories', {name : repoName});
+
+            for(var i = 0; i < 15; i++) {
+                await doPost('/build_requests', {repo : repoName});
+            }
+
+            let result : Array<model.BuildRequest> = await doGet('/build_requests');
+
+            expect(result.length).equals(10);
+
+            let list : any = result; // cast to use chai-things
+            list.should.all.have.property('repo', repoName);
+
+            done();
+        });
     });
 
     describe('/repositories', () => {
@@ -67,8 +86,6 @@ describe('integration tests:', () => {
 
         it('GET single repository',  async function(done) {
             await doPost('/repositories', {name : 'organisation/repo1'});
-
-            let repositories : Array<model.Repository> = await doGet('/repositories');
 
             let automaticallyGivenID = 2;
             let repository : model.Repository = await doGet('/repositories/' + automaticallyGivenID);
