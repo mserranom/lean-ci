@@ -76,7 +76,6 @@ export class App {
         let buildScheduler : builder.BuildScheduler = this.container.get('buildScheduler');
 
         projects.populateTestData();
-        restApi.setup(expressServer.start());
 
         setInterval(() => buildScheduler.startBuild(), 1000);
     }

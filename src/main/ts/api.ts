@@ -5,7 +5,7 @@ import {config} from './config';
 import {auth} from './auth';
 import {github} from './github';
 
-import {Inject} from '../../../lib/container';
+import {Inject, PostConstruct} from '../../../lib/container';
 
 var validate = require('express-validation');
 var Joi = require('joi');
@@ -16,23 +16,30 @@ export module api {
 
         private _server : any;
 
-        start() : any {
+        private _app : any;
+
+        constructor() {
             var express : any = require('express');
             var bodyParser : any = require('body-parser');
             var multer : any = require('multer');
 
-            var app = express();
-            app.use(bodyParser.json()); // for parsing application/json
-            app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-            app.use(multer()); // for parsing multipart/form-data
+            this._app = express();
+            this._app.use(bodyParser.json()); // for parsing application/json
+            this._app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+            this._app.use(multer()); // for parsing multipart/form-data
+        }
 
-            this._server = app.listen(config.defaultPort, () => {
+        @PostConstruct
+        init() : void {
+            this._server = this._app.listen(config.defaultPort, () => {
                 var host = this._server.address().address;
                 var port = this._server.address().port;
                 console.log('http server listening at http://%s:%s', host, port);
             });
+        }
 
-            return app;
+        app() : any {
+            return this._app;
         }
 
         stop() {
@@ -41,6 +48,9 @@ export module api {
     }
 
     export class LeanCIApi {
+
+        @Inject('expressServer')
+        expressServer : ExpressServer;
 
         @Inject('buildQueue')
         queue : model.BuildQueue;
@@ -81,9 +91,11 @@ export module api {
             this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
 
-        setup(app) {
+        @PostConstruct
+        init() {
 
-            this._app = app;
+            this._app = this.expressServer.app();
+            let app = this._app;
 
             let auth = (req, res, next) => this.authenticate(req, res,next);
 
