@@ -7,9 +7,6 @@ import {github} from './github';
 
 import {Inject, PostConstruct} from '../../../lib/container';
 
-var validate = require('express-validation');
-var Joi = require('joi');
-
 export module api {
 
     export class ExpressServer {
@@ -17,6 +14,9 @@ export module api {
         private _server : any;
 
         private _app : any;
+
+        @Inject('authenticationService')
+        auth : auth.AuthenticationService;
 
         constructor() {
             var express : any = require('express');
@@ -36,6 +36,48 @@ export module api {
                 var port = this._server.address().port;
                 console.log('http server listening at http://%s:%s', host, port);
             });
+        }
+
+        get(endpoint : string, handler : (req : any, res : any) => void) : void {
+            this.request('get', endpoint, handler);
+        }
+
+        post(endpoint : string, validator : any, handler : (req : any, res : any) => void) : void {
+            this.request('post', endpoint, handler, validator);
+        }
+
+        delete(endpoint : string, handler : (req : any, res : any) => void) : void {
+            this.request('delete', endpoint, handler);
+        }
+
+        private request(method : string, endpoint : string, handler : (req : any, res : any) => void, validator? : any) : void {
+            console.info('received ' + endpoint +  ' ' + method.toUpperCase() + ' request');
+            let auth = (req, res, next) => this.authenticate(req, res,next);
+            if(validator) {
+                var validate = require('express-validation');
+                this._app[method](endpoint, validate(validator), auth, handler)
+            } else {
+                this._app[method](endpoint, auth, handler)
+            }
+        }
+
+        authenticate(req, res, next) {
+            let userId = req.get('x-lean-ci-user-id');
+            let userToken = req.get('x-lean-ci-user-token');
+            let githubToken = req.get('x-lean-ci-github-token');
+
+            console.info('login headers read: (' + userId + ',' + userToken + ',' + githubToken + ')');
+
+            let onSuccess = (credentials : model.UserCredentials) => {
+                res.set('x-lean-ci-user-id', credentials.userId);
+                res.set('x-lean-ci-user-token', credentials.token);
+                res.set('x-lean-ci-github-token', githubToken);
+                next();
+            };
+
+            let onError = (error) => res.sendStatus(401);
+
+            this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
 
         app() : any {
@@ -72,32 +114,13 @@ export module api {
 
         private _app : any;
 
-        private authenticate(req, res, next) {
-            let userId = req.get('x-lean-ci-user-id');
-            let userToken = req.get('x-lean-ci-user-token');
-            let githubToken = req.get('x-lean-ci-github-token');
-
-            console.info('login headers read: (' + userId + ',' + userToken + ',' + githubToken + ')');
-
-            let onSuccess = (credentials : model.UserCredentials) => {
-                res.set('x-lean-ci-user-id', credentials.userId);
-                res.set('x-lean-ci-user-token', credentials.token);
-                res.set('x-lean-ci-github-token', githubToken);
-                next();
-            };
-
-            let onError = (error) => res.sendStatus(401);
-
-            this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
-        }
-
         @PostConstruct
         init() {
 
             this._app = this.expressServer.app();
             let app = this._app;
 
-            let auth = (req, res, next) => this.authenticate(req, res,next);
+            let auth = (req, res, next) => this.expressServer.authenticate(req, res,next);
 
             app.get('/ping', auth, (req, res) => {
                 console.info('received /ping GET request');
@@ -164,84 +187,6 @@ export module api {
                 let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
                 this.buildResults.fetch({}, page, perPage, onError, onResult,
                     cursor => cursor.sort({'finishedTimestamp' : -1}));
-            });
-
-            let repoVal =  {
-                body: { name : Joi.string().required() }
-            };
-
-            app.post('/repositories', validate(repoVal), auth, (req,res) => {
-                let userId = req.get('x-lean-ci-user-id');
-                let repoName : string = req.body.name;
-
-                console.info('received /repositories POST request');
-
-                var data : model.Repository = {userId : userId, name : repoName};
-
-                var onError = (error) => {
-                    res.status = 500;
-                    res.send(error);
-                };
-
-                let saveNewRepo = () => {
-                    let onResult = () => res.end();
-                    this.repositories.save(data, onError, onResult);
-                };
-
-                this.repositories.fetch(data, 1, 1, onError, (result) => {
-                        if(result.length > 0) {
-                            res.end();
-                        } else {
-                            this.github.getRepo(repoName)
-                                .then(saveNewRepo).fail(onError);
-                        }
-                    });
-            });
-
-            app.delete('/repositories/:id', auth, (req,res) => {
-                let userId = req.get('x-lean-ci-user-id');
-                let id : string = req.params.id;
-
-                console.info(`received /repositories/${id} DELETE request`);
-
-                let onResult = () => res.end();
-
-                let onError = (error) => {
-                    res.status = 500;
-                    res.end();
-                };
-
-                let query : any = {userId : userId, _id : id};
-
-                this.repositories.remove(query, onError, onResult);
-            });
-
-            app.get('/repositories', auth, (req,res) => {
-                console.info('received /repositories GET request');
-                let userId = req.get('x-lean-ci-user-id');
-                let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
-                let onError = (error) => {
-                    res.status = 500;
-                    res.end();
-                };
-                let page = req.query.page ? parseInt(req.query.page) : 1;
-                let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
-                this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
-                        cursor => cursor.sort({'finishedTimestamp' : -1}));
-            });
-
-            app.get('/repositories/:id', auth, (req,res) => {
-                console.info('received /repositories GET request');
-                let userId = req.get('x-lean-ci-user-id');
-                let id : string = req.params.id;
-
-                let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
-                let onError = (error) => {
-                    res.status = 500;
-                    res.end();
-                };
-
-                this.repositories.fetchFirst({userId : userId, _id : id}, onError, onResult);
             });
 
             app.get('/nexus/credentials', auth, (req,res) => {
