@@ -7,8 +7,10 @@ import {auth} from './auth';
 import {github} from './github';
 import {terminal} from './terminal';
 import {PersistedBuildQueue} from './build/BuildQueue'
+import {BuildSchedulerImpl} from './build/BuildScheduler'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
+import {BuildRequests} from './rest/BuildRequests'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
@@ -44,7 +46,6 @@ export class App {
             this.container.add(new builder.TerminalBuildService(), 'buildService');
         }
 
-        this.container.add(new builder.BuildScheduler(), 'buildScheduler');
 
         if(this.arguments.local) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
@@ -55,11 +56,15 @@ export class App {
         this.container.add(new api.LeanCIApi(), 'leanCIApi');
         this.container.add(new Repositories());
         this.container.add(new Ping());
+        this.container.add(new BuildRequests());
 
         this.container.add(new model.AllProjects(), 'allProjects');
 
         this.container.add(new model.BuildQueue(), 'buildQueue');
         this.container.add(new PersistedBuildQueue(), 'buildQueue2');
+
+        this.container.add(new builder.BuildScheduler(), 'buildScheduler');
+        this.container.add(new BuildSchedulerImpl(), 'buildScheduler2');
 
         this.container.add(new api.ExpressServer(), 'expressServer');
 

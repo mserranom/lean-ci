@@ -10,8 +10,8 @@ import {Inject} from '../../../../lib/container'
 var Q = require('q');
 
 export interface BuildScheduler {
-    queueBuild(repo : string) : Q.Promise<model.BuildRequest>
-    queueBuild(repo : string, commit:string) : Q.Promise<model.BuildRequest>
+    queueBuild(userId : string, repo : string) : Q.Promise<model.BuildRequest>
+    queueBuild(userId : string, repo : string, commit:string) : Q.Promise<model.BuildRequest>
     startBuild() : Q.Promise<model.BuildRequest>;
     pingFinish(result : model.BuildResult) : Q.Promise<void>;
 }
@@ -33,13 +33,13 @@ export class BuildSchedulerImpl implements BuildScheduler{
 
     agentService : BuildAgentService;
 
-    queueBuild(repo : string, commit?:string) : Q.Promise<model.BuildRequest> {
+    queueBuild(userId : string, repo : string, commit?:string) : Q.Promise<model.BuildRequest> {
         commit = commit || '';
 
         console.log('adding ' + repo  + (commit ? ('@' + commit) : 'HEAD') + ' to the build queue');
 
         let pingURL = config.appUrl + '/build/pingFinish';
-        let request = this.createBuildRequest(repo, commit, pingURL);
+        let request = this.createBuildRequest(userId, repo, commit, pingURL);
 
         return this.repositories.fetchFirstQ({name : repo})
             .then(() => { return this.buildQueue.add(request) })
@@ -64,10 +64,10 @@ export class BuildSchedulerImpl implements BuildScheduler{
         return this.buildQueue.finish(result);
     }
 
-    private createBuildRequest(repo : string, commit : string, pingURL : string) : model.BuildRequest {
+    private createBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.BuildRequest {
         return {
             id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
-            user : 'user',
+            user : userId,
             repo : repo,
             commit : commit,
             pingURL : pingURL,

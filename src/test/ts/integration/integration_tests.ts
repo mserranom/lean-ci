@@ -36,6 +36,23 @@ describe('integration tests:', () => {
         });
     });
 
+    describe('/build_requests', () => {
+
+        it('POST build request',  async function(done) {
+            let repoName = 'organisation/repo1';
+            await doPost('/repositories', {name : repoName});
+
+            let request : model.BuildRequest = await doPost('/build_requests', {repo : 'organisation/repo1'});
+
+            expect(request).not.to.be.null;
+            expect(request.repo).equals(repoName);
+            expect(request.user).equals(USER_ID);
+            expect(request.requestTimestamp).not.to.be.null;
+            expect(request.processedTimestamp).to.be.null
+            done();
+        });
+    });
+
     describe('/repositories', () => {
 
         it('POST repository',  async function(done) {
