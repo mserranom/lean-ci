@@ -25,7 +25,7 @@ export class BuildRequests {
         };
 
         this.expressServer.post('/build_requests', repositoryPostValidator, async function(req,res) {
-            let userId = req.get('x-lean-ci-user-id'); //TODO : use in the queue
+            let userId = req.get('x-lean-ci-user-id');
             let repoName : string = req.body.repo;
             let commit : string = req.body.commit;
 
