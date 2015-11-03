@@ -10,6 +10,8 @@ var Q = require('q');
 
 describe('PersistedBuildQueue', () => {
 
+    let testUser : string = createBuildRequest().user;
+
     let sut : PersistedBuildQueue;
 
     beforeEach((done) => {
@@ -37,7 +39,7 @@ describe('PersistedBuildQueue', () => {
         req.id = 'test_id';
 
         sut.add(req)
-            .then(() => { return sut.scheduledBuilds(1, 10) })
+            .then(() => { return sut.scheduledBuilds(testUser, 1, 10) })
             .should.eventually.have.lengthOf(1)
             .and.satisfy(items => {return items[0].id === req.id})
             .and.notify(done);
@@ -53,7 +55,7 @@ describe('PersistedBuildQueue', () => {
 
         sut.add(newReq)
             .then(() => { return sut.add(oldReq) })
-            .then(() => { return sut.scheduledBuilds(1, 10) })
+            .then(() => { return sut.scheduledBuilds(testUser, 1, 10) })
             .should.eventually.have.lengthOf(2)
             .and.satisfy(items => { return items[0].id === oldReq.id && items[1].id === newReq.id})
             .and.notify(done);
@@ -113,7 +115,7 @@ describe('PersistedBuildQueue', () => {
 
         sut.add(newReq)
             .then(() => { return sut.add(oldReq) })
-            .then(() => { return sut.nextScheduledBuild() })
+            .then(() => { return sut.nextScheduledBuild(testUser) })
             .should.eventually.satisfy(request => { return request.id === oldReq.id})
             .and.notify(done);
     });
@@ -128,7 +130,7 @@ describe('PersistedBuildQueue', () => {
         sut.add(req)
             .then(() => {return sut.add(req2)})
             .then(() => {return sut.start(req.id, agentUrl)})
-            .then(() => {return Q.all([sut.activeBuilds(1, 10), sut.scheduledBuilds(1, 10)])})
+            .then(() => {return Q.all([sut.activeBuilds(1, 10), sut.scheduledBuilds(testUser, 1, 10)])})
             .should.eventually.satisfy((result) => {
                 let activeBuilds : Array<model.ActiveBuild> = result[0];
                 return activeBuilds.length === 1

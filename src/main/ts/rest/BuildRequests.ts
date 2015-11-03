@@ -29,8 +29,7 @@ export class BuildRequests {
                     commit : Joi.string()}
         };
 
-        this.expressServer.post('/build_requests', repositoryPostValidator, async function(req,res) {
-            let userId = req.get('x-lean-ci-user-id');
+        this.expressServer.post('/build_requests', repositoryPostValidator, async function(req,res, userId : string) {
             let repoName : string = req.body.repo;
             let commit : string = req.body.commit;
 
@@ -43,11 +42,9 @@ export class BuildRequests {
             }
         });
 
-        this.expressServer.get('/build_requests', async function(req,res) {
-            let userId = req.get('x-lean-ci-user-id');
-
+        this.expressServer.getPaged('/build_requests', async function(req,res, userId : string, page : number, perPage : number) {
             try {
-                let buildRequests = await queue.scheduledBuilds(1, 10);
+                let buildRequests = await queue.scheduledBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
                 res.status = 500;

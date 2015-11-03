@@ -11,7 +11,7 @@ export class Ping {
     @PostConstruct
     init() {
 
-        this.expressServer.get('/ping', (req, res) => {
+        this.expressServer.get('/ping', (req, res, userId : string) => {
             res.send('pong');
         });
 

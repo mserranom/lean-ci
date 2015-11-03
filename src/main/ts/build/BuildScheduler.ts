@@ -12,7 +12,7 @@ var Q = require('q');
 export interface BuildScheduler {
     queueBuild(userId : string, repo : string) : Q.Promise<model.BuildRequest>
     queueBuild(userId : string, repo : string, commit:string) : Q.Promise<model.BuildRequest>
-    startBuild() : Q.Promise<model.BuildRequest>;
+    startBuild(userId : string) : Q.Promise<model.BuildRequest>;
     pingFinish(result : model.BuildResult) : Q.Promise<void>;
 }
 
@@ -46,12 +46,12 @@ export class BuildSchedulerImpl implements BuildScheduler{
             .then(() => { return request });
     }
 
-    startBuild() : Q.Promise<model.BuildRequest> {
+    startBuild(userId : string) : Q.Promise<model.BuildRequest> {
         let carryOnRequest : model.BuildRequest;
 
         console.log('starting next scheduled build');
 
-        return this.buildQueue.nextScheduledBuild()
+        return this.buildQueue.nextScheduledBuild(userId)
             .then((request : model.BuildRequest) => {
                 carryOnRequest = request;
                 return this.agentService.request(request)

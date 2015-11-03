@@ -24,8 +24,7 @@ export class Repositories {
             body: { name : Joi.string().required() }
         };
 
-        this.expressServer.post('/repositories', repositoryPostValidator, (req,res) => {
-            let userId = req.get('x-lean-ci-user-id');
+        this.expressServer.post('/repositories', repositoryPostValidator, (req,res, userId : string) => {
             let repoName : string = req.body.name;
 
             console.info('received /repositories POST request');
@@ -52,8 +51,7 @@ export class Repositories {
             });
         });
 
-        this.expressServer.delete('/repositories/:id', (req,res) => {
-            let userId = req.get('x-lean-ci-user-id');
+        this.expressServer.del('/repositories/:id', (req, res, userId:string) => {
             let id : string = req.params.id;
 
             console.info(`received /repositories/${id} DELETE request`);
@@ -70,21 +68,17 @@ export class Repositories {
             this.repositories.remove(query, onError, onResult);
         });
 
-        this.expressServer.get('/repositories', (req,res) => {
-            let userId = req.get('x-lean-ci-user-id');
+        this.expressServer.getPaged('/repositories', (req,res, userId : string, page: number, perPage : number) => {
             let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
             let onError = (error) => {
                 res.status = 500;
                 res.end();
             };
-            let page = req.query.page ? parseInt(req.query.page) : 1;
-            let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
             this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
                 cursor => cursor.sort({'finishedTimestamp' : -1}));
         });
 
-        this.expressServer.get('/repositories/:id', (req,res) => {
-            let userId = req.get('x-lean-ci-user-id');
+        this.expressServer.get('/repositories/:id', (req,res, userId : string) => {
             let id : string = req.params.id;
 
             let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));

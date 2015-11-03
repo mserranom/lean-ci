@@ -7,6 +7,12 @@ import {Inject} from '../../../lib/container';
 
 export module auth {
 
+    export class Headers {
+        static USER_ID : string = 'x-lean-ci-user-id';
+        static USER_TOKEN : string = 'x-lean-ci-user-token';
+        static GITHUB_TOKEN : string = 'x-lean-ci-github-token'
+    }
+
     export interface AuthenticationService {
 
         authenticate(userId:string, userToken : string, githubToken : string,

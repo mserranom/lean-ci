@@ -61,9 +61,9 @@ describe('integration tests:', () => {
                 await doPost('/build_requests', {repo : repoName});
             }
 
-            let result : Array<model.BuildRequest> = await doGet('/build_requests');
+            let result : Array<model.BuildRequest> = await doGet('/build_requests?page=1&per_page=14');
 
-            expect(result.length).equals(10);
+            expect(result.length).equals(14);
 
             let list : any = result; // cast to use chai-things
             list.should.all.have.property('repo', repoName);
@@ -100,9 +100,9 @@ describe('integration tests:', () => {
                 await doPost('/repositories', {name : 'organisation/repo' + i});
             }
 
-            let repositories : Array<model.Repository> = await doGet('/repositories');
+            let repositories : Array<model.Repository> = await doGet('/repositories?page=1&per_page=12');
 
-            let pageSize = 10;
+            let pageSize = 12;
             expect(repositories.length).equals(pageSize);
             done();
         });

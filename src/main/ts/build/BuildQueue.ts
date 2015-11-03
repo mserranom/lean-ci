@@ -9,10 +9,10 @@ var Q = require('q');
 
 export interface BuildQueue {
     add(repo : model.BuildRequest) : Q.Promise<void>;
-    nextScheduledBuild() : Q.Promise<model.BuildRequest>;
+    nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest>;
     start(buildRequestId : string, agentURL : string) : Q.Promise<void>;
     finish(buildResult : model.BuildResult) : Q.Promise<void>;
-    scheduledBuilds(page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
+    scheduledBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
     activeBuilds(page : number, perPage : number) : Q.Promise<Array<model.ActiveBuild>>;
     finishedBuilds(page : number, perPage : number) : Q.Promise<Array<model.BuildResult>>;
 }
@@ -32,8 +32,8 @@ export class PersistedBuildQueue implements BuildQueue {
         return this.queuedBuildsRepository.saveQ(repo);
     }
 
-    nextScheduledBuild() : Q.Promise<model.BuildRequest> {
-        return this.scheduledBuilds(1, 1).then((items) => { return items[0]});
+    nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest> {
+        return this.scheduledBuilds(userId, 1, 1).then((items) => { return items[0]});
     }
 
     start(buildRequestId : string, agentURL : string) : Q.Promise<void> {
@@ -59,8 +59,8 @@ export class PersistedBuildQueue implements BuildQueue {
             });
     }
 
-    scheduledBuilds(page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
-        return this.queuedBuildsRepository.fetchQ({}, page, perPage,
+    scheduledBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+        return this.queuedBuildsRepository.fetchQ({user : userId}, page, perPage,
                 cursor => cursor.sort({'requestTimestamp' : 'ascending'}));
     }
 
