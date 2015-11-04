@@ -60,7 +60,8 @@ export class PersistedBuildQueue implements BuildQueue {
     }
 
     scheduledBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
-        return this.queuedBuildsRepository.fetchQ({userId : userId}, page, perPage,
+        let query = {userId : userId, status : model.BuildStatus.QUEUED};
+        return this.queuedBuildsRepository.fetchQ(query, page, perPage,
                 cursor => cursor.sort({'requestTimestamp' : 'ascending'}));
     }
 
