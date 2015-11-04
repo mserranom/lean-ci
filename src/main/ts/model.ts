@@ -15,6 +15,13 @@ export module model {
         name : string;
     }
 
+    export enum BuildStatus {
+        QUEUED,
+        RUNNING,
+        FAILED,
+        SUCCESS
+    }
+
     export interface BuildRequest {
         id : string,
         userId : string;
@@ -23,6 +30,9 @@ export module model {
         pingURL : string;
         requestTimestamp : Date;
         processedTimestamp : Date;
+        finishedTimestamp : Date;
+        status : BuildStatus;
+        log : string;
     }
 
     export interface ActiveBuild {

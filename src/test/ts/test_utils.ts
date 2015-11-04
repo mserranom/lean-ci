@@ -78,6 +78,9 @@ class BuildResultImpl implements model.BuildResult {
 }
 
 class BuildRequestImpl implements model.BuildRequest {
+    finishedTimestamp:Date = new Date();
+    status:model.BuildStatus = model.BuildStatus.QUEUED;
+    log:string;
     id : string = '12-34';
     userId : string = 'user_test';
     repo : string = 'repo/name';

@@ -69,10 +69,13 @@ export class BuildSchedulerImpl implements BuildScheduler{
             id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
             userId : userId,
             repo : repo,
+            status: model.BuildStatus.QUEUED,
+            log: null,
             commit : commit,
             pingURL : pingURL,
             requestTimestamp : new Date(),
-            processedTimestamp : null
+            processedTimestamp : null,
+            finishedTimestamp: null
         };
     }
 }
