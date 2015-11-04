@@ -44,7 +44,17 @@ export class BuildRequests {
 
         this.expressServer.getPaged('/build_requests', async function(req,res, userId : string, page : number, perPage : number) {
             try {
-                let buildRequests = await queue.scheduledBuilds(userId, page, perPage);
+                let buildRequests = await queue.queuedBuilds(userId, page, perPage);
+                res.send(JSON.stringify(buildRequests));
+            } catch (error) {
+                res.status = 500;
+                res.send(error);
+            }
+        });
+
+        this.expressServer.getPaged('/queued_builds', async function(req,res, userId : string, page : number, perPage : number) {
+            try {
+                let buildRequests = await queue.queuedBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
                 res.status = 500;

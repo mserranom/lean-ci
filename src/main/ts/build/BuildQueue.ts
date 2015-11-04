@@ -12,7 +12,8 @@ export interface BuildQueue {
     nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest>;
     start(buildRequestId : string, agentURL : string) : Q.Promise<void>;
     finish(buildResult : model.BuildResult) : Q.Promise<void>;
-    scheduledBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
+    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
+    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
     activeBuilds(page : number, perPage : number) : Q.Promise<Array<model.ActiveBuild>>;
     finishedBuilds(page : number, perPage : number) : Q.Promise<Array<model.BuildResult>>;
 }
@@ -33,7 +34,7 @@ export class PersistedBuildQueue implements BuildQueue {
     }
 
     nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest> {
-        return this.scheduledBuilds(userId, 1, 1).then((items) => { return items[0]});
+        return this.queuedBuilds(userId, 1, 1).then((items) => { return items[0]});
     }
 
     start(buildRequestId : string, agentURL : string) : Q.Promise<void> {
@@ -59,10 +60,16 @@ export class PersistedBuildQueue implements BuildQueue {
             });
     }
 
-    scheduledBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
         let query = {userId : userId, status : model.BuildStatus.QUEUED};
         return this.queuedBuildsRepository.fetchQ(query, page, perPage,
                 cursor => cursor.sort({'requestTimestamp' : 'ascending'}));
+    }
+
+    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+        let query = {userId : userId, status : model.BuildStatus.RUNNING};
+        return this.queuedBuildsRepository.fetchQ(query, page, perPage,
+            cursor => cursor.sort({'requestTimestamp' : 'descending'}));
     }
 
     activeBuilds(page : number, perPage : number) : Q.Promise<Array<model.ActiveBuild>> {
