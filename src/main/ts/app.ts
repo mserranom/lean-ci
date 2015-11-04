@@ -69,7 +69,7 @@ export class App {
         this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
         this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
-        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('builds', db), 'queuedBuildsRepository');
     }
 
     private setupRestServices() {
@@ -77,6 +77,10 @@ export class App {
         this.container.add(new Repositories());
         this.container.add(new Ping());
         this.container.add(new BuildRequests());
+    }
+
+    getComponent(id : string) : any {
+        return this.container.get(id);
     }
 
     stop() {

@@ -61,5 +61,15 @@ export class BuildRequests {
                 res.send(error);
             }
         });
+
+        this.expressServer.getPaged('/running_builds', async function(req,res, userId : string, page : number, perPage : number) {
+            try {
+                let buildRequests = await queue.runningBuilds(userId, page, perPage);
+                res.send(JSON.stringify(buildRequests));
+            } catch (error) {
+                res.status = 500;
+                res.send(error);
+            }
+        });
     }
 }

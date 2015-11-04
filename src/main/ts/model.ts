@@ -23,6 +23,7 @@ export module model {
     }
 
     export interface BuildRequest {
+        _id? : string;
         id : string,
         userId : string;
         repo : string;

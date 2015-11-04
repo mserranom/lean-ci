@@ -4,12 +4,18 @@ import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
 import {expect} from 'chai';
 
 import {setupChai} from '../test_utils'
+import {SchedulerProcessFake} from "../support/SchedulerProcessFake";
 
 setupChai();
 
 describe('integration tests:', () => {
 
     var app : App;
+
+    function createScheduler() : SchedulerProcessFake {
+        return new SchedulerProcessFake(app.getComponent('queuedBuildsRepository'),
+            app.getComponent('buildQueue'), USER_ID);
+    }
 
     beforeEach( (done) => {
         let args = {
@@ -67,6 +73,58 @@ describe('integration tests:', () => {
 
             let list : any = result; // cast to use chai-things
             list.should.all.have.property('repo', repoName);
+
+            done();
+        });
+    });
+
+    describe('/queued_builds', () => {
+
+        it('GET paged queued builds, returning first the build that has been in the queue the longestdd',  async function(done) {
+
+            let repoName = 'organisation/repo';
+
+            for(var i = 0; i < 7; i++) {
+                await doPost('/repositories', {name : repoName + i});
+                await doPost('/builds', {repo : repoName + i});
+            }
+
+            let result : Array<model.BuildRequest> = await doGet('/queued_builds?page=1&per_page=3');
+
+            expect(result.length).equals(3);
+            expect(result[0].repo).equals(repoName + '0');
+            expect(result[1].repo).equals(repoName + '1');
+            expect(result[2].repo).equals(repoName + '2');
+
+            done();
+        });
+    });
+
+    describe('/running_builds', () => {
+
+        it('GET paged queued builds, returning first the build that started most recently',  async function(done) {
+
+            let repoName = 'organisation/repo';
+
+            // adds 7 builds in the queue
+            for(let i = 0; i < 7; i++) {
+                await doPost('/repositories', {name : repoName + i});
+                await doPost('/builds', {repo : repoName + i});
+            }
+
+            // starts the next 4 builds
+            let scheduler = createScheduler();
+            for(let i = 0; i < 4; i++) {
+                await scheduler.startNext();
+            }
+
+            let result : Array<model.BuildRequest> = await doGet('/running_builds?page=1&per_page=10');
+
+            expect(result.length).equals(4);
+            expect(result[0].repo).equals(repoName + '3');
+            expect(result[1].repo).equals(repoName + '2');
+            expect(result[2].repo).equals(repoName + '1');
+            expect(result[3].repo).equals(repoName + '0');
 
             done();
         });
