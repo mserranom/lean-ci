@@ -9,7 +9,7 @@ var Q = require('q');
 
 export interface BuildQueue {
     add(repo : model.BuildRequest) : Q.Promise<void>;
-    nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest>;
+    nextQueuedBuild(userId : string) : Q.Promise<model.BuildRequest>;
     start(buildRequestId : string, agentURL : string) : Q.Promise<void>;
     finish(buildResult : model.BuildResult) : Q.Promise<void>;
     queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
@@ -33,7 +33,7 @@ export class PersistedBuildQueue implements BuildQueue {
         return this.queuedBuildsRepository.saveQ(repo);
     }
 
-    nextScheduledBuild(userId : string) : Q.Promise<model.BuildRequest> {
+    nextQueuedBuild(userId : string) : Q.Promise<model.BuildRequest> {
         return this.queuedBuilds(userId, 1, 1).then((items) => { return items[0]});
     }
 

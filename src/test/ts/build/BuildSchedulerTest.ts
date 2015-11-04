@@ -45,7 +45,7 @@ describe('BuildScheduler', () => {
         let activeBuild = createActiveBuild();
 
         sut.agentService.request = stubPromise(activeBuild);
-        sut.buildQueue.nextScheduledBuild = stubPromise(activeBuild.buildRequest);
+        sut.buildQueue.nextQueuedBuild = stubPromise(activeBuild.buildRequest);
         sut.buildQueue.start = stubPromise();
 
         sut.repositories.saveQ({userId : activeBuild.buildRequest.userId, name : activeBuild.buildRequest.repo})
@@ -59,7 +59,7 @@ describe('BuildScheduler', () => {
         let activeBuild = createActiveBuild();
 
         sut.agentService.request = stubPromise(activeBuild);
-        sut.buildQueue.nextScheduledBuild = stubRejectedPromise('test_reason no request scheduled');
+        sut.buildQueue.nextQueuedBuild = stubRejectedPromise('test_reason no request scheduled');
 
         sut.repositories.saveQ({userId : activeBuild.buildRequest.userId, name : activeBuild.buildRequest.repo})
             .then(() => { return sut.startBuild(testUser) })

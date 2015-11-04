@@ -51,7 +51,7 @@ export class BuildSchedulerImpl implements BuildScheduler{
 
         console.log('starting next scheduled build');
 
-        return this.buildQueue.nextScheduledBuild(userId)
+        return this.buildQueue.nextQueuedBuild(userId)
             .then((request : model.BuildRequest) => {
                 carryOnRequest = request;
                 return this.agentService.request(request)

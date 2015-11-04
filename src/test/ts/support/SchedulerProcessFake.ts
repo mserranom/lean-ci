@@ -16,7 +16,7 @@ export class SchedulerProcessFake {
     }
 
     async startNext() {
-        let build : model.BuildRequest = await this.queue.nextScheduledBuild(this.userId);
+        let build : model.BuildRequest = await this.queue.nextQueuedBuild(this.userId);
         build.status = model.BuildStatus.RUNNING;
         await this.repo.updateQ({_id : build._id}, build)
     }

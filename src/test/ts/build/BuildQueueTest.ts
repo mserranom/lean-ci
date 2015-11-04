@@ -115,7 +115,7 @@ describe('PersistedBuildQueue', () => {
 
         sut.add(newReq)
             .then(() => { return sut.add(oldReq) })
-            .then(() => { return sut.nextScheduledBuild(testUser) })
+            .then(() => { return sut.nextQueuedBuild(testUser) })
             .should.eventually.satisfy(request => { return request.id === oldReq.id})
             .and.notify(done);
     });
