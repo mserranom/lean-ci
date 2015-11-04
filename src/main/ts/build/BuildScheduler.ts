@@ -67,7 +67,7 @@ export class BuildSchedulerImpl implements BuildScheduler{
     private createBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.BuildRequest {
         return {
             id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
-            user : userId,
+            userId : userId,
             repo : repo,
             commit : commit,
             pingURL : pingURL,

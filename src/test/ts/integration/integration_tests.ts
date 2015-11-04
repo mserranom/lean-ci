@@ -46,7 +46,7 @@ describe('integration tests:', () => {
 
             expect(request).not.to.be.null;
             expect(request.repo).equals(repoName);
-            expect(request.user).equals(USER_ID);
+            expect(request.userId).equals(USER_ID);
             expect(request.requestTimestamp).not.to.be.null;
             expect(request.processedTimestamp).to.be.null
             done();

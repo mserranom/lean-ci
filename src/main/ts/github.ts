@@ -64,7 +64,7 @@ export module github {
 
         user(id : string) : P.Promise<any> {
             var d = P.defer<any>();
-            this._service.user.get({'id' : id}, (err, res) => {
+            this._service.userId.get({'id' : id}, (err, res) => {
                 if (err) {
                     let errorMessage = "github 'user' request error: " + err;
                     console.error(errorMessage);

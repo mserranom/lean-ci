@@ -10,7 +10,7 @@ var Q = require('q');
 
 describe('PersistedBuildQueue', () => {
 
-    let testUser : string = createBuildRequest().user;
+    let testUser : string = createBuildRequest().userId;
 
     let sut : PersistedBuildQueue;
 

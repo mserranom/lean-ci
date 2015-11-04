@@ -79,7 +79,7 @@ class BuildResultImpl implements model.BuildResult {
 
 class BuildRequestImpl implements model.BuildRequest {
     id : string = '12-34';
-    user : string = 'user_test';
+    userId : string = 'user_test';
     repo : string = 'repo/name';
     commit : string;
     pingURL : string = 'http://localhost/ping';

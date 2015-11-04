@@ -17,7 +17,7 @@ export module model {
 
     export interface BuildRequest {
         id : string,
-        user : string;
+        userId : string;
         repo : string;
         commit : string;
         pingURL : string;
