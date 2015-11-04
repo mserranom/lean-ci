@@ -16,7 +16,7 @@ export interface BuildScheduler {
     pingFinish(result : model.BuildResult) : Q.Promise<void>;
 }
 
-//TODO: Temporal
+//TODO: Temporal Mock
 export interface BuildAgentService {
     request(nextRequest : model.BuildRequest)  : Q.Promise<model.ActiveBuild>;
     getStatus(scheduledBuild : model.ActiveBuild) : Q.Promise<string>;
@@ -25,7 +25,7 @@ export interface BuildAgentService {
 
 export class BuildSchedulerImpl implements BuildScheduler{
 
-    @Inject('buildQueue2')
+    @Inject('buildQueue')
     buildQueue : BuildQueue;
 
     @Inject('repositoriesRepository')

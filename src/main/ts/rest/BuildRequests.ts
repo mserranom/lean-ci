@@ -12,10 +12,10 @@ export class BuildRequests {
     @Inject('expressServer')
     expressServer : api.ExpressServer;
 
-    @Inject('buildScheduler2')
+    @Inject('buildScheduler')
     buildScheduler : BuildScheduler;
 
-    @Inject('buildQueue2')
+    @Inject('buildQueue')
     buildQueue : BuildQueue;
 
     @PostConstruct

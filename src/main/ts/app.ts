@@ -33,12 +33,6 @@ export class App {
     init(db) {
         this.container = ContainerBuilder.create();
 
-        this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
-        this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
-        this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
-        this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
-        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
-
         if(this.arguments.local) {
             this.container.add(new builder.MockBuildService(), 'buildService');
         } else {
@@ -46,6 +40,8 @@ export class App {
             this.container.add(new builder.TerminalBuildService(), 'buildService');
         }
 
+        this.setupRepositories(db);
+        this.setupRestServices();
 
         if(this.arguments.local) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
@@ -53,18 +49,9 @@ export class App {
             this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
         }
 
-        this.container.add(new api.LeanCIApi(), 'leanCIApi');
-        this.container.add(new Repositories());
-        this.container.add(new Ping());
-        this.container.add(new BuildRequests());
+        this.container.add(new PersistedBuildQueue(), 'buildQueue');
 
-        this.container.add(new model.AllProjects(), 'allProjects');
-
-        this.container.add(new model.BuildQueue(), 'buildQueue');
-        this.container.add(new PersistedBuildQueue(), 'buildQueue2');
-
-        this.container.add(new builder.BuildScheduler(), 'buildScheduler');
-        this.container.add(new BuildSchedulerImpl(), 'buildScheduler2');
+        this.container.add(new BuildSchedulerImpl(), 'buildScheduler');
 
         this.container.add(new api.ExpressServer(), 'expressServer');
 
@@ -75,19 +62,21 @@ export class App {
         }
 
         this.container.init();
-
-        this.startApp();
     }
 
-    private startApp() {
-        let projects : model.AllProjects = this.container.get('allProjects');
-        let restApi : api.LeanCIApi = this.container.get('leanCIApi');
-        let expressServer : api.ExpressServer = this.container.get('expressServer');
-        let buildScheduler : builder.BuildScheduler = this.container.get('buildScheduler');
+    private setupRepositories(db) {
+        this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
+        this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
+        this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
+        this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('active_builds', db), 'queuedBuildsRepository');
+    }
 
-        projects.populateTestData();
-
-        setInterval(() => buildScheduler.startBuild(), 1000);
+    private setupRestServices() {
+        this.container.add(new api.LeanCIApi(), 'leanCIApi');
+        this.container.add(new Repositories());
+        this.container.add(new Ping());
+        this.container.add(new BuildRequests());
     }
 
     stop() {

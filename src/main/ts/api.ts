@@ -116,12 +116,6 @@ export module api {
         @Inject('expressServer')
         expressServer : ExpressServer;
 
-        @Inject('buildQueue')
-        queue : model.BuildQueue;
-
-        @Inject('buildScheduler')
-        builder : builder.BuildScheduler;
-
         @Inject('buildResultsRepository')
         buildResults : repository.DocumentRepository<model.BuildResult>;
 
@@ -138,23 +132,6 @@ export module api {
 
             let auth = (req, res, next) => this.expressServer.authenticate(req, res,next);
 
-            app.post('/github/push', (req, res) => {
-                console.info('received /github/push POST request');
-                res.end();
-
-                console.info(JSON.stringify(req.body)); // https://developer.github.com/v3/activity/events/types/#pushevent
-                let repo : string = req.body.buildResultsRepository.full_name;
-                let commit : string = req.body.head_commit.id;
-                this.builder.queueBuild(repo, commit);
-            });
-
-            app.post('/build/start', (req, res) => {
-                console.info('received /build/start POST request');
-                let repo : string = req.body.repo;
-                let request = this.builder.queueBuild(repo);
-                res.send(JSON.stringify(request));
-            });
-
             app.get('/build/:id/log', (req, res) => {
                 let buildId : string = req.params.id;
                 let onResult = (data : model.BuildResult) => {
@@ -168,24 +145,6 @@ export module api {
                 };
                 this.buildResults.fetchFirst({"request.id" : buildId}, onError, onResult);
             });
-
-            app.get('/build/queue', (req, res) => {
-                console.info('received /build/queue GET request');
-                res.send(JSON.stringify(this.queue.queue()));
-            });
-
-            app.post('/build/pingFinish', (req, res) => {
-                let buildId : string = req.query.id;
-                console.info('received /build/pingFinish POST request, build id=' + buildId);
-                this.builder.pingFinish(req.body);
-                res.end();
-            });
-
-            app.get('/build/active', (req, res) => {
-                console.info('received /build/active GET request');
-                res.send(JSON.stringify(this.queue.activeBuilds()));
-            });
-
 
             app.get('/build/finished', auth, (req, res) => {
                 console.info('received /build/active GET request');
