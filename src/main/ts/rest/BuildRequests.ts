@@ -29,7 +29,7 @@ export class BuildRequests {
                     commit : Joi.string()}
         };
 
-        this.expressServer.post('/build_requests', repositoryPostValidator, async function(req,res, userId : string) {
+        this.expressServer.post('/builds', repositoryPostValidator, async function(req,res, userId : string) {
             let repoName : string = req.body.repo;
             let commit : string = req.body.commit;
 
@@ -42,7 +42,7 @@ export class BuildRequests {
             }
         });
 
-        this.expressServer.getPaged('/build_requests', async function(req,res, userId : string, page : number, perPage : number) {
+        this.expressServer.getPaged('/builds', async function(req,res, userId : string, page : number, perPage : number) {
             try {
                 let buildRequests = await queue.queuedBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));

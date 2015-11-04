@@ -36,13 +36,13 @@ describe('integration tests:', () => {
         });
     });
 
-    describe('/build_requests', () => {
+    describe('/builds', () => {
 
         it('POST build request',  async function(done) {
             let repoName = 'organisation/repo1';
             await doPost('/repositories', {name : repoName});
 
-            let request : model.BuildRequest = await doPost('/build_requests', {repo : 'organisation/repo1'});
+            let request : model.BuildRequest = await doPost('/builds', {repo : 'organisation/repo1'});
 
             expect(request).not.to.be.null;
             expect(request.repo).equals(repoName);
@@ -58,10 +58,10 @@ describe('integration tests:', () => {
             await doPost('/repositories', {name : repoName});
 
             for(var i = 0; i < 15; i++) {
-                await doPost('/build_requests', {repo : repoName});
+                await doPost('/builds', {repo : repoName});
             }
 
-            let result : Array<model.BuildRequest> = await doGet('/build_requests?page=1&per_page=14');
+            let result : Array<model.BuildRequest> = await doGet('/builds?page=1&per_page=14');
 
             expect(result.length).equals(14);
 
