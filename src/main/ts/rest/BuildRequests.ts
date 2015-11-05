@@ -1,6 +1,5 @@
 import {Inject, PostConstruct} from '../../../../lib/container';
 import {model} from '../model';
-import {BuildScheduler} from '../build/BuildScheduler';
 import {BuildQueue} from '../build/BuildQueue';
 import {api} from '../api';
 import {github} from '../github';
@@ -12,16 +11,12 @@ export class BuildRequests {
     @Inject('expressServer')
     expressServer : api.ExpressServer;
 
-    @Inject('buildScheduler')
-    buildScheduler : BuildScheduler;
-
     @Inject('buildQueue')
     buildQueue : BuildQueue;
 
     @PostConstruct
     init() {
 
-        let scheduler  = this.buildScheduler;
         let queue  = this.buildQueue;
 
         let repositoryPostValidator =  {

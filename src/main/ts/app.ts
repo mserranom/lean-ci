@@ -7,7 +7,6 @@ import {auth} from './auth';
 import {github} from './github';
 import {terminal} from './terminal';
 import {PersistedBuildQueue} from './build/BuildQueue'
-import {BuildSchedulerImpl} from './build/BuildScheduler'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
 import {BuildRequests} from './rest/BuildRequests'
@@ -50,8 +49,6 @@ export class App {
         }
 
         this.container.add(new PersistedBuildQueue(), 'buildQueue');
-
-        this.container.add(new BuildSchedulerImpl(), 'buildScheduler');
 
         this.container.add(new api.ExpressServer(), 'expressServer');
 
