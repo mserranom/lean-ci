@@ -63,14 +63,13 @@ export class App {
 
     private setupRepositories(db) {
         this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
-        this.container.add(new repository.MongoDBRepository<model.BuildResult>('build_results', db), 'buildResultsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
-        this.container.add(new repository.MongoDBRepository<model.ActiveBuild>('active_builds', db), 'activeBuildsRepository');
         this.container.add(new repository.MongoDBRepository<model.BuildRequest>('builds', db), 'queuedBuildsRepository');
     }
 
     private setupRestServices() {
-        this.container.add(new api.LeanCIApi(), 'leanCIApi');
+        this.container.add(new api.ExpressServer(), 'expressServer');
+
         this.container.add(new Repositories());
         this.container.add(new Ping());
         this.container.add(new BuildRequests());

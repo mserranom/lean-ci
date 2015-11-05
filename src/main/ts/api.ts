@@ -1,9 +1,6 @@
 import {model} from './model';
-import {builder} from './builder';
-import {repository} from './repository';
 import {config} from './config';
 import {auth} from './auth';
-import {github} from './github';
 
 import {Inject, PostConstruct} from '../../../lib/container';
 
@@ -108,65 +105,6 @@ export module api {
 
         stop() {
             this._server.close();
-        }
-    }
-
-    export class LeanCIApi {
-
-        @Inject('expressServer')
-        expressServer : ExpressServer;
-
-        @Inject('buildResultsRepository')
-        buildResults : repository.DocumentRepository<model.BuildResult>;
-
-        @Inject('authenticationService')
-        auth : auth.AuthenticationService;
-
-        private _app : any;
-
-        @PostConstruct
-        init() {
-
-            this._app = this.expressServer.app();
-            let app = this._app;
-
-            let auth = (req, res, next) => this.expressServer.authenticate(req, res,next);
-
-            app.get('/build/:id/log', (req, res) => {
-                let buildId : string = req.params.id;
-                let onResult = (data : model.BuildResult) => {
-                    // TODO: what to do when it's undefined?
-                    // TODO: proxy to the agent to stream the logs
-                    res.send(JSON.stringify(data.log));
-                };
-                let onError = (error) => {
-                    res.status = 500;
-                    res.end();
-                };
-                this.buildResults.fetchFirst({"request.id" : buildId}, onError, onResult);
-            });
-
-            app.get('/build/finished', auth, (req, res) => {
-                console.info('received /build/active GET request');
-                let onResult = (data : Array<model.BuildResult>) => res.send(JSON.stringify(data));
-                let onError = (error) => {
-                    res.status = 500;
-                    res.end();
-                };
-                let page = req.query.page ? parseInt(req.query.page) : 1;
-                let perPage = req.query.page ? parseInt(req.query.per_page) : 10;
-                this.buildResults.fetch({}, page, perPage, onError, onResult,
-                    cursor => cursor.sort({'finishedTimestamp' : -1}));
-            });
-
-            app.get('/nexus/credentials', auth, (req,res) => {
-                let credentials = {
-                    url : 'http://mserranom217-8081.terminal.com',
-                    user: 'admin',
-                    pass: 'Malaga1'
-                };
-                res.send(JSON.stringify(credentials));
-            });
         }
     }
 }
