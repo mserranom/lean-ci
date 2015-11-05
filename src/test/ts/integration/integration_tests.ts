@@ -80,7 +80,7 @@ describe('integration tests:', () => {
 
     describe('/queued_builds', () => {
 
-        it('GET paged queued builds, returning first the build that has been in the queue the longestdd',  async function(done) {
+        it('GET paged queued builds, returning first the build that has been in the queue the longest',  async function(done) {
 
             let repoName = 'organisation/repo';
 
@@ -121,10 +121,14 @@ describe('integration tests:', () => {
             let result : Array<model.BuildRequest> = await doGet('/running_builds?page=1&per_page=10');
 
             expect(result.length).equals(4);
-            expect(result[0].repo).equals(repoName + '3');
-            expect(result[1].repo).equals(repoName + '2');
-            expect(result[2].repo).equals(repoName + '1');
-            expect(result[3].repo).equals(repoName + '0');
+            expect(result[0].repo).equals(repoName + '0');
+            expect(result[1].repo).equals(repoName + '1');
+            expect(result[2].repo).equals(repoName + '2');
+            expect(result[3].repo).equals(repoName + '3');
+
+            for(let i = 0; i < 4; i++) {
+                expect(result[i].status).equals(model.BuildStatus.RUNNING);
+            }
 
             done();
         });

@@ -34,7 +34,7 @@ export class BuildRequests {
             let commit : string = req.body.commit;
 
             try {
-                let buildRequest = await scheduler.queueBuild(userId, repoName, commit);
+                let buildRequest = await queue.addBuildToQueue(userId, repoName, commit);
                 res.send(JSON.stringify(buildRequest));
             } catch (error) {
                 res.status = 500;
