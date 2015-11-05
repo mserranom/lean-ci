@@ -98,6 +98,10 @@ export module repository {
 
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void {
             console.info('mongodb update requested');
+
+            // If upsert is true and no document matches the query criteria, update() inserts a single document.
+            // If upsert is true and there are documents that match the query criteria, update() performs an update.
+
             this._collection.update(query, data, {upsert : true}, (err,res) => {
                 if(err) {
                     onError(err);
