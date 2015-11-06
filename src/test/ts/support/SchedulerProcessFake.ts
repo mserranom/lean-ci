@@ -21,4 +21,18 @@ export class SchedulerProcessFake {
         await this.repo.updateQ({_id : build._id}, build)
     }
 
+    async finishOldestRunningBuildWithSuccess() {
+        let builds : Array<model.BuildRequest> = await this.queue.runningBuilds(this.userId,1 ,1);
+        let build = builds[0];
+        build.status = model.BuildStatus.SUCCESS;
+        await this.repo.updateQ({_id : build._id}, build)
+    }
+
+    async finishOldestRunningBuildWithFail() {
+        let builds : Array<model.BuildRequest> = await this.queue.runningBuilds(this.userId,1 ,1);
+        let build = builds[0];
+        build.status = model.BuildStatus.FAILED;
+        await this.repo.updateQ({_id : build._id}, build)
+    }
+
 }

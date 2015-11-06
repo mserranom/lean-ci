@@ -29,7 +29,7 @@ export module github {
                 setTimeout(() => d.reject('{message:"user does not exist", errors:[]}'), 1);
                 this._failNextCall = false
             } else {
-                setTimeout(() => d.resolve({id : id}), 1);
+                process.nextTick(() => d.resolve({id : id}));
             }
 
             return d.promise;
@@ -42,7 +42,7 @@ export module github {
                 setTimeout(() => d.reject('{message:"repo cannot be resolved", errors:[]}'), 1);
                 this._failNextCall = false
             } else {
-                setTimeout(() => d.resolve({name : name}), 1);
+                process.nextTick(() => d.resolve({name : name}));
             }
 
             return d.promise;
@@ -55,7 +55,7 @@ export module github {
                 setTimeout(() => d.reject('{message:"could not setup hook id", errors:[]}'), 1);
                 this._failNextCall = false
             } else {
-                setTimeout(() => d.resolve('hookId'), 1);
+                process.nextTick(() => d.resolve('hookId'));
             }
 
             return d.promise;

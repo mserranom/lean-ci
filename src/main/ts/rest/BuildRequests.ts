@@ -17,7 +17,7 @@ export class BuildRequests {
     @PostConstruct
     init() {
 
-        let queue  = this.buildQueue;
+        let queue = this.buildQueue;
 
         let repositoryPostValidator =  {
             body: { repo : Joi.string().required(),
@@ -37,8 +37,21 @@ export class BuildRequests {
         });
 
         this.expressServer.getPaged('/builds', async function(req,res, userId : string, page : number, perPage : number) {
+            let statusQuery : string = req.query.status;
+
             try {
-                let buildRequests = await queue.queuedBuilds(userId, page, perPage);
+                let buildRequests : Array<model.BuildRequest>;
+
+                if(statusQuery === 'success') {
+                    buildRequests = await queue.successfulBuilds(userId, page, perPage);
+                } else  if(statusQuery === 'failed') {
+                    buildRequests = await queue.failedBuilds(userId, page, perPage);
+                } else if(statusQuery == 'running') {
+                    buildRequests = await queue.runningBuilds(userId, page, perPage);
+                } else {
+                    buildRequests = await queue.queuedBuilds(userId, page, perPage);
+                }
+
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
                 res.status(500).send(error);
@@ -57,6 +70,25 @@ export class BuildRequests {
         this.expressServer.getPaged('/running_builds', async function(req,res, userId : string, page : number, perPage : number) {
             try {
                 let buildRequests = await queue.runningBuilds(userId, page, perPage);
+                res.send(JSON.stringify(buildRequests));
+            } catch (error) {
+                res.status(500).send(error);
+            }
+        });
+
+        this.expressServer.getPaged('/finished_builds', async function(req,res, userId : string, page : number, perPage : number) {
+            let statusQuery : string = req.query.status;
+
+            try {
+                let buildRequests : Array<model.BuildRequest>;
+
+                if(statusQuery === 'success') {
+                    buildRequests = await queue.successfulBuilds(userId, page, perPage);
+                } else  if(statusQuery === 'failed') {
+                    buildRequests = await queue.failedBuilds(userId, page, perPage);
+                } else {
+                    buildRequests = await queue.finishedBuilds(userId, page, perPage);
+                }
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
                 res.status(500).send(error);
