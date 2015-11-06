@@ -1,5 +1,6 @@
 import {start, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
+import {github} from '../../../../src/main/ts/github';
 import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
 import {expect} from 'chai';
 
@@ -144,6 +145,16 @@ describe('integration tests:', () => {
             expect(repositories[0].name).equals('organisation/repo1');
             expect(repositories[0].userId).equals(USER_ID);
             done();
+        });
+
+        it('POST repository should fail when repo is not validated by git service',  (done) => {
+            let gitService : github.GitServiceMock = app.getComponent('githubApi');
+
+            gitService.failNextCall();
+
+            doPost('/repositories', {name : 'organisation/nonExistingRepo'})
+                .should.eventually.be.rejectedWith('server status code: 500')
+                .and.notify(done);
         });
 
         it('GET single repository',  async function(done) {

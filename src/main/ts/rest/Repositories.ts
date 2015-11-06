@@ -14,41 +14,41 @@ export class Repositories {
     @Inject('repositoriesRepository')
     repositories : repository.DocumentRepository<model.Repository>;
 
+    @Inject('repositoriesRepository')
+    repositoriesQ : repository.DocumentRepositoryQ<model.Repository>;
+
     @Inject('githubApi')
-    github : github.GithubAPI;
+    github : github.GitService;
 
     @PostConstruct
     init() {
+
+        let repQ = this.repositoriesQ;
+        let githubApi = this.github;
 
         let repositoryPostValidator =  {
             body: { name : Joi.string().required() }
         };
 
-        this.expressServer.post('/repositories', repositoryPostValidator, (req,res, userId : string) => {
+
+        this.expressServer.post('/repositories', repositoryPostValidator, async function (req,res, userId : string) {
             let repoName : string = req.body.name;
-
-            console.info('received /repositories POST request');
-
             var data : model.Repository = {userId : userId, name : repoName};
 
-            var onError = (error) => {
-                res.status = 500;
-                res.send(error);
-            };
+            let existingRepo = await repQ.fetchFirstQ(data);
 
-            let saveNewRepo = () => {
-                let onResult = () => res.end();
-                this.repositories.save(data, onError, onResult);
-            };
+            if(existingRepo) {
+                res.end();
+                return;
+            }
 
-            this.repositories.fetch(data, 1, 1, onError, (result) => {
-                if(result.length > 0) {
-                    res.end();
-                } else {
-                    this.github.getRepo(repoName)
-                        .then(saveNewRepo).fail(onError);
-                }
-            });
+            try {
+                await githubApi.getRepo(repoName); //checks if repo exists in github
+                await repQ.saveQ(data);
+                res.end();
+            } catch (error) {
+                res.status(500).send(error);
+            }
         });
 
         this.expressServer.del('/repositories/:id', (req, res, userId:string) => {
@@ -59,8 +59,7 @@ export class Repositories {
             let onResult = () => res.end();
 
             let onError = (error) => {
-                res.status = 500;
-                res.end();
+                res.status(500).send(error);
             };
 
             let query : any = {userId : userId, _id : id};
@@ -68,14 +67,14 @@ export class Repositories {
             this.repositories.remove(query, onError, onResult);
         });
 
-        this.expressServer.getPaged('/repositories', (req,res, userId : string, page: number, perPage : number) => {
-            let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
-            let onError = (error) => {
-                res.status = 500;
-                res.end();
-            };
-            this.repositories.fetch({userId : userId}, page, perPage, onError, onResult,
-                cursor => cursor.sort({'finishedTimestamp' : -1}));
+        this.expressServer.getPaged('/repositories', async function (req,res, userId : string, page: number, perPage : number) {
+            try {
+                let repos : Array<model.Repository> = await repQ.fetchQ({userId : userId}, page, perPage,
+                    cursor => cursor.sort({'finishedTimestamp' : -1}));
+                res.send(JSON.stringify(repos));
+            } catch(error) {
+                res.status(500).send(error);
+            }
         });
 
         this.expressServer.get('/repositories/:id', (req,res, userId : string) => {
@@ -83,8 +82,7 @@ export class Repositories {
 
             let onResult = (data : Array<model.Repository>) => res.send(JSON.stringify(data));
             let onError = (error) => {
-                res.status = 500;
-                res.end();
+                res.status(500).send(error);
             };
 
             this.repositories.fetchFirst({userId : userId, _id : id}, onError, onResult);

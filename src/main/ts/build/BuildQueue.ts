@@ -9,9 +9,9 @@ import {Inject} from '../../../../lib/container'
 var Q = require('q');
 
 export interface BuildQueue {
-    addBuildToQueue(userId : string, repo : string, commit? : string) // async
+    addBuildToQueue(userId : string, repo : string, commit? : string); // async
     nextQueuedBuild(userId : string) : Q.Promise<model.BuildRequest>;
-    updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus) // async
+    updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus); // async
     queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
     runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
     finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;

@@ -32,8 +32,7 @@ export class BuildRequests {
                 let buildRequest = await queue.addBuildToQueue(userId, repoName, commit);
                 res.send(JSON.stringify(buildRequest));
             } catch (error) {
-                res.status = 500;
-                res.send(error);
+                res.status(500).send(error);
             }
         });
 
@@ -42,8 +41,7 @@ export class BuildRequests {
                 let buildRequests = await queue.queuedBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
-                res.status = 500;
-                res.send(error);
+                res.status(500).send(error);
             }
         });
 
@@ -52,8 +50,7 @@ export class BuildRequests {
                 let buildRequests = await queue.queuedBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
-                res.status = 500;
-                res.send(error);
+                res.status(500).send(error);
             }
         });
 
@@ -62,8 +59,7 @@ export class BuildRequests {
                 let buildRequests = await queue.runningBuilds(userId, page, perPage);
                 res.send(JSON.stringify(buildRequests));
             } catch (error) {
-                res.status = 500;
-                res.send(error);
+                res.status(500).send(error);
             }
         });
     }

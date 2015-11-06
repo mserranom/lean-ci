@@ -1,36 +1,64 @@
 ///<reference path="promises.ts"/>
+///<reference path="../../../lib/Q.d.ts"/>
 
-import {P} from './promises';
+var Q = require('q');
 
 export module github {
 
     export interface GitService {
         authenticate(token:String);
-        user(id : string) : P.Promise<any>;
-        getRepo(name : string) : P.Promise<any>
-        setupWebhook(url:string, repo:string):P.Promise<string>;
+        user(id : string) : Q.Promise<any>;
+        getRepo(name : string) : Q.Promise<any>
+        setupWebhook(url:string, repo:string):Q.Promise<string>;
     }
 
     export class GitServiceMock implements GitService {
 
+        private _failNextCall : boolean = false;
+
+        failNextCall() {
+            this._failNextCall = true
+        }
+
         authenticate(githubToken:String) { }
 
-        user(id : string) : P.Promise<any> {
-            var d = P.defer<any>();
-            setTimeout(() => d.resolve({id : id}), 1);
-            return d.promise();
+        user(id : string) : Q.Promise<any> {
+            var d = Q.defer();
+
+            if(this._failNextCall) {
+                setTimeout(() => d.reject('{message:"user does not exist", errors:[]}'), 1);
+                this._failNextCall = false
+            } else {
+                setTimeout(() => d.resolve({id : id}), 1);
+            }
+
+            return d.promise;
         }
 
-        getRepo(name : string) : P.Promise<any> {
-            var d = P.defer<any>();
-            setTimeout(() => d.resolve({name : name}), 1);
-            return d.promise();
+        getRepo(name : string) : Q.Promise<any> {
+            var d = Q.defer();
+
+            if(this._failNextCall) {
+                setTimeout(() => d.reject('{message:"repo cannot be resolved", errors:[]}'), 1);
+                this._failNextCall = false
+            } else {
+                setTimeout(() => d.resolve({name : name}), 1);
+            }
+
+            return d.promise;
         }
 
-        setupWebhook(url:string, repo:string):P.Promise<string> {
-            var d = P.defer<string>();
-            setTimeout(() => d.resolve('hookId'), 1);
-            return d.promise();
+        setupWebhook(url:string, repo:string):Q.Promise<string> {
+            var d = Q.defer();
+
+            if(this._failNextCall) {
+                setTimeout(() => d.reject('{message:"could not setup hook id", errors:[]}'), 1);
+                this._failNextCall = false
+            } else {
+                setTimeout(() => d.resolve('hookId'), 1);
+            }
+
+            return d.promise;
         }
     }
 
@@ -62,8 +90,8 @@ export module github {
             });
         }
 
-        user(id : string) : P.Promise<any> {
-            var d = P.defer<any>();
+        user(id : string) : Q.Promise<any> {
+            var d = Q.defer();
             this._service.userId.get({'id' : id}, (err, res) => {
                 if (err) {
                     let errorMessage = "github 'user' request error: " + err;
@@ -74,13 +102,13 @@ export module github {
                     d.resolve(res);
                 }
             });
-            return d.promise();
+            return d.promise;
         }
 
-        getRepo(name : string) : P.Promise<any> {
+        getRepo(name : string) : Q.Promise<any> {
             let repo = name.split('/')[1];
             let owner = name.split('/')[0];
-            var d = P.defer<any>();
+            var d = Q.defer();
             this._service.repos.get({user : owner, repo : repo}, (err, res) => {
                 if (err) {
                     let errorMessage = "github 'repos' request error: " + err;
@@ -91,11 +119,11 @@ export module github {
                     d.resolve(res);
                 }
             });
-            return d.promise();
+            return d.promise;
         }
 
-        setupWebhook(url:string, repo:string):P.Promise<string> {
-            var d = P.defer<string>();
+        setupWebhook(url:string, repo:string):Q.Promise<string> {
+            var d = Q.defer();
 
             this.checkWebhookExists(url, repo)
                 .then(hookId => d.resolve(hookId))
@@ -104,11 +132,11 @@ export module github {
                                 .fail(message => d.reject(message))
                     );
 
-            return d.promise();
+            return d.promise;
         }
 
-        private checkWebhookExists(url : string, repo : string):P.Promise<string> {
-            var d = P.defer<string>();
+        private checkWebhookExists(url : string, repo : string):Q.Promise<string> {
+            var d = Q.defer();
             this._service.repos.getHooks({
                 user: repo.split('/')[0],
                 repo: repo.split('/')[1],
@@ -133,11 +161,11 @@ export module github {
                     }
                 }
             });
-            return d.promise();
+            return d.promise;
         }
 
-        private createWebhook(url:string, repo:string):P.Promise<string> {
-            var d = P.defer<string>();
+        private createWebhook(url:string, repo:string):Q.Promise<string> {
+            var d = Q.defer();
 
             this._service.repos.createHook({
                 name: 'web',
@@ -160,7 +188,7 @@ export module github {
                 }
             });
 
-            return d.promise();
+            return d.promise;
         }
     }
 }
