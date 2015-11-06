@@ -174,8 +174,6 @@ describe('integration tests:', () => {
 
             let result : Array<model.BuildRequest> = await doGet('/finished_builds?page=1&per_page=10&status=success');
 
-            console.log('QQ ' + JSON.stringify(result));
-
             expect(result.length).equals(2);
             expect(result[0].repo).equals(testRepo + '1');
             expect(result[0].status).equals(model.BuildStatus.SUCCESS);
