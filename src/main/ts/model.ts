@@ -24,7 +24,6 @@ export module model {
 
     export interface Build {
         _id? : string;
-        id : string,
         userId : string;
         repo : string;
         commit : string;

@@ -50,7 +50,6 @@ export class PersistedBuildQueue implements BuildQueue {
 
     private createNewBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.Build {
         return {
-            id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
             userId : userId,
             repo : repo,
             status: model.BuildStatus.QUEUED,
