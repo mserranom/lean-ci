@@ -34,17 +34,4 @@ export module model {
         status : BuildStatus;
         log : string;
     }
-
-    export interface BuildConfig {
-        command : string;
-    }
-
-    export interface BuildResult {
-        request : Build;
-        succeeded : boolean;
-        buildConfig : BuildConfig;
-        log : string;
-        startedTimestamp : Date;
-        finishedTimestamp : Date;
-    }
 }

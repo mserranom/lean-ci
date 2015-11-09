@@ -48,25 +48,10 @@ export function stubRejectedPromise(reason? : string) : any {
 
 
 export function createBuildRequest() : model.Build {
-    return new BuildRequestImpl();
+    return new BuildImpl();
 }
 
-export function createBuildResult() : model.BuildResult {
-    let result = new BuildResultImpl();
-    result.request = new BuildRequestImpl();
-    return result;
-}
-
-class BuildResultImpl implements model.BuildResult {
-    request : model.Build;
-    succeeded : boolean;
-    buildConfig : model.BuildConfig;
-    log : string = 'result log';
-    startedTimestamp : Date = new Date();
-    finishedTimestamp : Date  = new Date();
-}
-
-class BuildRequestImpl implements model.Build {
+class BuildImpl implements model.Build {
     finishedTimestamp:Date = new Date();
     status:model.BuildStatus = model.BuildStatus.QUEUED;
     log:string;
