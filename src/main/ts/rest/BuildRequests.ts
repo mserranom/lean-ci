@@ -40,7 +40,7 @@ export class BuildRequests {
             let statusQuery : string = req.query.status;
 
             try {
-                let buildRequests : Array<model.BuildRequest>;
+                let buildRequests : Array<model.Build>;
 
                 if(statusQuery === 'success') {
                     buildRequests = await queue.successfulBuilds(userId, page, perPage);
@@ -80,7 +80,7 @@ export class BuildRequests {
             let statusQuery : string = req.query.status;
 
             try {
-                let buildRequests : Array<model.BuildRequest>;
+                let buildRequests : Array<model.Build>;
 
                 if(statusQuery === 'success') {
                     buildRequests = await queue.successfulBuilds(userId, page, perPage);

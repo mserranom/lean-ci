@@ -22,7 +22,7 @@ export module model {
         SUCCESS
     }
 
-    export interface BuildRequest {
+    export interface Build {
         _id? : string;
         id : string,
         userId : string;
@@ -36,17 +36,12 @@ export module model {
         log : string;
     }
 
-    export interface ActiveBuild {
-        agentURL : string;
-        buildRequest : BuildRequest;
-    }
-
     export interface BuildConfig {
         command : string;
     }
 
     export interface BuildResult {
-        request : BuildRequest;
+        request : Build;
         succeeded : boolean;
         buildConfig : BuildConfig;
         log : string;

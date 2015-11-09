@@ -47,7 +47,7 @@ export function stubRejectedPromise(reason? : string) : any {
 }
 
 
-export function createBuildRequest() : model.BuildRequest {
+export function createBuildRequest() : model.Build {
     return new BuildRequestImpl();
 }
 
@@ -57,19 +57,8 @@ export function createBuildResult() : model.BuildResult {
     return result;
 }
 
-export function createActiveBuild() : model.ActiveBuild {
-    let result = new ActiveBuildImpl();
-    result.buildRequest = new BuildRequestImpl();
-    return result;
-}
-
-class ActiveBuildImpl implements model.ActiveBuild {
-    agentURL : string = 'http://test_agent_host';
-    buildRequest : model.BuildRequest;
-}
-
 class BuildResultImpl implements model.BuildResult {
-    request : model.BuildRequest;
+    request : model.Build;
     succeeded : boolean;
     buildConfig : model.BuildConfig;
     log : string = 'result log';
@@ -77,7 +66,7 @@ class BuildResultImpl implements model.BuildResult {
     finishedTimestamp : Date  = new Date();
 }
 
-class BuildRequestImpl implements model.BuildRequest {
+class BuildRequestImpl implements model.Build {
     finishedTimestamp:Date = new Date();
     status:model.BuildStatus = model.BuildStatus.QUEUED;
     log:string;

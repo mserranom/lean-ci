@@ -62,7 +62,7 @@ describe('integration tests:', () => {
             let repoName = 'organisation/repo1';
             await doPost('/repositories', {name : repoName});
 
-            let request : model.BuildRequest = await doPost('/builds', {repo : 'organisation/repo1'});
+            let request : model.Build = await doPost('/builds', {repo : 'organisation/repo1'});
 
             expect(request).not.to.be.null;
             expect(request.repo).equals(repoName);
@@ -81,7 +81,7 @@ describe('integration tests:', () => {
                 await doPost('/builds', {repo : repoName});
             }
 
-            let result : Array<model.BuildRequest> = await doGet('/builds?page=1&per_page=14');
+            let result : Array<model.Build> = await doGet('/builds?page=1&per_page=14');
 
             expect(result.length).equals(14);
 
@@ -101,7 +101,7 @@ describe('integration tests:', () => {
                 await doPost('/builds', {repo : testRepo + i});
             }
 
-            let result : Array<model.BuildRequest> = await doGet('/queued_builds?page=1&per_page=3');
+            let result : Array<model.Build> = await doGet('/queued_builds?page=1&per_page=3');
 
             expect(result.length).equals(3);
             expect(result[0].repo).equals(testRepo + '0');
@@ -118,7 +118,7 @@ describe('integration tests:', () => {
 
             await addAndStartBuilds(7, 4);
 
-            let result : Array<model.BuildRequest> = await doGet('/running_builds?page=1&per_page=10');
+            let result : Array<model.Build> = await doGet('/running_builds?page=1&per_page=10');
 
             expect(result.length).equals(4);
             expect(result[0].repo).equals(testRepo + '0');
@@ -150,7 +150,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.BuildRequest> = await doGet('/finished_builds?page=1&per_page=10');
+            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10');
 
             expect(result.length).equals(4);
             expect(result[0].repo).equals(testRepo + '3');
@@ -172,7 +172,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.BuildRequest> = await doGet('/finished_builds?page=1&per_page=10&status=success');
+            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10&status=success');
 
             expect(result.length).equals(2);
             expect(result[0].repo).equals(testRepo + '1');
@@ -188,7 +188,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.BuildRequest> = await doGet('/finished_builds?page=1&per_page=10&status=failed');
+            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10&status=failed');
 
             expect(result.length).equals(2);
             expect(result[0].repo).equals(testRepo + '0');

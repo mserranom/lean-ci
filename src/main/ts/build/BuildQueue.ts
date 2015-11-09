@@ -10,13 +10,13 @@ var Q = require('q');
 
 export interface BuildQueue {
     addBuildToQueue(userId : string, repo : string, commit? : string); // async
-    nextQueuedBuild(userId : string) : Q.Promise<model.BuildRequest>;
+    nextQueuedBuild(userId : string) : Q.Promise<model.Build>;
     updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus); // async
-    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
-    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
-    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
-    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
-    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>>;
+    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
+    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
+    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
+    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
+    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
 }
 
 export class PersistedBuildQueue implements BuildQueue {
@@ -25,7 +25,7 @@ export class PersistedBuildQueue implements BuildQueue {
     repositories : repository.DocumentRepositoryQ<model.Repository>;
 
     @Inject('queuedBuildsRepository')
-    buildsRepository : repository.DocumentRepositoryQ<model.BuildRequest>;
+    buildsRepository : repository.DocumentRepositoryQ<model.Build>;
 
     async addBuildToQueue(userId : string, repo : string, commit?:string) {
         commit = commit || '';
@@ -48,7 +48,7 @@ export class PersistedBuildQueue implements BuildQueue {
         }
     }
 
-    private createNewBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.BuildRequest {
+    private createNewBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.Build {
         return {
             id : new Date().getTime() + "-" + Math.floor(Math.random() * 10000000000),
             userId : userId,
@@ -63,12 +63,12 @@ export class PersistedBuildQueue implements BuildQueue {
         };
     }
 
-    nextQueuedBuild(userId : string) : Q.Promise<model.BuildRequest> {
+    nextQueuedBuild(userId : string) : Q.Promise<model.Build> {
         return this.queuedBuilds(userId, 1, 1).then((items) => { return items[0]});
     }
 
     async updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus) {
-        let build : model.BuildRequest = await this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
+        let build : model.Build = await this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
         if(build) {
             build.status = model.BuildStatus.RUNNING;
             await this.buildsRepository.updateQ({status : newStatus}, build)
@@ -78,31 +78,31 @@ export class PersistedBuildQueue implements BuildQueue {
         }
     }
 
-    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
         let query = {userId : userId, status : model.BuildStatus.QUEUED};
         return this.buildsRepository.fetchQ(query, page, perPage,
                 cursor => cursor.sort({'requestTimestamp' : 'ascending'}));
     }
 
-    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
         let query = {userId : userId, status : model.BuildStatus.RUNNING};
         return this.buildsRepository.fetchQ(query, page, perPage,
             cursor => cursor.sort({'processedTimestamp' : 'descending'}));
     }
 
-    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
         let query = {userId : userId, status : model.BuildStatus.SUCCESS};
         return this.buildsRepository.fetchQ(query, page, perPage,
             cursor => cursor.sort({'finishedTimestamp' : 'descending'}));
     }
 
-    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
         let query = {userId : userId, status : model.BuildStatus.FAILED};
         return this.buildsRepository.fetchQ(query, page, perPage,
             cursor => cursor.sort({'finishedTimestamp' : 'descending'}));
     }
 
-    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildRequest>> {
+    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
         let query = {userId : userId,
                      $or: [ { status: model.BuildStatus.SUCCESS },
                             { status: model.BuildStatus.FAILED }]};

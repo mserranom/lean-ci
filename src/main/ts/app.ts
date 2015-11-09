@@ -1,5 +1,4 @@
 import {config} from './config';
-import {builder} from './builder';
 import {model} from './model';
 import {api} from './api';
 import {repository} from './repository';
@@ -32,13 +31,6 @@ export class App {
     init(db) {
         this.container = ContainerBuilder.create();
 
-        if(this.arguments.local) {
-            this.container.add(new builder.MockBuildService(), 'buildService');
-        } else {
-            this.container.add(new terminal.TerminalAPI(config.terminal), 'terminalApi');
-            this.container.add(new builder.TerminalBuildService(), 'buildService');
-        }
-
         this.setupRepositories(db);
         this.setupRestServices();
 
@@ -64,7 +56,7 @@ export class App {
     private setupRepositories(db) {
         this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
-        this.container.add(new repository.MongoDBRepository<model.BuildRequest>('builds', db), 'queuedBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.Build>('builds', db), 'queuedBuildsRepository');
     }
 
     private setupRestServices() {
