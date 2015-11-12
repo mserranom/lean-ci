@@ -50,6 +50,7 @@ export class PersistedBuildQueue implements BuildQueue {
 
     private createNewBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.Build {
         return {
+            _id : undefined,
             userId : userId,
             repo : repo,
             status: model.BuildStatus.QUEUED,
@@ -58,7 +59,8 @@ export class PersistedBuildQueue implements BuildQueue {
             pingURL : pingURL,
             requestTimestamp : new Date(),
             processedTimestamp : null,
-            finishedTimestamp: null
+            finishedTimestamp: null,
+            config : null
         };
     }
 

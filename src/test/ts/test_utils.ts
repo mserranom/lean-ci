@@ -45,22 +45,3 @@ export function stubPromise(value? : any) : any {
 export function stubRejectedPromise(reason? : string) : any {
     return simple.stub().rejectWith(reason);
 }
-
-
-export function createBuildRequest() : model.Build {
-    return new BuildImpl();
-}
-
-class BuildImpl implements model.Build {
-    finishedTimestamp:Date = new Date();
-    status:model.BuildStatus = model.BuildStatus.QUEUED;
-    log:string;
-    id : string = '12-34';
-    userId : string = 'user_test';
-    repo : string = 'repo/name';
-    commit : string;
-    pingURL : string = 'http://localhost/ping';
-    requestTimestamp : Date = new Date();
-    processedTimestamp : Date = new Date();
-}
-

@@ -33,7 +33,7 @@ export class Repositories {
 
         this.expressServer.post('/repositories', repositoryPostValidator, async function (req,res, userId : string) {
             let repoName : string = req.body.name;
-            var data : model.Repository = {userId : userId, name : repoName};
+            var data : model.Repository = {_id : undefined, userId : userId, name : repoName};
 
             let existingRepo = await repQ.fetchFirstQ(data);
 

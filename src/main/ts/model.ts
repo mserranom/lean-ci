@@ -10,7 +10,7 @@ export module model {
     }
 
     export interface Repository {
-        _id? : string;
+        _id : string;
         userId : string;
         name : string;
     }
@@ -23,8 +23,12 @@ export module model {
         SUCCESS
     }
 
+    export interface BuildConfig {
+        dependencies : Array<string>;
+    }
+
     export interface Job {
-        _id? : string;
+        _id : string;
         status : BuildStatus;
     }
 
@@ -37,6 +41,7 @@ export module model {
         processedTimestamp : Date;
         finishedTimestamp : Date;
         log : string;
+        config : BuildConfig;
     }
 
     export interface Dependency {
@@ -45,7 +50,6 @@ export module model {
     }
 
     export interface Pipeline {
-        _id? : string;
         jobs : Array<Job>
         dependencies : Array<Dependency>
     }
