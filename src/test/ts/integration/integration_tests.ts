@@ -184,6 +184,18 @@ describe('integration tests:', () => {
             done();
         });
 
+        it('GET single build',  async function(done) {
+
+            await createSetOfFinishedBuilds();
+
+            let result : model.Build = await doGet('/builds/8');
+
+            expect(result.repo).equals(testRepo + '6');
+            expect(result.status).equals(model.BuildStatus.QUEUED);
+
+            done();
+        });
+
         it('GET paged queued builds, querying failed builds',  async function(done) {
 
             await createSetOfFinishedBuilds();
