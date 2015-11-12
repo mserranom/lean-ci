@@ -36,6 +36,17 @@ export class BuildRequests {
             }
         });
 
+        this.expressServer.get('/builds/:id', async function(req,res, userId : string) {
+            let id : string = req.params.id;
+
+            try {
+                let buildRequest = await queue.getBuild(userId, id);
+                res.send(JSON.stringify(buildRequest));
+            } catch (error) {
+                res.status(500).send(error);
+            }
+        });
+
         this.expressServer.getPaged('/builds', async function(req,res, userId : string, page : number, perPage : number) {
             let statusQuery : string = req.query.status;
 

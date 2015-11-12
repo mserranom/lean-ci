@@ -12,6 +12,7 @@ export interface BuildQueue {
     addBuildToQueue(userId : string, repo : string, commit? : string); // async
     nextQueuedBuild(userId : string) : Q.Promise<model.Build>;
     updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus); // async
+    getBuild(userId : string, buildId : string); // async
     queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
     runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
     finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
@@ -77,6 +78,10 @@ export class PersistedBuildQueue implements BuildQueue {
             console.error('couldnt find build with id=' + buildId);
             // TODO: define error in case there's no matching build
         }
+    }
+
+    async getBuild(userId : string, buildId : string) {
+        return this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
     }
 
     queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>> {
