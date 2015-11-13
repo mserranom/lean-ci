@@ -38,8 +38,8 @@ export class PersistedBuildQueue implements BuildQueue {
         let pingURL = config.appUrl + '/build/pingFinish';
         let request = this.createNewBuildRequest(userId, repo, commit, pingURL);
 
-        return this.buildsRepository.saveQ(request)
-            .then(() => { return request });
+        let insertedBuilds = await this.buildsRepository.saveQ(request);
+        return insertedBuilds[0];
     }
 
     private async checkRepositoryExists(userId : string, repo : string) {
