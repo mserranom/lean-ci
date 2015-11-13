@@ -22,7 +22,7 @@ export module repository {
     export interface DocumentRepositoryQ<T> {
         removeAllQ() : Q.Promise<void>;
         removeQ(query : Object) : Q.Promise<void>;
-        saveQ(data : T | Array<T>) : Q.Promise<void>;
+        saveQ(data : T | Array<T>) : Q.Promise<Array<T>>;
         updateQ(query : Object, data : T) : Q.Promise<void>;
         fetchQ(query : any, page : number, perPage : number, cursorDecorator? : (any) => void) : Q.Promise<Array<T>>;
         fetchFirstQ(query : any, cursorDecorator? : (any) => void) : Q.Promise<T>;
@@ -31,7 +31,7 @@ export module repository {
     export interface DocumentRepository<T> {
         removeAll(onError: (error) => void, onResult:() => void) : void;
         remove(query : Object, onError: (error) => void, onResult:() => void) : void;
-        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
+        save(data : T | Array<T> , onError:(any) => void, onResult:(item : Array<T>) => void) : void;
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void;
         fetch(query : any, page : number, perPage : number,
               onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : void;
@@ -72,20 +72,18 @@ export module repository {
             this.remove({}, onError, onResult)
         }
 
-        saveQ(data : T | Array<T>) : Q.Promise<void> {
-            let defer : Q.Deferred<void> = Q.defer();
-            this.save(data, (error) => defer.reject(error), () => defer.resolve());
+        saveQ(data : T | Array<T>) : Q.Promise<Array<T>> {
+            let defer : Q.Deferred<Array<T>> = Q.defer();
+            this.save(data, (error) => defer.reject(error), (data) => defer.resolve(data));
             return defer.promise;
         }
 
-        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void {
-            console.info('mongodb insert requested');
+        save(data : T | Array<T> , onError:(any) => void, onResult:(insertedData : Array<T>) => void) : void {
             this._collection.insert(data, (err,res) => {
                 if(err) {
                     onError(err);
                 } else {
-                    console.info('mongodb insert success');
-                    onResult();
+                    onResult(res);
                 }
             });
         }
@@ -97,8 +95,6 @@ export module repository {
         }
 
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void {
-            console.info('mongodb update requested');
-
             // If upsert is true and no document matches the query criteria, update() inserts a single document.
             // If upsert is true and there are documents that match the query criteria, update() performs an update.
 
@@ -106,7 +102,6 @@ export module repository {
                 if(err) {
                     onError(err);
                 } else {
-                    console.info('mongodb update success');
                     onResult();
                 }
             });
@@ -149,7 +144,6 @@ export module repository {
         }
 
         private requestFetch<T>(cursor : any, onError: (any) => void, onResult: (T) => void) {
-            console.info('mongodb fetch requested');
             let result : Array<T> = [];
             cursor.each((error, doc) => {
                 let cursorItem : T = doc;
@@ -158,7 +152,6 @@ export module repository {
                 } else if (cursorItem) {
                     result.push(cursorItem);
                 } else {
-                    console.log('mongodb fetch succeeded: ' + result.length + ' items retrieved');
                     onResult(result);
                 }
             });
