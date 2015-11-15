@@ -22,6 +22,12 @@ declare module Graphlib {
         multigraph: boolean;
     }
 
+    interface Edge<V> {
+        v : string,
+        w : string,
+        name? : V //is V always string??
+    }
+
     class Graph<V, T> {
         constructor(opts?: GraphOptions);
         public isDirected(): boolean;
@@ -33,11 +39,11 @@ declare module Graphlib {
         public edgeCount(): number;
         public setDefaultNodeLabel(newDefault: string): Graph<V, T>;
         public setDefaultEdgeLabel(newDefault: string): Graph<V, T>;
-        public nodes(): Array<V>;
-        public edges(): Array<T>;
+        public nodes(): Array<string>;
+        public edges(): Array<Edge<T>>;
         public sources(): Array<V>;
         public sinks(): Array<V>;
-        public hasNodes(): boolean;
+        public hasNode(id : string): boolean;
         public node(v: string): V;
         public setNode(v: string, value?: V): Graph<V, T>;
         public removeNode(v: string): Graph<V, T>;

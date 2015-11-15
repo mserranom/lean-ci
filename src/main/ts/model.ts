@@ -10,9 +10,8 @@ export module model {
     }
 
     export interface Repository {
-        _id : string;
         userId : string;
-        name : string;
+        name : string; // index
     }
 
     export enum BuildStatus {
@@ -52,5 +51,19 @@ export module model {
     export interface Pipeline {
         jobs : Array<Job>
         dependencies : Array<Dependency>
+    }
+
+    export interface PipelineSchema {
+        _id : string;
+        userId : string;
+        jobs : Array<string>
+        dependencies : Array<Dependency>
+    }
+
+    export interface DependencyGraphSchema {
+        _id : string;
+        userId : string;
+        repos : Array<string>;
+        dependencies : Array<Dependency>;
     }
 }

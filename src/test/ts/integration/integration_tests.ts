@@ -215,37 +215,6 @@ describe('integration tests:', () => {
 
     describe('/repositories', () => {
 
-        it('POST repository',  async function(done) {
-            await doPost('/repositories', {name : 'organisation/repo1'});
-
-            let repositories : Array<model.Repository> = await doGet('/repositories');
-            expect(repositories.length).equals(1);
-            expect(repositories[0].name).equals('organisation/repo1');
-            expect(repositories[0].userId).equals(USER_ID);
-            done();
-        });
-
-        it('POST repository should fail when repo is not validated by git service',  (done) => {
-            let gitService : github.GitServiceMock = app.getComponent('githubApi');
-
-            gitService.failNextCall();
-
-            doPost('/repositories', {name : 'organisation/nonExistingRepo'})
-                .should.eventually.be.rejectedWith('server status code: 500')
-                .and.notify(done);
-        });
-
-        it('GET single repository',  async function(done) {
-            await doPost('/repositories', {name : 'organisation/repo1'});
-
-            let automaticallyGivenID = 2;
-            let repository : model.Repository = await doGet('/repositories/' + automaticallyGivenID);
-
-            expect(repository.name).equals('organisation/repo1');
-            expect(repository.userId).equals(USER_ID);
-            done();
-        });
-
         it('GET paged repositories',  async function(done) {
             for(var i = 0; i < 15; i++) {
                 await doPost('/repositories', {name : 'organisation/repo' + i});
@@ -264,7 +233,7 @@ describe('integration tests:', () => {
             let repositories : Array<model.Repository> = await doGet('/repositories');
             expect(repositories.length).equals(1);
 
-            let id = repositories[0]._id;
+            let id = repositories[0]['_id'];
 
             await doDel('/repositories/' + id);
 

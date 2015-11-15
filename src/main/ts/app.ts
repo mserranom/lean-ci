@@ -9,6 +9,7 @@ import {PersistedBuildQueue} from './build/BuildQueue'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
 import {BuildRequests} from './rest/BuildRequests'
+import {DependencyGraphs} from './rest/DependencyGraphs'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
@@ -57,6 +58,7 @@ export class App {
         this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
         this.container.add(new repository.MongoDBRepository<model.Build>('builds', db), 'queuedBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.DependencyGraphSchema>('dependency_graphs', db), 'dependencyGraphsRepository');
     }
 
     private setupRestServices() {
@@ -65,6 +67,7 @@ export class App {
         this.container.add(new Repositories());
         this.container.add(new Ping());
         this.container.add(new BuildRequests());
+        this.container.add(new DependencyGraphs());
     }
 
     getComponent(id : string) : any {

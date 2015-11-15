@@ -1,8 +1,13 @@
+///<reference path="../../../../lib/graphlib.d.ts"/>
+
+var Graphlib = require('graphlib');
+
 import {Inject, PostConstruct} from '../../../../lib/container';
 import {model} from '../model';
 import {repository} from '../repository';
 import {api} from '../api';
 import {github} from '../github';
+import {createDependencyGraph, createDependencySchemaFromGraph} from '../graph';
 
 var Joi = require('joi');
 
@@ -17,6 +22,9 @@ export class Repositories {
     @Inject('repositoriesRepository')
     repositoriesQ : repository.DocumentRepositoryQ<model.Repository>;
 
+    @Inject('dependencyGraphsRepository')
+    dependencyGraphsQ : repository.DocumentRepositoryQ<model.DependencyGraphSchema>;
+
     @Inject('githubApi')
     github : github.GitService;
 
@@ -24,6 +32,7 @@ export class Repositories {
     init() {
 
         let repQ = this.repositoriesQ;
+        let depGraphQ = this.dependencyGraphsQ;
         let githubApi = this.github;
 
         let repositoryPostValidator =  {
@@ -33,7 +42,7 @@ export class Repositories {
 
         this.expressServer.post('/repositories', repositoryPostValidator, async function (req,res, userId : string) {
             let repoName : string = req.body.name;
-            var data : model.Repository = {_id : undefined, userId : userId, name : repoName};
+            var data : model.Repository = {name : repoName, userId : userId};
 
             let existingRepo = await repQ.fetchFirstQ(data);
 
@@ -42,14 +51,74 @@ export class Repositories {
                 return;
             }
 
+            let configFileContent : string;
+
             try {
                 await githubApi.getRepo(repoName); //checks if repo exists in github
-                await repQ.saveQ(data);
-                res.end();
+                configFileContent = await githubApi.getFile(repoName, 'leanci.json');
             } catch (error) {
                 res.status(500).send(error);
+                return;
             }
+
+            await saveNewRepo(data, JSON.parse(configFileContent));
+
+            res.end();
         });
+
+        async function saveNewRepo(repo : model.Repository, config : model.BuildConfig) {
+            let insertResult = await repQ.saveQ(repo);
+
+            let newRepo = insertResult[0];
+
+            let graph = await depGraphQ.fetchFirstQ({userId : newRepo.userId});
+
+            if(!graph) {
+                await createNewDependencyGraph(newRepo, config);
+            } else {
+                await updateDependencyGraph(graph, newRepo, config);
+            }
+        }
+
+        async function createNewDependencyGraph(repo : model.Repository, config : model.BuildConfig) {
+            let dependencies : Array<model.Dependency> = [];
+            config.dependencies.forEach((depId : string) => dependencies.push({up : depId, down : repo.name}));
+            let data : model.DependencyGraphSchema = {
+                _id : undefined,
+                userId : repo.userId,
+                repos : [repo.name],
+                dependencies : dependencies
+            };
+            await depGraphQ.saveQ(data);
+        }
+
+        async function updateDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, config : model.BuildConfig) {
+            let repos = await repQ.fetchQ({userId : graphSchema.userId}, 1, Number.MAX_SAFE_INTEGER);
+
+            // generate graph object from graph schema object
+            let reposMap : Map<string, model.Repository> = new Map();
+            repos.forEach(repo => reposMap.set(repo.name, repo));
+
+            let graph : Graphlib.Graph<model.Repository, void> = createDependencyGraph(graphSchema, reposMap);
+
+            if(!graph.hasNode(repo.name)) {
+                graph.setNode(repo.name, repo)
+            }
+
+            // remove all the previous dependencies in the graph
+            let oldDeps : Array<string> = graph.inEdges(repo.name);
+            if(oldDeps && oldDeps.length > 0) {
+                oldDeps.forEach(dep => graph.removeEdge(dep, repo.name));
+            }
+
+            // set new dependencies
+            config.dependencies.forEach(dep => graph.setEdge(dep, repo.name));
+
+            // save graph
+            let data = createDependencySchemaFromGraph(graph, graphSchema._id, graphSchema.userId);
+
+            await depGraphQ.updateQ({_id : graphSchema._id}, data);
+        }
 
         this.expressServer.del('/repositories/:id', (req, res, userId:string) => {
             let id : string = req.params.id;
