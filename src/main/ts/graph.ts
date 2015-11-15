@@ -4,8 +4,8 @@ import {model} from './model';
 
 var Graphlib = require('graphlib');
 
-export function createDependencyGraph(data : model.DependencyGraphSchema,
-                                      repos : Map<string, model.Repository>) : Graphlib.Graph<model.Repository, void> {
+export function createDependencyGraphFromSchema(data : model.DependencyGraphSchema,
+                                                repos : Map<string, model.Repository>) : Graphlib.Graph<model.Repository, void> {
     let options = { directed: true, compound: false, multigraph: false };
     let graph : Graphlib.Graph<model.Repository, void> = new Graphlib.Graph(options);
 
@@ -41,7 +41,7 @@ export function createDependencySchemaFromGraph(graph : Graphlib.Graph<model.Rep
     return result;
 }
 
-export function createPipelineGraph(data : model.PipelineSchema, jobs : Map<string, model.Job>) : Graphlib.Graph<model.Job, void> {
+export function createBuildPipelineGraphFromSchema(data : model.PipelineSchema, jobs : Map<string, model.Job>) : Graphlib.Graph<model.Job, void> {
     let options = { directed: true, compound: false, multigraph: false };
     let graph : Graphlib.Graph<model.Job, void> = new Graphlib.Graph(options);
 
@@ -70,7 +70,7 @@ export function createPipelineGraph(data : model.PipelineSchema, jobs : Map<stri
     return graph;
 }
 
-export function creatPipelineSchemaFromGraph(graph : Graphlib.Graph<model.Job, void>, _id : string, userId : string) : model.PipelineSchema {
+export function creatBuildPipelineSchemaFromGraph(graph : Graphlib.Graph<model.Job, void>, _id : string, userId : string) : model.PipelineSchema {
     let result : model.PipelineSchema ={
         _id : _id,
         userId : userId,

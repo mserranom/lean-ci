@@ -7,7 +7,7 @@ import {model} from '../model';
 import {repository} from '../repository';
 import {api} from '../api';
 import {github} from '../github';
-import {createDependencyGraph, createDependencySchemaFromGraph} from '../graph';
+import {createDependencyGraphFromSchema, createDependencySchemaFromGraph} from '../graph';
 
 var Joi = require('joi');
 
@@ -100,7 +100,7 @@ export class Repositories {
 
             let allRepos = await repQ.fetchQ({userId : graphSchema.userId}, 1, Number.MAX_SAFE_INTEGER);
 
-            let graph = createDependencyGraph(graphSchema, createRepoMapFromArray(allRepos));
+            let graph = createDependencyGraphFromSchema(graphSchema, createRepoMapFromArray(allRepos));
 
             updateRepositoryNode(graph, repo, config);
 

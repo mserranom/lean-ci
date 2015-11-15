@@ -1,5 +1,5 @@
-import {createDependencyGraph,createDependencySchemaFromGraph,
-    createPipelineGraph, creatPipelineSchemaFromGraph} from '../../../src/main/ts/graph';
+import {createDependencyGraphFromSchema,createDependencySchemaFromGraph,
+    createBuildPipelineGraphFromSchema, creatBuildPipelineSchemaFromGraph} from '../../../src/main/ts/graph';
 import {model} from '../../../src/main/ts/model';
 import {expect} from 'chai';
 
@@ -35,7 +35,7 @@ describe('graph', () => {
 
             let originalData = createDependencyGraphSchema();
 
-            let graph = createDependencyGraph(originalData.graphSchema, originalData.repos);
+            let graph = createDependencyGraphFromSchema(originalData.graphSchema, originalData.repos);
             let regeneratedData = createDependencySchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
 
             expect(regeneratedData).deep.equal(originalData.graphSchema);
@@ -47,7 +47,7 @@ describe('graph', () => {
 
             let expectedData = createDependencyGraphSchema();
 
-            let graph = createDependencyGraph(originalData.graphSchema, originalData.repos);
+            let graph = createDependencyGraphFromSchema(originalData.graphSchema, originalData.repos);
             let regeneratedData = createDependencySchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
 
             expect(regeneratedData).deep.equal(expectedData.graphSchema);
@@ -60,7 +60,7 @@ describe('graph', () => {
             let reversedDependency : model.Dependency = {up : dependency.down, down : dependency.up};
             originalData.graphSchema.dependencies.push(reversedDependency);
 
-            let call = () => createDependencyGraph(originalData.graphSchema, originalData.repos);
+            let call = () => createDependencyGraphFromSchema(originalData.graphSchema, originalData.repos);
 
             expect(call).to.throw(/cannot create dependency graph, contains circular dependencies/);
         });
@@ -92,8 +92,8 @@ describe('graph', () => {
         it('should serialise/deserialise build pipeline graphs', () => {
             let originalData = createBuildPipelineGraphSchema();
 
-            let graph = createPipelineGraph(originalData.graphSchema, originalData.jobs);
-            let regeneratedData = creatPipelineSchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
+            let graph = createBuildPipelineGraphFromSchema(originalData.graphSchema, originalData.jobs);
+            let regeneratedData = creatBuildPipelineSchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
 
             expect(regeneratedData).deep.equal(originalData.graphSchema);
         });
@@ -104,8 +104,8 @@ describe('graph', () => {
 
             let expectedData = createBuildPipelineGraphSchema();
 
-            let graph = createPipelineGraph(originalData.graphSchema, originalData.jobs);
-            let regeneratedData = creatPipelineSchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
+            let graph = createBuildPipelineGraphFromSchema(originalData.graphSchema, originalData.jobs);
+            let regeneratedData = creatBuildPipelineSchemaFromGraph(graph, originalData.graphSchema._id, originalData.graphSchema.userId);
 
             expect(regeneratedData).deep.equal(expectedData.graphSchema);
 
@@ -118,7 +118,7 @@ describe('graph', () => {
             let reversedDependency : model.Dependency = {up : dependency.down, down : dependency.up};
             originalData.graphSchema.dependencies.push(reversedDependency);
 
-            let call = () => createPipelineGraph(originalData.graphSchema, originalData.jobs);
+            let call = () => createBuildPipelineGraphFromSchema(originalData.graphSchema, originalData.jobs);
 
             expect(call).to.throw(/cannot create pipeline graph, contains circular dependencies/);
         });
@@ -129,7 +129,7 @@ describe('graph', () => {
             originalData.jobs.set('fooId', {_id : 'fooId', status : model.BuildStatus.IDLE});
             originalData.graphSchema.dependencies.push({up : 'fooId', down: 'job2' });
 
-            let call = () => createPipelineGraph(originalData.graphSchema, originalData.jobs);
+            let call = () => createBuildPipelineGraphFromSchema(originalData.graphSchema, originalData.jobs);
 
             expect(call).to.throw(/cannot create pipeline graph, it has more than one source nodes/);
         });
