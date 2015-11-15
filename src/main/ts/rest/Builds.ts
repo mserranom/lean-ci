@@ -6,7 +6,7 @@ import {github} from '../github';
 
 var Joi = require('joi');
 
-export class BuildRequests {
+export class Builds {
 
     @Inject('expressServer')
     expressServer : api.ExpressServer;
