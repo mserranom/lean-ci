@@ -81,15 +81,19 @@ export class Repositories {
         }
 
         async function createNewDependencyGraph(repo : model.Repository, config : model.BuildConfig) {
-            let dependencies : Array<model.Dependency> = [];
-            config.dependencies.forEach((depId : string) => dependencies.push({up : depId, down : repo.name}));
             let data : model.DependencyGraphSchema = {
                 _id : undefined,
                 userId : repo.userId,
                 repos : [repo.name],
-                dependencies : dependencies
+                dependencies : createDependenciesFromConfig(repo.name, config)
             };
             await depGraphQ.saveQ(data);
+        }
+
+        function createDependenciesFromConfig(repoName : string, config : model.BuildConfig) : Array<model.Dependency> {
+            let dependencies : Array<model.Dependency> = [];
+            config.dependencies.forEach((depId : string) => dependencies.push({up : depId, down : repoName}));
+            return dependencies;
         }
 
         async function updateDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, config : model.BuildConfig) {
