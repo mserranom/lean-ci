@@ -72,8 +72,8 @@ export class PersistedBuildQueue implements BuildQueue {
     async updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus) {
         let build : model.Build = await this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
         if(build) {
-            build.status = model.BuildStatus.RUNNING;
-            await this.buildsRepository.updateQ({status : newStatus}, build)
+            build.status = newStatus;
+            await this.buildsRepository.updateQ({_id : build._id}, build)
         } else {
             console.error('couldnt find build with id=' + buildId);
             // TODO: define error in case there's no matching build
