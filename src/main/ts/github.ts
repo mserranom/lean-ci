@@ -9,18 +9,37 @@ export module github {
         authenticate(token:String);
         user(id : string) : Q.Promise<any>;
         getRepo(name : string) : Q.Promise<any>
+        getFile(repo : string, fileName : string) : Q.Promise<string>;
         setupWebhook(url:string, repo:string):Q.Promise<string>;
     }
 
     export class GitServiceMock implements GitService {
 
         private _failNextCall : boolean = false;
+        private _mockFileContent : string = JSON.stringify({dependencies:[]});
 
         failNextCall() {
             this._failNextCall = true
         }
 
         authenticate(githubToken:String) { }
+
+        setMockFileContentToBeReturned(content:string) : void {
+            this._mockFileContent = content;
+        }
+
+        getFile(repo : string, fileName : string) : Q.Promise<string> {
+            var d = Q.defer();
+
+            if(this._failNextCall) {
+                setTimeout(() => d.reject('{message:"file couldnt be retrieved", errors:[]}'), 1);
+                this._failNextCall = false
+            } else {
+                process.nextTick(() => d.resolve(this._mockFileContent));
+            }
+
+            return d.promise;
+        }
 
         user(id : string) : Q.Promise<any> {
             var d = Q.defer();
@@ -88,6 +107,34 @@ export module github {
                 type: "oauth",
                 token: githubToken
             });
+        }
+
+        getFile(repo:string, filePath:string):Q.Promise<string> {
+            var d = Q.defer();
+
+            let split = repo.split('/');
+
+            let query = {
+                user: split[0],
+                repo: split[1],
+                path: filePath
+            };
+
+            this._service.repos.getContent(query, (err, res) => {
+                if (err) {
+                    let errorMessage = "github 'getContent' request error: " + err;
+                    console.error(errorMessage);
+                    d.reject({message: errorMessage});
+                } else {
+                    console.info("github 'content; request result: " + JSON.stringify(res));
+
+                    let url = res.download_url;
+
+                    // TODO: download actual content of the file
+                    d.resolve(url);
+                }
+            });
+            return d.promise;
         }
 
         user(id : string) : Q.Promise<any> {
