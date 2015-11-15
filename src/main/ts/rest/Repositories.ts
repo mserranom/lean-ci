@@ -97,19 +97,31 @@ export class Repositories {
         }
 
         async function updateDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, config : model.BuildConfig) {
-            let repos = await repQ.fetchQ({userId : graphSchema.userId}, 1, Number.MAX_SAFE_INTEGER);
 
-            // generate graph object from graph schema object
+            let allRepos = await repQ.fetchQ({userId : graphSchema.userId}, 1, Number.MAX_SAFE_INTEGER);
+
+            let graph = createDependencyGraph(graphSchema, createRepoMapFromArray(allRepos));
+
+            updateRepositoryNode(graph, repo, config);
+
+            let graphSchemaObject = createDependencySchemaFromGraph(graph, graphSchema._id, graphSchema.userId);
+
+            await depGraphQ.updateQ({_id : graphSchema._id}, graphSchemaObject);
+        }
+
+        function createRepoMapFromArray(repos : Array<model.Repository>) : Map<string, model.Repository> {
             let reposMap : Map<string, model.Repository> = new Map();
             repos.forEach(repo => reposMap.set(repo.name, repo));
+            return reposMap;
+        }
 
-            let graph : Graphlib.Graph<model.Repository, void> = createDependencyGraph(graphSchema, reposMap);
+        function updateRepositoryNode(graph : Graphlib.Graph<model.Repository, void>, repo : model.Repository, config : model.BuildConfig) : void {
 
             if(!graph.hasNode(repo.name)) {
                 graph.setNode(repo.name, repo)
             }
 
-            // remove all the previous dependencies in the graph
+            // remove all the previous dependencies of the node in the graph
             let oldDeps : Array<string> = graph.inEdges(repo.name);
             if(oldDeps && oldDeps.length > 0) {
                 oldDeps.forEach(dep => graph.removeEdge(dep, repo.name));
@@ -117,11 +129,6 @@ export class Repositories {
 
             // set new dependencies
             config.dependencies.forEach(dep => graph.setEdge(dep, repo.name));
-
-            // save graph
-            let data = createDependencySchemaFromGraph(graph, graphSchema._id, graphSchema.userId);
-
-            await depGraphQ.updateQ({_id : graphSchema._id}, data);
         }
 
         this.expressServer.del('/repositories/:id', (req, res, userId:string) => {
