@@ -9,9 +9,9 @@ import {Inject} from '../../../../lib/container'
 var Q = require('q');
 
 export interface BuildQueue {
+    // TODO: remove addBuildToQueue() so that the build is queued by the pipeline managers
     addBuildToQueue(userId : string, repo : string, commit? : string); // async
     nextQueuedBuild(userId : string) : Q.Promise<model.Build>;
-    updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus); // async
     getBuild(userId : string, buildId : string); // async
     queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
     runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.Build>>;
@@ -67,17 +67,6 @@ export class PersistedBuildQueue implements BuildQueue {
 
     nextQueuedBuild(userId : string) : Q.Promise<model.Build> {
         return this.queuedBuilds(userId, 1, 1).then((items) => { return items[0]});
-    }
-
-    async updateBuildStatus(userId : string, buildId : string, newStatus : model.BuildStatus) {
-        let build : model.Build = await this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
-        if(build) {
-            build.status = newStatus;
-            await this.buildsRepository.updateQ({_id : build._id}, build)
-        } else {
-            console.error('couldnt find build with id=' + buildId);
-            // TODO: define error in case there's no matching build
-        }
     }
 
     async getBuild(userId : string, buildId : string) {
