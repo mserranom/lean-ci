@@ -12,6 +12,7 @@ describe('PipelineGraph', () => {
 
         it('when the job is idle, next() should return the job',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.IDLE }],
                 dependencies : []
             };
@@ -23,6 +24,7 @@ describe('PipelineGraph', () => {
 
         it('when the job is not idle, next() should return null',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.QUEUED }],
                 dependencies : []
             };
@@ -47,6 +49,7 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job is idle, should return it as next',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.IDLE }, {_id : '2', status : model.BuildStatus.IDLE }],
                 dependencies : [{up : '1', down : '2'}]
             };
@@ -58,6 +61,7 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job has succeeded, should return the 2nd as next',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.SUCCESS }, {_id : '2', status : model.BuildStatus.IDLE }],
                 dependencies : [{up : '1', down : '2'}]
             };
@@ -69,6 +73,7 @@ describe('PipelineGraph', () => {
 
         it('when all the jobs are finished, should return null as next',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.SUCCESS }, {_id : '2', status : model.BuildStatus.SUCCESS }],
                 dependencies : [{up : '1', down : '2'}]
             };
@@ -82,6 +87,7 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job is in "failed", "running" or "queued" state, should return null as next',  () => {
             let data : model.Pipeline = {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.FAILED }, {_id : '2', status : model.BuildStatus.IDLE }],
                 dependencies : [{up : '1', down : '2'}]
             };
@@ -108,6 +114,7 @@ describe('PipelineGraph', () => {
 
         let createGraph = function() : model.Pipeline {
             return {
+                _id : '0',
                 jobs : [{_id : '1', status : model.BuildStatus.IDLE }, {_id : '2', status : model.BuildStatus.IDLE },
                         {_id : '3', status : model.BuildStatus.IDLE }, {_id : '4', status : model.BuildStatus.IDLE }],
                 dependencies : [{up : '1', down : '2'}, {up : '1', down : '3'},
