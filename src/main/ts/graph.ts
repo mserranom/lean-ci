@@ -9,12 +9,12 @@ export function createDependencyGraphFromSchema(data : model.DependencyGraphSche
     let options = { directed: true, compound: false, multigraph: false };
     let graph : Graphlib.Graph<model.Repository, void> = new Graphlib.Graph(options);
 
-    data.repos.forEach((repoId : string) => {
-        let repo = repos.get(repoId);
+    data.repos.forEach((repoName : string) => {
+        let repo = repos.get(repoName);
         if(!repo) {
-            throw `cannot create dependency graph, repository ${repoId} not found`;
+            throw `cannot create dependency graph, repository ${repoName} not found`;
         }
-        graph.setNode(repoId, repo);
+        graph.setNode(repoName, repo);
     });
 
     data.dependencies.forEach((dependency : model.Dependency) => {
@@ -70,13 +70,43 @@ export function createBuildPipelineGraphFromSchema(data : model.PipelineSchema, 
     return graph;
 }
 
-export function creatBuildPipelineSchemaFromGraph(graph : Graphlib.Graph<model.Job, void>, _id : string, userId : string) : model.PipelineSchema {
+export function creatBuildPipelineSchemaFromGraph(graph : Graphlib.Graph<model.Job, void>, _id : string, userId : string, status : model.PipelineStatus) : model.PipelineSchema {
     let result : model.PipelineSchema ={
         _id : _id,
         userId : userId,
+        status : status,
         jobs : graph.nodes(),
         dependencies : []
     };
     graph.edges().forEach((edge) => result.dependencies.push({up : edge.v, down : edge.w}));
     return result;
+}
+
+export function getDependencySubgraph(graph : Graphlib.Graph<model.Repository, void>,
+                                      newSource : model.Repository) : Graphlib.Graph<model.Repository, void> {
+    let newGraph = cloneGraph(graph);
+
+    let dijkstraAlgResult = Graphlib.alg.dijkstra(graph, newSource.name); // or floydWarshall might be faster
+
+    let isValidNode = node => {return dijkstraAlgResult.hasOwnProperty(node) && dijkstraAlgResult[node].distance  != "Infinity"};
+
+    graph.nodes().forEach((node) => {
+        if(!isValidNode(node)) {
+            newGraph.removeNode(node);
+        }
+    });
+
+    return newGraph;
+}
+
+function cloneGraph(graph : Graphlib.Graph<any, any>) : Graphlib.Graph<any, any> {
+
+    let newGraph = new Graphlib.Graph({ directed: graph.isDirected(),
+                                        compound: graph.isCompound(),
+                                        multigraph: graph.isMultigraph() });
+
+    graph.nodes().forEach(node => newGraph.setNode(node, graph.node(node)));
+    graph.edges().forEach((edge : Graphlib.Edge<any>) => newGraph.setEdge(edge.v, edge.w, edge.name));
+
+    return newGraph;
 }
