@@ -4,4 +4,4 @@ node_js:
   - "4.1.0"
 before_install:
   - npm install -g grunt-cli
-  - npm install -g typescript
+  - npm install -g typescript@1.6.2
