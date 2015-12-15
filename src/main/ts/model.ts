@@ -22,6 +22,12 @@ export module model {
         SUCCESS
     }
 
+    export enum PipelineStatus {
+        RUNNING,
+        FAILED,
+        SUCCESS
+    }
+
     export interface BuildConfig {
         dependencies : Array<string>;
     }
@@ -49,6 +55,7 @@ export module model {
     }
 
     export interface Pipeline {
+        _id : string;
         jobs : Array<Job>
         dependencies : Array<Dependency>
     }
@@ -56,6 +63,7 @@ export module model {
     export interface PipelineSchema {
         _id : string;
         userId : string;
+        status :  PipelineStatus;
         jobs : Array<string>
         dependencies : Array<Dependency>
     }
