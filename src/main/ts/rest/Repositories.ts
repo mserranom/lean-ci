@@ -1,5 +1,6 @@
 ///<reference path="../../../../lib/graphlib.d.ts"/>
 
+import {DependencyGraph} from "../types/DependencyGraph";
 var Graphlib = require('graphlib');
 
 import {Inject, PostConstruct} from '../../../../lib/container';
@@ -7,7 +8,6 @@ import {model} from '../model';
 import {repository} from '../repository';
 import {api} from '../api';
 import {github} from '../github';
-import {createDependencyGraphFromSchema, createDependencySchemaFromGraph} from '../graph';
 
 var Joi = require('joi');
 
@@ -67,16 +67,14 @@ export class Repositories {
         });
 
         async function saveNewRepo(repo : model.Repository, config : model.BuildConfig) {
-            let insertResult = await repQ.saveQ(repo);
+            await repQ.saveQ(repo);
 
-            let newRepo = insertResult[0];
+            let graphSchema = await depGraphQ.fetchFirstQ({userId : repo.userId});
 
-            let graph = await depGraphQ.fetchFirstQ({userId : newRepo.userId});
-
-            if(!graph) {
-                await createNewDependencyGraph(newRepo, config);
+            if(!graphSchema) {
+                await createNewDependencyGraph(repo, config);
             } else {
-                await updateDependencyGraph(graph, newRepo, config);
+                await addRepoToDependencyGraph(graphSchema, repo, config.dependencies);
             }
         }
 
@@ -96,15 +94,17 @@ export class Repositories {
             return dependencies;
         }
 
-        async function updateDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, config : model.BuildConfig) {
+        async function addRepoToDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, dependencies : Array<string>) {
+
+            graphSchema.repos.push(repo.name);
 
             let allRepos = await repQ.fetchQ({userId : graphSchema.userId}, 1, Number.MAX_SAFE_INTEGER);
 
-            let graph = createDependencyGraphFromSchema(graphSchema, createRepoMapFromArray(allRepos));
+            let graph = DependencyGraph.fromSchemas(graphSchema, createRepoMapFromArray(allRepos));
 
-            updateRepositoryNode(graph, repo, config);
+            graph.updateDependencies(repo, dependencies);
 
-            let graphSchemaObject = createDependencySchemaFromGraph(graph, graphSchema._id, graphSchema.userId);
+            let graphSchemaObject = graph.createDependencySchema(graphSchema.userId, graphSchema._id);
 
             await depGraphQ.updateQ({_id : graphSchema._id}, graphSchemaObject);
         }
@@ -115,26 +115,8 @@ export class Repositories {
             return reposMap;
         }
 
-        function updateRepositoryNode(graph : Graphlib.Graph<model.Repository, void>, repo : model.Repository, config : model.BuildConfig) : void {
-
-            if(!graph.hasNode(repo.name)) {
-                graph.setNode(repo.name, repo)
-            }
-
-            // remove all the previous dependencies of the node in the graph
-            let oldDeps : Array<string> = graph.inEdges(repo.name);
-            if(oldDeps && oldDeps.length > 0) {
-                oldDeps.forEach(dep => graph.removeEdge(dep, repo.name));
-            }
-
-            // set new dependencies
-            config.dependencies.forEach(dep => graph.setEdge(dep, repo.name));
-        }
-
         this.expressServer.del('/repositories/:id', (req, res, userId:string) => {
             let id : string = req.params.id;
-
-            console.info(`received /repositories/${id} DELETE request`);
 
             let onResult = () => res.end();
 
@@ -145,6 +127,8 @@ export class Repositories {
             let query : any = {userId : userId, _id : id};
 
             this.repositories.remove(query, onError, onResult);
+
+            //TODO: handle dependency graph
         });
 
         this.expressServer.getPaged('/repositories', async function (req,res, userId : string, page: number, perPage : number) {

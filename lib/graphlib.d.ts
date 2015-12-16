@@ -64,7 +64,7 @@ declare module Graphlib {
     }
 
     module json {
-        function write(g: Graph<any, any>): string;
+        function write(g: Graph<any, any>): any;
         function read(json: string) : Graph<any, any>;
     }
 

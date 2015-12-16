@@ -45,3 +45,9 @@ export function stubPromise(value? : any) : any {
 export function stubRejectedPromise(reason? : string) : any {
     return simple.stub().rejectWith(reason);
 }
+
+export async function sleep(ms:number) : Promise<any> {
+    return new Promise<void>(function(resolve) {
+        setTimeout(function(){ resolve() }, ms);
+    });
+}

@@ -41,7 +41,6 @@ export module model {
         repo : string;
         commit : string;
         userId : string;
-        pingURL : string;
         requestTimestamp : Date;
         processedTimestamp : Date;
         finishedTimestamp : Date;
@@ -54,14 +53,8 @@ export module model {
         down : string;
     }
 
-    export interface Pipeline {
-        _id : string;
-        jobs : Array<Job>
-        dependencies : Array<Dependency>
-    }
-
     export interface PipelineSchema {
-        _id : string;
+        _id? : string;
         userId : string;
         status :  PipelineStatus;
         jobs : Array<string>

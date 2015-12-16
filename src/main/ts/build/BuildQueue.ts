@@ -31,12 +31,9 @@ export class PersistedBuildQueue implements BuildQueue {
     async addBuildToQueue(userId : string, repo : string, commit?:string) {
         commit = commit || '';
 
-        console.log('adding ' + repo  + (commit ? ('@' + commit) : 'HEAD') + ' to the build queue');
-
         await this.checkRepositoryExists(userId, repo);
 
-        let pingURL = config.appUrl + '/build/pingFinish';
-        let request = this.createNewBuildRequest(userId, repo, commit, pingURL);
+        let request = this.createNewBuildRequest(userId, repo, commit);
 
         let insertedBuilds = await this.buildsRepository.saveQ(request);
         return insertedBuilds[0];
@@ -49,7 +46,7 @@ export class PersistedBuildQueue implements BuildQueue {
         }
     }
 
-    private createNewBuildRequest(userId : string, repo : string, commit : string, pingURL : string) : model.Build {
+    private createNewBuildRequest(userId : string, repo : string, commit : string) : model.Build {
         return {
             _id : undefined,
             userId : userId,
@@ -57,7 +54,6 @@ export class PersistedBuildQueue implements BuildQueue {
             status: model.BuildStatus.QUEUED,
             log: null,
             commit : commit,
-            pingURL : pingURL,
             requestTimestamp : new Date(),
             processedTimestamp : null,
             finishedTimestamp: null,

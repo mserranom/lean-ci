@@ -48,7 +48,6 @@ export module api {
         }
 
         private request(method : string, endpoint : string, handler : (req : any, res : any, userId : string) => void, validator? : any) : void {
-            console.info('received ' + endpoint +  ' ' + method.toUpperCase() + ' request');
             let auth = (req, res, next) => this.authenticate(req, res,next);
             if(validator) {
                 var validate = require('express-validation');
@@ -66,7 +65,6 @@ export module api {
         }
 
         getPaged(endpoint : string, handler : (req : any, res : any, userId : string, page : number, perPage: number) => void) : void {
-            console.info('received ' + endpoint +  ' ' + ' GET request');
             let auth = (req, res, next) => this.authenticate(req, res,next);
             this._app.get(endpoint, auth, this.wrapPagerHandler(handler));
         }
@@ -84,8 +82,6 @@ export module api {
             let userId = req.get(auth.Headers.USER_ID);
             let userToken = req.get(auth.Headers.USER_TOKEN);
             let githubToken = req.get(auth.Headers.GITHUB_TOKEN);
-
-            console.info('login headers read: (' + userId + ',' + userToken + ',' + githubToken + ')');
 
             let onSuccess = (credentials : model.UserCredentials) => {
                 res.set(auth.Headers.USER_ID, credentials.userId);

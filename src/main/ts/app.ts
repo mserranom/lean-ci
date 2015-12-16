@@ -9,7 +9,10 @@ import {PersistedBuildQueue} from './build/BuildQueue'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
 import {Builds} from './rest/Builds'
+import {BuildRequests} from './rest/BuildRequests'
 import {DependencyGraphs} from './rest/DependencyGraphs'
+import {BuildRequestController} from './pipeline/BuildRequestController'
+import {PipelineController} from './pipeline/PipelineController'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
 
@@ -43,6 +46,10 @@ export class App {
 
         this.container.add(new PersistedBuildQueue(), 'buildQueue');
 
+        this.container.add(new BuildRequestController(), 'buildRequestController');
+
+        this.container.add(new PipelineController(), 'pipelineController');
+
         this.container.add(new api.ExpressServer(), 'expressServer');
 
         if(this.arguments.local) {
@@ -59,6 +66,7 @@ export class App {
         this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
         this.container.add(new repository.MongoDBRepository<model.Build>('builds', db), 'queuedBuildsRepository');
         this.container.add(new repository.MongoDBRepository<model.DependencyGraphSchema>('dependency_graphs', db), 'dependencyGraphsRepository');
+        this.container.add(new repository.MongoDBRepository<model.PipelineSchema>('pipelines', db), 'pipelinesRepository');
     }
 
     private setupRestServices() {
@@ -68,6 +76,7 @@ export class App {
         this.container.add(new Ping());
         this.container.add(new Builds());
         this.container.add(new DependencyGraphs());
+        this.container.add(new BuildRequests());
     }
 
     getComponent(id : string) : any {

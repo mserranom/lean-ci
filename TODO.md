@@ -4,7 +4,9 @@ TODO
 M
 ==
 
-[ ] rename SchedulerProcessFake to DebugBuild
+[ ] adding repository to the pipeline should test the /pipelines endpoint
+
+[ ] Consolidate names with Controller, BuildQueue, ...
 
 [ ] dependency_graphs should return Repository objects, not just repository names
 
@@ -14,8 +16,17 @@ M
 
 [ ] fix Promise return types on interfaces (when/if TS allows that)
 
+[ ] review TO DOs and create items in this list
+
+[ ] make sure non-connected graphs are allowed for dependency graphs, but not for pipelines
+
+[ ] dates in Build entity are probably not real now, since we have idle state. Should be fixed
+
+
 L
 ==
+
+[ ] test retrieving pipelines using PipelineController
 
 [ ] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts
 
@@ -26,6 +37,10 @@ L
 [ ] automate the send of 500 instead of a try/catch block in REST endpoints
 
 [ ] migrate to ES6 straight export from TS, no babel
+
+[ ] make DependencyGraph and PipelineGraph immutables
+
+[ ] unit test DependencyGraph.updateDependencies()
 
 XL
 ==
@@ -43,3 +58,5 @@ NICE TO HAVE
 
 DONE
 ====
+
+[x] remove pingURL from buildRequest/Build
