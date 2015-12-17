@@ -1,6 +1,8 @@
 ///<reference path="../../../lib/chai.d.ts"/>
 ///<reference path="../../../lib/mocha.d.ts"/>
 
+"use strict";
+
 import {auth} from '../../../src/main/ts/auth';
 import {repository} from '../../../src/main/ts/repository';
 import {github} from '../../../src/main/ts/github';

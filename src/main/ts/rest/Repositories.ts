@@ -1,7 +1,8 @@
 ///<reference path="../../../../lib/graphlib.d.ts"/>
 
+"use strict";
+
 import {DependencyGraph} from "../types/DependencyGraph";
-var Graphlib = require('graphlib');
 
 import {Inject, PostConstruct} from '../../../../lib/container';
 import {model} from '../model';
@@ -10,6 +11,7 @@ import {api} from '../api';
 import {github} from '../github';
 
 var Joi = require('joi');
+var Graphlib = require('graphlib');
 
 export class Repositories {
 

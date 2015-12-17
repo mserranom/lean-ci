@@ -1,3 +1,5 @@
+"use strict";
+
 import {model} from './model';
 import {config} from './config';
 import {auth} from './auth';

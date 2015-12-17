@@ -1,3 +1,5 @@
+"use strict";
+
 import {PipelineController} from './PipelineController';
 import {DependencyGraph} from '../types/DependencyGraph';
 import {PipelineGraph} from '../types/PipelineGraph';

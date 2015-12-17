@@ -1,3 +1,5 @@
+"use strict";
+
 import {Inject, PostConstruct} from '../../../../lib/container';
 import {model} from '../model';
 import {api} from '../api';

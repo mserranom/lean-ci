@@ -1,3 +1,5 @@
+"use strict";
+
 import {start, BootstrapArguments} from './app'
 
 import {Container, ContainerBuilder} from '../../../lib/container';

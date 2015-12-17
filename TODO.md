@@ -22,6 +22,8 @@ M
 
 [ ] dates in Build entity are probably not real now, since we have idle state. Should be fixed
 
+[ ] run app using sourcemap, while keeping the debug on IntelliJ
+
 
 L
 ==

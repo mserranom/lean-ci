@@ -1,8 +1,8 @@
+"use strict";
+
 import {model} from '../../../main/ts/model';
 import {repository} from '../../../main/ts/repository';
 import {BuildQueue} from '../../../main/ts/build/BuildQueue'
-
-
 
 export class SchedulerProcessFake {
     private repo : repository.DocumentRepositoryQ<model.Build>;

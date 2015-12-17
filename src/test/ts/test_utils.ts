@@ -2,6 +2,8 @@
 ///<reference path="../../../lib/chai.d.ts"/>
 ///<reference path="../../../lib/chai-as-promised.d.ts"/>
 
+"use strict";
+
 // required to enable async/await
 try  {
     require("babel/polyfill");

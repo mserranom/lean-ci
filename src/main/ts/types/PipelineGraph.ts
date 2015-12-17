@@ -1,5 +1,7 @@
 ///<reference path="../../../../lib/graphlib.d.ts"/>
 
+"use strict";
+
 var Graphlib = require('graphlib');
 
 import {model} from '../model';

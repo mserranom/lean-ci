@@ -6,7 +6,7 @@ module.exports = function (grunt) {
         srcDir : 'src/main/ts',
         testDir : 'src/test/ts',
         targetDir : 'dist',
-        targetTestDir : 'dist/ES5/src/test/ts',
+        targetTestDir : 'dist/src/test/ts',
         name : '<%= pkg.name %>',
         version : '<%= pkg.version %>',
         extension : 'ts'
@@ -62,24 +62,8 @@ module.exports = function (grunt) {
             }
         },
 
-        babel: {
-            options: {
-                sourceMap: true,
-                experimental: true
-            },
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: "dist/",
-                    src: ["**/*.js"],
-                    dest: "dist/ES5/",
-                    ext: ".js"
-                }]
-            }
-        },
-
         zip: {
-            'dist.zip': ['dist/ES5/**/*', 'node_modules/**/*.*']
+            'dist.zip': ['dist/src/**/*', 'node_modules/**/*.*']
         },
 
         watch: {
@@ -103,7 +87,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks("grunt-contrib-clean");
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-shell');
@@ -112,7 +95,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-zip');
 
-    grunt.registerTask("compile", ["clean", "shell:compile", "babel"]);
+    grunt.registerTask("compile", ["clean", "shell:compile"]);
     grunt.registerTask("test", ["compile", "mochaTest:unit", "mochaTest:integration"]);
     grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["package"]);

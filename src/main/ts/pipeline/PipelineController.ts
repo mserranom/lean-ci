@@ -1,3 +1,4 @@
+"use strict";
 
 import {repository} from '../repository';
 import {model} from '../model';

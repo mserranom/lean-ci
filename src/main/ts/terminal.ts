@@ -1,6 +1,8 @@
 ///<reference path="../../../lib/node-0.10.d.ts"/>
 ///<reference path="promises.ts"/>
 
+"use strict";
+
 import * as http from "http"
 import * as https from "https"
 

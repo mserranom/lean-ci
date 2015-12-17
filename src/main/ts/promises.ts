@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  Module P: Generic Promises for TypeScript
 
@@ -196,7 +198,7 @@ export module P {
      If no promises were provided, the resulting promise is immediately resolved.
      */
 
-    export function when(...promises: Promise<any>[]): Promise<any[]>
+    export function when(promises: Promise<any>[]): Promise<any[]>
     {
         var allDone = defer<any[]>();
         if (!promises.length) {

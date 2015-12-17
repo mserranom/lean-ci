@@ -1,11 +1,10 @@
 ///<reference path="../../../lib/node-0.10.d.ts"/>
 
+"use strict";
 
 import * as fs from "fs"
-//import process = require("process");
 
 export var config;
-
 
 var path = process.env.HOME + '/lean-ci-config.json';
 var path2 = './lean-ci-config.json';

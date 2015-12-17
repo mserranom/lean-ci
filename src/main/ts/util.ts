@@ -1,3 +1,5 @@
+"use strict";
+
 export module util {
 
     export function overrideConsoleColors() {

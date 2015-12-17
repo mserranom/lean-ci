@@ -1,3 +1,5 @@
+"use strict";
+
 import {model} from '../../../../src/main/ts/model';
 import {DependencyGraph} from '../../../../src/main/ts/types/DependencyGraph';
 import {expect} from 'chai';

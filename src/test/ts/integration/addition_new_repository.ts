@@ -1,3 +1,5 @@
+"use strict";
+
 import {start, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
 import {github} from '../../../../src/main/ts/github';

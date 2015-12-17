@@ -1,5 +1,7 @@
 ///<reference path='../node_modules/immutable/dist/immutable.d.ts'/>
 
+"use strict";
+
 import * as Immutable from "immutable"
 
 

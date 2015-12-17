@@ -1,5 +1,7 @@
 ///<reference path="../../../../lib/Q.d.ts"/>
 
+"use strict";
+
 var Q = require('q');
 
 export const USER_ID : string = 'aaaa';

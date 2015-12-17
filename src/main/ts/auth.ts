@@ -1,3 +1,5 @@
+"use strict";
+
 import {config} from './config'
 import {repository} from './repository'
 import {model} from './model'

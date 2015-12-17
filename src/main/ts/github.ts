@@ -1,6 +1,8 @@
 ///<reference path="promises.ts"/>
 ///<reference path="../../../lib/Q.d.ts"/>
 
+"use strict";
+
 var Q = require('q');
 
 export module github {

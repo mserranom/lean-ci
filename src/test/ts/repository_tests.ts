@@ -1,3 +1,5 @@
+"use strict";
+
 import {repository} from '../../../src/main/ts/repository';
 import {model} from '../../../src/main/ts/model';
 import {expect} from 'chai';

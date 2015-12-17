@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "target": "es6",
+        "module": "commonjs",
         "moduleResolution": "node",
         "experimentalDecorators": true,
-        "experimentalAsyncFunctions": true,
         "noImplicitAny": false,
         "removeComments": false,
         "preserveConstEnums": true,
