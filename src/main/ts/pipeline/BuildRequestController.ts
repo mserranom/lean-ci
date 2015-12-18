@@ -56,7 +56,7 @@ export class BuildRequestController {
         let repo = await this.repositories.fetchFirstQ(repository);
         let repositoryExists =  repo != null && repo != undefined;
         if(!repositoryExists) {
-            throw 'repository ' + repository.name + ' does not exist';
+            throw new Error('repository ' + repository.name + ' does not exist');
             //TODO: how to make async functions fail with async/await, so they  look like a rejected promise ??
         }
     }

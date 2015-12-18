@@ -28,10 +28,10 @@ export class App {
 
     private container : Container;
 
-    private arguments : BootstrapArguments;
+    private args : BootstrapArguments;
 
     constructor(bootstrapArgs : BootstrapArguments) {
-        this.arguments = bootstrapArgs;
+        this.args = bootstrapArgs;
     }
 
     init(db) {
@@ -40,7 +40,7 @@ export class App {
         this.setupRepositories(db);
         this.setupRestServices();
 
-        if(this.arguments.local) {
+        if(this.args.local) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
         } else {
             this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
@@ -54,7 +54,7 @@ export class App {
 
         this.container.add(new api.ExpressServer(), 'expressServer');
 
-        if(this.arguments.local) {
+        if(this.args.local) {
             this.container.add(new github.GitServiceMock(), 'githubApi');
         } else {
             this.container.add(new github.GithubAPI(), 'githubApi');
@@ -112,7 +112,6 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
         repository.mongodbConnect(config.mongodbUrl, onDBConnect);
     }
 
-    throw 'ERROR!!!';
     return app;
 }
 

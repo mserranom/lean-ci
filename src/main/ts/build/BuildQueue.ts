@@ -44,7 +44,7 @@ export class PersistedBuildQueue implements BuildQueue {
     private async checkRepositoryExists(userId : string, repo : string) {
         let repository : model.Repository = await this.repositories.fetchFirstQ({userId : userId, name : repo});
         if(!repository) {
-            throw repo + 'is not a valid repository';
+            throw new Error(repo + 'is not a valid repository');
         }
     }
 

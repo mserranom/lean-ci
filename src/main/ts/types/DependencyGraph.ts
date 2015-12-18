@@ -38,7 +38,7 @@ export class DependencyGraph {
     updateDependencies(repo : model.Repository, dependencies : Array<string>) : void {
 
         if(!this.hasRepo(repo.name)) {
-            throw 'cannot update dependencies, repository ' + repo.name + ' does not exist in this dependency graph';
+            throw new Error('cannot update dependencies, repository ' + repo.name + ' does not exist in this dependency graph');
         }
 
         // remove all the previous dependencies of the node in the graph
@@ -104,7 +104,7 @@ function createDependencyGraphFromSchema(data : model.DependencyGraphSchema,
     data.repos.forEach((repoName : string) => {
         let repo = repos.get(repoName);
         if(!repo) {
-            throw `cannot create dependency graph, repository ${repoName} not found`;
+            throw new Error(`cannot create dependency graph, repository ${repoName} not found`);
         }
         graph.setNode(repoName, repo);
     });
@@ -116,7 +116,7 @@ function createDependencyGraphFromSchema(data : model.DependencyGraphSchema,
     });
 
     if(!Graphlib.alg.isAcyclic(graph)) {
-        throw 'cannot create dependency graph, contains circular dependencies: ' + JSON.stringify(data);
+        throw new Error('cannot create dependency graph, contains circular dependencies: ' + JSON.stringify(data));
     }
 
     return graph;

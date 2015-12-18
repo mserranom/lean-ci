@@ -32,11 +32,11 @@ export class PipelineGraph {
         });
 
         if(!Graphlib.alg.isAcyclic(graph)) {
-            throw 'pipeline graph contains circular dependencies:' + JSON.stringify(Graphlib.json.write(graph));
+            throw new Error('pipeline graph contains circular dependencies:' + JSON.stringify(Graphlib.json.write(graph)));
         }
 
         if(graph.sources().length > 1) {
-            throw 'pipeline graph has more than one source nodes: ' + JSON.stringify(Graphlib.json.write(graph));
+            throw new Error('pipeline graph has more than one source nodes: ' + JSON.stringify(Graphlib.json.write(graph)));
         }
 
         let pipelineGraph = new PipelineGraph();
@@ -94,7 +94,7 @@ export class PipelineGraph {
             if (distances.hasOwnProperty(prop)) {
                 let distanceToSource = distances[prop].distance;
                 if(distanceToSource == Number.POSITIVE_INFINITY) {
-                    throw 'pipeline graph contains unconnected nodes: ' + Graphlib.Json.write(graph);
+                    throw new Error('pipeline graph contains unconnected nodes: ' + Graphlib.Json.write(graph));
                 }
                 nodes.push({nodeId : prop, distance: distanceToSource})
             }
