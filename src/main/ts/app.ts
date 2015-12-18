@@ -112,6 +112,7 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
         repository.mongodbConnect(config.mongodbUrl, onDBConnect);
     }
 
+    throw 'ERROR!!!';
     return app;
 }
 

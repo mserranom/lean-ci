@@ -63,7 +63,7 @@ module.exports = function (grunt) {
         },
 
         zip: {
-            'dist.zip': ['dist/src/**/*', 'node_modules/**/*.*']
+            'dist.zip': ['dist/**/*', 'src/main/**/*.ts', 'node_modules/**/*.*']
         },
 
         watch: {
@@ -97,7 +97,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask("compile", ["clean", "shell:compile"]);
     grunt.registerTask("test", ["compile", "mochaTest:unit", "mochaTest:integration"]);
-    grunt.registerTask("package", ["test", "zip"]);
+    grunt.registerTask("package", ["compile", "zip"]);
     grunt.registerTask("default", ["package"]);
 
     grunt.task.run('notify_hooks'); //requires 'brew install terminal-notifier'

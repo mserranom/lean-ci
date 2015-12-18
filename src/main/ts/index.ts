@@ -1,5 +1,7 @@
 "use strict";
 
+require('source-map-support').install();
+
 import {start, BootstrapArguments} from './app'
 
 import {Container, ContainerBuilder} from '../../../lib/container';
