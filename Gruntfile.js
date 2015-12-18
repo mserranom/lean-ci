@@ -27,23 +27,12 @@ module.exports = function (grunt) {
                 project.testDir + '/**/*.html', 'dist.zip']
         },
 
-        // Commented out, has problems to run with exclusions. replaced with shell:compile
-
-        //ts: {
-        //    options: {
-        //        compiler: '/usr/local/bin/tsc'
-        //    },
-        //    default: {
-        //        tsconfig: './tsconfig.json'
-        //    }
-        //},
-
-        shell: {
+        ts: {
             options: {
-                stderr: false
+                fast: 'never'
             },
-            compile: {
-                command: 'tsc'
+            default: {
+                tsconfig: './tsconfig.json'
             }
         },
 
@@ -102,7 +91,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-zip');
 
-    grunt.registerTask("compile", ["clean", "shell:compile"]);
+    grunt.registerTask("compile", ["clean", "ts"]);
     grunt.registerTask("test", ["compile", "mochaTest:unit", "mochaTest:integration"]);
     grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["package"]);

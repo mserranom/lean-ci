@@ -4,13 +4,10 @@ TODO
 M
 ==
 
-[ ] adding repository to the pipeline should test the /pipelines endpoint
 
 [ ] Consolidate names with Controller, BuildQueue, ...
 
 [ ] dependency_graphs should return Repository objects, not just repository names
-
-[ ] migrate TSC 1.7
 
 [ ]  repository.tingodbConnect(TINGODB_PATH, (err,db) as Promise and update tests with async
 
@@ -61,4 +58,6 @@ NICE TO HAVE
 DONE
 ====
 
+[x] migrate TSC 1.7
+[x] adding repository to the pipeline should test the /pipelines endpoint
 [x] remove pingURL from buildRequest/Build
