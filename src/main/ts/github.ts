@@ -1,4 +1,3 @@
-///<reference path="promises.ts"/>
 ///<reference path="../../../lib/Q.d.ts"/>
 
 "use strict";

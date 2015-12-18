@@ -1,5 +1,6 @@
 ///<reference path="../../../lib/chai.d.ts"/>
 ///<reference path="../../../lib/mocha.d.ts"/>
+///<reference path="../../../lib/Q.d.ts"/>
 
 "use strict";
 
@@ -7,7 +8,8 @@ import {auth} from '../../../src/main/ts/auth';
 import {repository} from '../../../src/main/ts/repository';
 import {github} from '../../../src/main/ts/github';
 import {model} from '../../../src/main/ts/model';
-import {P} from '../../../src/main/ts/promises';
+
+var Q = require('q');
 
 var simple = require('simple-mock');
 var expect = require('chai').expect;
@@ -40,8 +42,8 @@ describe('GithubAuthenticationService', () => {
         repoMock = createMock(['fetchFirst', 'update']);
         githubMock = createMock(['authenticate']);
 
-        githubUserPromise = P.defer();
-        githubMock.user = (id) => githubUserPromise.promise();
+        githubUserPromise = Q.defer();
+        githubMock.user = (id) => githubUserPromise.promise;
 
         sut = new auth.GithubAuthenticationService();
         sut.repo = repoMock;

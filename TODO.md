@@ -9,7 +9,7 @@ M
 
 [ ] dependency_graphs should return Repository objects, not just repository names
 
-[ ]  repository.tingodbConnect(TINGODB_PATH, (err,db) as Promise and update tests with async
+[ ] repository.tingodbConnect(TINGODB_PATH, (err,db) as Promise and update tests with async
 
 [ ] fix Promise return types on interfaces (when/if TS allows that)
 
@@ -35,8 +35,6 @@ L
 
 [ ] automate the send of 500 instead of a try/catch block in REST endpoints
 
-[ ] migrate to ES6 straight export from TS, no babel
-
 [ ] make DependencyGraph and PipelineGraph immutables
 
 [ ] unit test DependencyGraph.updateDependencies()
@@ -58,6 +56,7 @@ NICE TO HAVE
 DONE
 ====
 
+[x] migrate to ES6 straight export from TS, no babel
 [x] migrate TSC 1.7
 [x] adding repository to the pipeline should test the /pipelines endpoint
 [x] remove pingURL from buildRequest/Build
