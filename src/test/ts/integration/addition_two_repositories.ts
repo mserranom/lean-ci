@@ -4,12 +4,12 @@ import {start, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
 import {github} from '../../../../src/main/ts/github';
 import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
-import {expect} from 'chai';
 
 import {setupChai} from '../test_utils'
 import {SchedulerProcessFake} from "../support/SchedulerProcessFake";
 
 setupChai();
+var expect = require('chai').expect;
 
 describe('addition two repositories', () => {
 

@@ -2,10 +2,10 @@
 
 import {model} from '../../../../src/main/ts/model';
 import {PipelineGraph} from '../../../../src/main/ts/types/PipelineGraph';
-import {expect} from 'chai';
 
 import {setupChai} from '../test_utils'
 
+var expect = require('chai').expect;
 setupChai();
 
 describe('PipelineGraph', () => {

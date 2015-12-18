@@ -3,10 +3,10 @@
 import {start, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
 import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
-import {expect} from 'chai';
 
 import {setupChai, sleep} from '../test_utils'
 
+var expect = require('chai').expect;
 setupChai();
 
 describe('addition of a new repository', () => {

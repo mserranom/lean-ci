@@ -2,10 +2,10 @@
 
 import {repository} from '../../../src/main/ts/repository';
 import {model} from '../../../src/main/ts/model';
-import {expect} from 'chai';
 
 import {setupChai, TINGODB_PATH} from './test_utils'
 
+var expect = require('chai').expect;
 setupChai();
 
 class MyType {

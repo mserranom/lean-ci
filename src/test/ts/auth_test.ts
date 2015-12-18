@@ -9,10 +9,8 @@ import {github} from '../../../src/main/ts/github';
 import {model} from '../../../src/main/ts/model';
 import {P} from '../../../src/main/ts/promises';
 
-import {expect} from 'chai';
-
 var simple = require('simple-mock');
-
+var expect = require('chai').expect;
 
 describe('GithubAuthenticationService', () => {
 
