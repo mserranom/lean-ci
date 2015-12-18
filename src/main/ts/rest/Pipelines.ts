@@ -7,7 +7,7 @@ import {PipelineController} from "../pipeline/PipelineController";
 
 var Joi = require('joi');
 
-export class Builds {
+export class Pipelines {
 
     @Inject('expressServer')
     expressServer : api.ExpressServer;
@@ -24,7 +24,7 @@ export class Builds {
             let id : number = parseInt(req.params.id);
 
             try {
-                let buildRequest = pipelines.getPipeline(userId, id);
+                let buildRequest = await pipelines.getPipeline(userId, id);
                 res.send(JSON.stringify(buildRequest));
             } catch (error) {
                 res.status(500).send(error);

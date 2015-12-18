@@ -53,6 +53,9 @@ describe('addition of a new repository', () => {
         expect(build.repo).equals(testRepo);
         expect(build.status).equals(model.BuildStatus.QUEUED);
 
+        let requestedPipeline:model.PipelineSchema = await doGet('/pipelines/' + pipeline._id);
+        expect(requestedPipeline).deep.equal(pipeline);
+
         done();
     });
 

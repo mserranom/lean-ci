@@ -13,6 +13,7 @@ import {Ping} from './rest/Ping'
 import {Builds} from './rest/Builds'
 import {BuildRequests} from './rest/BuildRequests'
 import {DependencyGraphs} from './rest/DependencyGraphs'
+import {Pipelines} from './rest/Pipelines'
 import {BuildRequestController} from './pipeline/BuildRequestController'
 import {PipelineController} from './pipeline/PipelineController'
 
@@ -78,6 +79,7 @@ export class App {
         this.container.add(new Ping());
         this.container.add(new Builds());
         this.container.add(new DependencyGraphs());
+        this.container.add(new Pipelines());
         this.container.add(new BuildRequests());
     }
 
