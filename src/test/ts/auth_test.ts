@@ -1,7 +1,3 @@
-///<reference path="../../../lib/chai.d.ts"/>
-///<reference path="../../../lib/mocha.d.ts"/>
-///<reference path="../../../lib/Q.d.ts"/>
-
 "use strict";
 
 import {auth} from '../../../src/main/ts/auth';

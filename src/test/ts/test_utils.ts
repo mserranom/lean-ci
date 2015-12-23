@@ -1,6 +1,4 @@
-///<reference path="../../../lib/mocha.d.ts"/>
-///<reference path="../../../lib/chai.d.ts"/>
-///<reference path="../../../lib/chai-as-promised.d.ts"/>
+///<reference path="../../../typings/tsd.d.ts"/>
 
 "use strict";
 

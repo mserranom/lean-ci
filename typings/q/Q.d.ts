@@ -16,14 +16,11 @@ declare function Q<T>(value: T): Q.Promise<T>;
 declare module Q {
     interface IPromise<T> {
         then<U>(onFulfill?: (value: T) => U | IPromise<U>, onReject?: (error: any) => U | IPromise<U>): IPromise<U>;
-        fail<U>(onRejected: (reason: any) => U | IPromise<U>): Promise<U>;
-        fin(finallyCallback: () => any): Promise<T>;
     }
 
     interface Deferred<T> {
         promise: Promise<T>;
-        resolve(value: T): void;
-        resolve() : void;
+        resolve(value?: T): void;
         reject(reason: any): void;
         notify(value: any): void;
         makeNodeResolver(): (reason: any, value: T) => void;
@@ -53,7 +50,7 @@ declare module Q {
          *
          * This is especially useful in conjunction with all
          */
-        spread<U>(onFulfilled: Function, onRejected?: Function): Promise<U>;
+        spread<U>(onFulfill: (...args: any[]) => IPromise<U> | U, onReject?: (reason: any) => IPromise<U> | U): Promise<U>;
 
         fail<U>(onRejected: (reason: any) => U | IPromise<U>): Promise<U>;
 
@@ -209,6 +206,11 @@ declare module Q {
      * Returns a promise that is fulfilled with an array containing the fulfillment value of each promise, or is rejected with the same rejection reason as the first promise to be rejected.
      */
     export function all<T>(promises: IPromise<T>[]): Promise<T[]>;
+    
+    /**
+    * Returns a promise for the first of an array of promises to become settled.
+    */
+    export function race<T>(promises: IPromise<T>[]): Promise<T>;
 
     /**
      * Returns a promise that is fulfilled with an array of promise state snapshots, but only after all the original promises have settled, i.e. become either fulfilled or rejected.
@@ -320,12 +322,12 @@ declare module Q {
      */
     export function resolve<T>(object: T): Promise<T>;
 
-    /**
-     * Resets the global "Q" variable to the value it has before Q was loaded.
-     * This will either be undefined if there was no version or the version of Q which was already loaded before.
-     * @returns { The last version of Q. }
-     */
-    export function noConflict(): typeof Q;
+	/**
+	 * Resets the global "Q" variable to the value it has before Q was loaded.
+	 * This will either be undefined if there was no version or the version of Q which was already loaded before.
+	 * @returns { The last version of Q. }
+	 */
+	export function noConflict(): typeof Q;
 }
 
 declare module "q" {

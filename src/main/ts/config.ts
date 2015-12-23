@@ -1,4 +1,4 @@
-///<reference path="../../../lib/node-0.10.d.ts"/>
+///<reference path="../../../typings/tsd.d.ts"/>
 
 "use strict";
 

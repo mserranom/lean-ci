@@ -1,5 +1,3 @@
-///<reference path="../../../../lib/Q.d.ts"/>
-
 "use strict";
 
 import {model} from '../model';
