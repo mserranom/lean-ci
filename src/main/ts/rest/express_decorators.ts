@@ -188,20 +188,15 @@ function configureObject(target : DecoratedObject) {
             }
         };
 
-
-        let middleware : Array<any> = [].concat(config.middleware);
+        let args : Array<any> = [config.route + endpoint.route].concat(config.middleware);
 
         if(config.endpointMiddleware.has(endpoint.handler)) {
-            middleware = middleware.concat(config.endpointMiddleware.get(endpoint.handler));
+            args = args.concat(config.endpointMiddleware.get(endpoint.handler));
         }
 
-        let router = Router();
+        args.push(requestHandler);
 
-        middleware.forEach(x => router.use(x));
-
-        router[endpoint.method](config.route + endpoint.route, requestHandler);
-
-        app.use('/', router);
+        app[endpoint.method].apply(app, args);
     };
 
     config.endpoints.forEach(x => configureEndpoint(x));
