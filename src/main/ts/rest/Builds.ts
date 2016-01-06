@@ -1,111 +1,88 @@
 "use strict";
 
-import {Inject, PostConstruct} from '../../../../lib/container';
-import {model} from '../model';
+import {Inject} from '../../../../lib/container';
+
+import {RequestMapping, Middleware} from './express_decorators';
+
 import {BuildQueue} from '../build/BuildQueue';
-import {api} from '../api';
-import {github} from '../github';
+import {model} from '../model';
 
 var Joi = require('joi');
+var validate = require('express-validation');
+
+let commitInfoValidator = validate( {
+    body: { repo : Joi.string().required(),
+        commit : Joi.string()}
+});
+
+export interface CommitInfo {
+    repo : string;
+    commit : string;
+}
 
 export class Builds {
-
-    @Inject('expressServer')
-    expressServer : api.ExpressServer;
 
     @Inject('buildQueue')
     buildQueue : BuildQueue;
 
-    @PostConstruct
-    init() {
+    @RequestMapping('POST', '/builds', ['userId'])
+    @Middleware(commitInfoValidator)
+    createBuild(userId : string, commitInfo : CommitInfo) : Promise<model.Build> {
+        return this.buildQueue.addBuildToQueue(userId, commitInfo.repo, commitInfo.commit);
+    }
 
-        let queue = this.buildQueue;
+    @RequestMapping('GET', '/builds/:id', ['userId'])
+    getBuild(id : string, userId : string) : Promise<model.Build> {
+        return this.buildQueue.getBuild(userId, id);
+    }
 
-        let repositoryPostValidator =  {
-            body: { repo : Joi.string().required(),
-                    commit : Joi.string()}
-        };
+    @RequestMapping('GET', '/builds', ['userId','page','per_page', 'status'])
+    getBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.Build>> {
 
-        this.expressServer.post('/builds', repositoryPostValidator, async function(req,res, userId : string) {
-            let repoName : string = req.body.repo;
-            let commit : string = req.body.commit;
+        let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
+        let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
 
-            try {
-                let buildRequest = await queue.addBuildToQueue(userId, repoName, commit);
-                res.send(JSON.stringify(buildRequest));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+        if(status === 'success') {
+            return this.buildQueue.successfulBuilds(userId, intPage, intPerPage);
+        } else if(status === 'failed') {
+            return this.buildQueue.failedBuilds(userId, intPage, intPerPage);
+        } else if(status == 'running') {
+            return this.buildQueue.runningBuilds(userId, intPage, intPerPage);
+        } else {
+            return this.buildQueue.queuedBuilds(userId, intPage, intPerPage);
+        }
+    }
 
-        this.expressServer.get('/builds/:id', async function(req,res, userId : string) {
-            let id : string = req.params.id;
+    @RequestMapping('GET', '/queued_builds', ['userId','page','per_page'])
+    getQueuedBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.Build>> {
 
-            try {
-                let buildRequest = await queue.getBuild(userId, id);
-                res.send(JSON.stringify(buildRequest));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+        let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
+        let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
 
-        this.expressServer.getPaged('/builds', async function(req,res, userId : string, page : number, perPage : number) {
-            let statusQuery : string = req.query.status;
+        return this.buildQueue.queuedBuilds(userId, intPage, intPerPage)
+    }
 
-            try {
-                let buildRequests : Array<model.Build>;
+    @RequestMapping('GET', '/running_builds', ['userId','page','per_page'])
+    getRunningBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.Build>> {
 
-                if(statusQuery === 'success') {
-                    buildRequests = await queue.successfulBuilds(userId, page, perPage);
-                } else  if(statusQuery === 'failed') {
-                    buildRequests = await queue.failedBuilds(userId, page, perPage);
-                } else if(statusQuery == 'running') {
-                    buildRequests = await queue.runningBuilds(userId, page, perPage);
-                } else {
-                    buildRequests = await queue.queuedBuilds(userId, page, perPage);
-                }
+        let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
+        let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
 
-                res.send(JSON.stringify(buildRequests));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+        return this.buildQueue.runningBuilds(userId, intPage, intPerPage)
+    }
 
-        this.expressServer.getPaged('/queued_builds', async function(req,res, userId : string, page : number, perPage : number) {
-            try {
-                let buildRequests = await queue.queuedBuilds(userId, page, perPage);
-                res.send(JSON.stringify(buildRequests));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+    @RequestMapping('GET', '/finished_builds', ['userId','page','per_page', 'status'])
+    getFinishedBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.Build>> {
 
-        this.expressServer.getPaged('/running_builds', async function(req,res, userId : string, page : number, perPage : number) {
-            try {
-                let buildRequests = await queue.runningBuilds(userId, page, perPage);
-                res.send(JSON.stringify(buildRequests));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+        let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
+        let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
 
-        this.expressServer.getPaged('/finished_builds', async function(req,res, userId : string, page : number, perPage : number) {
-            let statusQuery : string = req.query.status;
-
-            try {
-                let buildRequests : Array<model.Build>;
-
-                if(statusQuery === 'success') {
-                    buildRequests = await queue.successfulBuilds(userId, page, perPage);
-                } else  if(statusQuery === 'failed') {
-                    buildRequests = await queue.failedBuilds(userId, page, perPage);
-                } else {
-                    buildRequests = await queue.finishedBuilds(userId, page, perPage);
-                }
-                res.send(JSON.stringify(buildRequests));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+        if(status === 'success') {
+            return this.buildQueue.successfulBuilds(userId, intPage, intPerPage);
+        } else if(status === 'failed') {
+            return this.buildQueue.failedBuilds(userId, intPage, intPerPage);
+        } else {
+            return this.buildQueue.finishedBuilds(userId, intPage, intPerPage);
+        }
     }
 }

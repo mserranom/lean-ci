@@ -10,6 +10,7 @@ import {configureExpress} from './rest/express_decorators';
 import {Ping} from './rest/Ping';
 import {Pipelines} from './rest/Pipelines';
 import {BuildRequests} from './rest/BuildRequests';
+import {Builds} from './rest/Builds';
 
 export module api {
 
@@ -25,6 +26,7 @@ export module api {
         @Inject('rest.Ping') ping : Ping;
         @Inject('rest.Pipelines') pipelines : Pipelines;
         @Inject('rest.BuildRequests') buildRequests : BuildRequests;
+        @Inject('rest.Builds') builds : Builds;
 
         constructor() {
             var express : any = require('express');
@@ -42,7 +44,7 @@ export module api {
         @PostConstruct
         init() : void {
 
-            configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests]);
+            configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests, this.builds]);
 
             this._server = this._app.listen(config.defaultPort, () => {
                 var host = this._server.address().address;
