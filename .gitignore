@@ -41,3 +41,5 @@ src/test/ts/*.js
 
 dist
 dist.zip
+
+.baseDir.ts

@@ -32,6 +32,7 @@ export module model {
 
     export interface BuildConfig {
         dependencies : Array<string>;
+        commands? : Array<string>;
     }
 
     export interface Job {

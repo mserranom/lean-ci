@@ -4,6 +4,7 @@ TODO
 M
 ==
 
+[ ] npm shrinkwrap
 
 [ ] Consolidate names with Controller, BuildQueue, ...
 

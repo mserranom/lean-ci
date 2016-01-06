@@ -6,6 +6,9 @@ import {auth} from './auth';
 
 import {Inject, PostConstruct} from '../../../lib/container';
 
+import {configureExpress} from './rest/express_decorators';
+import {Ping} from './rest/Ping2';
+
 export module api {
 
     export class ExpressServer {
@@ -26,6 +29,8 @@ export module api {
             this._app.use(bodyParser.json()); // for parsing application/json
             this._app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
             this._app.use(multer()); // for parsing multipart/form-data
+
+            configureExpress(this._app, [new Ping()]);
         }
 
         @PostConstruct

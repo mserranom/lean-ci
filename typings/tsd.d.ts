@@ -5,3 +5,6 @@
 /// <reference path="promises-a-plus/promises-a-plus.d.ts" />
 /// <reference path="mocha/mocha.d.ts" />
 /// <reference path="q/Q.d.ts" />
+/// <reference path="express/express.d.ts" />
+/// <reference path="mime/mime.d.ts" />
+/// <reference path="serve-static/serve-static.d.ts" />
