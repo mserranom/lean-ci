@@ -1,41 +1,32 @@
 "use strict";
 
-import {Inject, PostConstruct} from '../../../../lib/container';
+import {Inject} from '../../../../lib/container';
+import {RequestMapping, Middleware} from './express_decorators';
 import {model} from '../model';
 import {BuildRequestController} from '../pipeline/BuildRequestController';
-import {api} from '../api';
 
 var Joi = require('joi');
+var validate = require('express-validation');
+
+let buildRequestValidator = validate( {
+        body: { repo : Joi.string().required(),
+                commit : Joi.string()}
+    });
+
+export interface CommitInfo {
+    repo : string;
+    commit : string;
+}
 
 export class BuildRequests {
-
-    @Inject('expressServer')
-    expressServer : api.ExpressServer;
 
     @Inject('buildRequestController')
     buildRequestController : BuildRequestController;
 
-    @PostConstruct
-    init() {
 
-        let buildRequest = this.buildRequestController;
-
-        let buildRequestValidator =  {
-            body: { repo : Joi.string().required(),
-                    commit : Joi.string()}
-        };
-
-        this.expressServer.post('/build_requests', buildRequestValidator, async function(req,res, userId : string) {
-
-            let repoName : string = req.body.repo;
-            let commit : string = req.body.commit;
-
-            try {
-                let pipeline = await buildRequest.processBuildRequest({name : repoName, userId : userId}, commit);
-                res.send(pipeline);
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
+    @RequestMapping('POST', '/build_requests', ['userId'] )
+    @Middleware(buildRequestValidator)
+    processRequest(userId : string, commitInfo : CommitInfo) : Promise<model.PipelineSchema> {
+        return this.buildRequestController.processBuildRequest({name : commitInfo.repo, userId : userId}, commitInfo.commit);
     }
 }

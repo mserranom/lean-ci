@@ -9,6 +9,7 @@ import {Inject, PostConstruct} from '../../../lib/container';
 import {configureExpress} from './rest/express_decorators';
 import {Ping} from './rest/Ping';
 import {Pipelines} from './rest/Pipelines';
+import {BuildRequests} from './rest/BuildRequests';
 
 export module api {
 
@@ -23,6 +24,7 @@ export module api {
 
         @Inject('rest.Ping') ping : Ping;
         @Inject('rest.Pipelines') pipelines : Pipelines;
+        @Inject('rest.BuildRequests') buildRequests : BuildRequests;
 
         constructor() {
             var express : any = require('express');
@@ -35,15 +37,12 @@ export module api {
             this._app.use(multer()); // for parsing multipart/form-data
 
             this._app.use(this.authenticate.bind(this));
-
-
-
         }
 
         @PostConstruct
         init() : void {
 
-            configureExpress(this._app, [this.ping, this.pipelines]);
+            configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests]);
 
             this._server = this._app.listen(config.defaultPort, () => {
                 var host = this._server.address().address;

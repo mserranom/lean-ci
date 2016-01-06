@@ -79,7 +79,7 @@ export class App {
         this.container.add(new Builds());
         this.container.add(new DependencyGraphs());
         this.container.add(new Pipelines(), 'rest.Pipelines');
-        this.container.add(new BuildRequests());
+        this.container.add(new BuildRequests(), 'rest.BuildRequests');
     }
 
     getComponent(id : string) : any {
