@@ -11,6 +11,8 @@ import {Ping} from './rest/Ping';
 import {Pipelines} from './rest/Pipelines';
 import {BuildRequests} from './rest/BuildRequests';
 import {Builds} from './rest/Builds';
+import {DependencyGraphs} from './rest/DependencyGraphs';
+import {Repositories} from './rest/Repositories';
 
 export module api {
 
@@ -27,6 +29,8 @@ export module api {
         @Inject('rest.Pipelines') pipelines : Pipelines;
         @Inject('rest.BuildRequests') buildRequests : BuildRequests;
         @Inject('rest.Builds') builds : Builds;
+        @Inject('rest.DependencyGraphs') dependencyGraphs : DependencyGraphs;
+        @Inject('rest.Repositories') repositories : Repositories;
 
         constructor() {
             var express : any = require('express');
@@ -44,7 +48,8 @@ export module api {
         @PostConstruct
         init() : void {
 
-            configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests, this.builds]);
+            configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests,
+                this.builds, this.dependencyGraphs, this.repositories]);
 
             this._server = this._app.listen(config.defaultPort, () => {
                 var host = this._server.address().address;

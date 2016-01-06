@@ -74,10 +74,10 @@ export class App {
     private setupRestServices() {
         this.container.add(new api.ExpressServer(), 'expressServer');
 
-        this.container.add(new Repositories());
+        this.container.add(new Repositories(), 'rest.Repositories');
         this.container.add(new Ping(), 'rest.Ping');
         this.container.add(new Builds(), 'rest.Builds');
-        this.container.add(new DependencyGraphs());
+        this.container.add(new DependencyGraphs(), 'rest.DependencyGraphs');
         this.container.add(new Pipelines(), 'rest.Pipelines');
         this.container.add(new BuildRequests(), 'rest.BuildRequests');
     }

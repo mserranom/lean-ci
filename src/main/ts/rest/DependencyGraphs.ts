@@ -1,40 +1,26 @@
 "use strict";
 
-import {Inject, PostConstruct} from '../../../../lib/container';
+import {Inject} from '../../../../lib/container';
+import {RequestMapping} from './express_decorators';
 import {model} from '../model';
 import {repository} from '../repository';
-import {api} from '../api';
 
 export class DependencyGraphs {
-
-    @Inject('expressServer')
-    expressServer : api.ExpressServer;
 
     @Inject('dependencyGraphsRepository')
     dependencyGraphs : repository.DocumentRepositoryQ<model.DependencyGraphSchema>;
 
-    @PostConstruct
-    init() {
+    @RequestMapping('GET', '/dependency_graphs', ['userId', 'page', 'per_page'])
+    getGraphs(userId : string, page : string, perPage : string) : Q.Promise<Array<model.DependencyGraphSchema>> {
 
-        let graphs = this.dependencyGraphs;
+        let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
+        let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
 
-        this.expressServer.getPaged('/dependency_graphs', async function (req,res, userId : string, page: number, perPage : number) {
-            try {
-                let graphSchemas : Array<model.DependencyGraphSchema> = await graphs.fetchQ({userId : userId}, page, perPage);
-                res.send(JSON.stringify(graphSchemas));
-            } catch(error) {
-                res.status(500).send(error);
-            }
-        });
+        return this.dependencyGraphs.fetchQ({userId : userId}, intPage, intPerPage);
+    }
 
-        this.expressServer.get('/dependency_graphs/:id', async function (req,res, userId : string) {
-            let id : string = req.params.id;
-            try {
-                let graph : model.DependencyGraphSchema = await graphs.fetchFirstQ({userId : userId, _id : id});
-                res.send(JSON.stringify(graph));
-            } catch(error) {
-                res.status(500).send(error);
-            }
-        });
+    @RequestMapping('GET', '/dependency_graphs/:id', ['userId'])
+    getGraph(id : string, userId : string) : Q.Promise<model.DependencyGraphSchema> {
+        return this.dependencyGraphs.fetchFirstQ({userId : userId, _id : id});
     }
 }
