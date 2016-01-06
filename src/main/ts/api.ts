@@ -7,6 +7,7 @@ import {auth} from './auth';
 import {Inject, PostConstruct} from '../../../lib/container';
 
 import {configureExpress} from './rest/express_decorators';
+
 import {Ping} from './rest/Ping';
 import {Pipelines} from './rest/Pipelines';
 import {BuildRequests} from './rest/BuildRequests';
@@ -58,47 +59,6 @@ export module api {
             });
         }
 
-        get(endpoint : string, handler : (req : any, res : any, userId : string) => void) : void {
-            this.request('get', endpoint, handler);
-        }
-
-        post(endpoint : string, validator : any, handler : (req : any, res : any, userId : string) => void) : void {
-            this.request('post', endpoint, handler, validator);
-        }
-
-        del(endpoint : string, handler : (req : any, res : any, userId : string) => void) : void {
-            this.request('delete', endpoint, handler);
-        }
-
-        private request(method : string, endpoint : string, handler : (req : any, res : any, userId : string) => void, validator? : any) : void {
-            if(validator) {
-                var validate = require('express-validation');
-                this._app[method](endpoint, validate(validator), this.wrapHandler(handler));
-            } else {
-                this._app[method](endpoint, this.wrapHandler(handler));
-            }
-        }
-
-        private wrapHandler(handler : (req:any, res:any, userId : string) => void) : (rq:any, rs:any) => void {
-            return (req, res) => {
-                let id = req.get(auth.Headers.USER_ID);
-                handler(req, res, id);
-            };
-        }
-
-        getPaged(endpoint : string, handler : (req : any, res : any, userId : string, page : number, perPage: number) => void) : void {
-            this._app.get(endpoint, this.wrapPagerHandler(handler));
-        }
-
-        private wrapPagerHandler(handler : (req:any, res:any, userId : string, page : number, perPage: number) => void) : (rq:any, rs:any) => void {
-            return (req, res) => {
-                let page = req.query.page ? parseInt(req.query.page) : 1;
-                let perPage = req.query.per_page ? parseInt(req.query.per_page) : 10;
-                let id = req.get(auth.Headers.USER_ID);
-                handler(req, res, id, page, perPage);
-            };
-        }
-
         authenticate(req, res, next) {
             let userId = req.get(auth.Headers.USER_ID);
             let userToken = req.get(auth.Headers.USER_TOKEN);
@@ -116,10 +76,6 @@ export module api {
             req.query.userId = userId; // for further usage as query parameter
 
             this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
-        }
-
-        app() : any {
-            return this._app;
         }
 
         stop() {
