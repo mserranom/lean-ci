@@ -1,21 +1,12 @@
 "use strict";
 
-import {Inject, PostConstruct} from '../../../../lib/container';
-import {api} from '../api';
+import {RequestMapping} from './express_decorators';
 
-var Joi = require('joi');
 
 export class Ping {
 
-    @Inject('expressServer')
-    expressServer : api.ExpressServer;
-
-    @PostConstruct
-    init() {
-
-        //this.expressServer.get('/ping', (req, res, userId : string) => {
-        //    res.send('pong');
-        //});
-
+    @RequestMapping('GET', '/ping')
+    ping() : string {
+        return 'pong';
     }
 }

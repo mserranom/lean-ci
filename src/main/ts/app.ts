@@ -75,10 +75,10 @@ export class App {
         this.container.add(new api.ExpressServer(), 'expressServer');
 
         this.container.add(new Repositories());
-        this.container.add(new Ping());
+        this.container.add(new Ping(), 'rest.Ping');
         this.container.add(new Builds());
         this.container.add(new DependencyGraphs());
-        this.container.add(new Pipelines());
+        this.container.add(new Pipelines(), 'rest.Pipelines');
         this.container.add(new BuildRequests());
     }
 

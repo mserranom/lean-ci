@@ -1,35 +1,19 @@
 "use strict";
 
-import {Inject, PostConstruct} from '../../../../lib/container';
-import {model} from '../model';
-import {api} from '../api';
-import {PipelineController} from "../pipeline/PipelineController";
+import {Inject} from '../../../../lib/container';
 
-var Joi = require('joi');
+import {RequestMapping} from './express_decorators';
+
+import {PipelineController} from '../pipeline/PipelineController';
+import {model} from '../model';
 
 export class Pipelines {
-
-    @Inject('expressServer')
-    expressServer : api.ExpressServer;
 
     @Inject('pipelineController')
     pipelinesController : PipelineController;
 
-    @PostConstruct
-    init() {
-
-        let pipelines = this.pipelinesController;
-
-        this.expressServer.get('/pipelines/:id', async function(req,res, userId : string) {
-            let id : number = parseInt(req.params.id);
-
-            try {
-                let buildRequest = await pipelines.getPipeline(userId, id);
-                res.send(JSON.stringify(buildRequest));
-            } catch (error) {
-                res.status(500).send(error);
-            }
-        });
-
+    @RequestMapping('GET', '/pipelines/:id', ['userId'])
+    getPipeline(id : string, userId : string) : Promise<model.PipelineSchema> {
+        return this.pipelinesController.getPipeline(userId, parseInt(id));
     }
 }

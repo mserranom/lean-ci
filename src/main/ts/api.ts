@@ -7,7 +7,8 @@ import {auth} from './auth';
 import {Inject, PostConstruct} from '../../../lib/container';
 
 import {configureExpress} from './rest/express_decorators';
-import {Ping} from './rest/Ping2';
+import {Ping} from './rest/Ping';
+import {Pipelines} from './rest/Pipelines';
 
 export module api {
 
@@ -20,6 +21,9 @@ export module api {
         @Inject('authenticationService')
         auth : auth.AuthenticationService;
 
+        @Inject('rest.Ping') ping : Ping;
+        @Inject('rest.Pipelines') pipelines : Pipelines;
+
         constructor() {
             var express : any = require('express');
             var bodyParser : any = require('body-parser');
@@ -30,11 +34,17 @@ export module api {
             this._app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
             this._app.use(multer()); // for parsing multipart/form-data
 
-            configureExpress(this._app, [new Ping()]);
+            this._app.use(this.authenticate.bind(this));
+
+
+
         }
 
         @PostConstruct
         init() : void {
+
+            configureExpress(this._app, [this.ping, this.pipelines]);
+
             this._server = this._app.listen(config.defaultPort, () => {
                 var host = this._server.address().address;
                 var port = this._server.address().port;
@@ -55,12 +65,11 @@ export module api {
         }
 
         private request(method : string, endpoint : string, handler : (req : any, res : any, userId : string) => void, validator? : any) : void {
-            let auth = (req, res, next) => this.authenticate(req, res,next);
             if(validator) {
                 var validate = require('express-validation');
-                this._app[method](endpoint, validate(validator), auth, this.wrapHandler(handler));
+                this._app[method](endpoint, validate(validator), this.wrapHandler(handler));
             } else {
-                this._app[method](endpoint, auth, this.wrapHandler(handler));
+                this._app[method](endpoint, this.wrapHandler(handler));
             }
         }
 
@@ -72,8 +81,7 @@ export module api {
         }
 
         getPaged(endpoint : string, handler : (req : any, res : any, userId : string, page : number, perPage: number) => void) : void {
-            let auth = (req, res, next) => this.authenticate(req, res,next);
-            this._app.get(endpoint, auth, this.wrapPagerHandler(handler));
+            this._app.get(endpoint, this.wrapPagerHandler(handler));
         }
 
         private wrapPagerHandler(handler : (req:any, res:any, userId : string, page : number, perPage: number) => void) : (rq:any, rs:any) => void {
@@ -98,6 +106,8 @@ export module api {
             };
 
             let onError = (error) => res.sendStatus(401);
+
+            req.query.userId = userId; // for further usage as query parameter
 
             this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
