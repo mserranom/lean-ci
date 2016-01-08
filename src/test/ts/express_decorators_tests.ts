@@ -91,11 +91,19 @@ class TestEndpoint {
     @RequestMapping('get', '/numbers/:id',['from','to'])
     sliceNumbers(id : string, from : number, to : number) : Array<number> {
         let data = [3,4,5,6,7];
-        console.log('FROM: ' + from, ' TO :' + to);
         if(id == '101') {
             return data.slice(from, to);
         } else {
             throw new Error('unknown id');
+        }
+    }
+
+    @RequestMapping('get', '/header_data/:id',['query'], ['header1', 'header2'])
+    dataWithHeaders(id : string, query : string, header1 : string, header2 : string) : string {
+        if(id == 'myId' && query == 'myQuery' && header1 == 'myHeader1' && header2 == 'myHeader2') {
+            return 'pong';
+        } else {
+            throw new Error('unknown input');
         }
     }
 
@@ -135,8 +143,10 @@ describe('REST decorators:', () => {
         done();
     });
 
-    async function doGet(endpoint : string) : Promise<string> {
-        return await request('http://localhost:' + PORT + endpoint);
+    async function doGet(endpoint : string, headers? : Object) : Promise<string> {
+        headers = headers || {};
+        return await request({ method: 'GET', uri : 'http://localhost:' + PORT + endpoint,
+            headers : headers});
     }
 
     async function doPost(endpoint : string, body : Object) : Promise<string> {
@@ -214,6 +224,16 @@ describe('REST decorators:', () => {
 
             let fetchedData = await doGet('/numbers/101?unused=foo&from=2&foo=0&to=5');
             expect(JSON.parse(fetchedData)).deep.equal([5,6,7]);
+
+            done();
+        });
+
+        it('headers are passed to the method',  async function(done) {
+
+            await start(PORT, [new TestEndpoint(), new TestEndpoint2()]);
+
+            let fetchedData = await doGet('/header_data/myId?query=myQuery',{header1:'myHeader1',header2:'myHeader2'});
+            expect(fetchedData).equals('pong');
 
             done();
         });

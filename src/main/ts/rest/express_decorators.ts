@@ -26,6 +26,7 @@ interface EndpointConfig {
     handler : string;
     params : Array<string>;
     query : Array<string>;
+    headers : Array<string>;
 }
 
 interface DecoratorConfig {
@@ -93,10 +94,11 @@ export function Route(route : string) {
     }
 }
 
-export function RequestMapping(method: string, route? : string, queryParams? : Array<string>) {
+export function RequestMapping(method: string, route? : string, queryParams? : Array<string>, headers? : Array<string>) {
 
     route = route || '';
     queryParams = queryParams || [];
+    headers = headers || [];
 
     return function (target:any, propertyKey:any) {
 
@@ -107,6 +109,7 @@ export function RequestMapping(method: string, route? : string, queryParams? : A
             route : route,
             params : extractRouteParams(route),
             query : queryParams,
+            headers : headers,
             handler : propertyKey,
         });
     }
@@ -138,7 +141,7 @@ export function Middleware(middleware: any | Array<any>) {
 
 function resolveDecoratorConfig(target : any) : DecoratorConfig {
     target[DECORATORS_PROP] = target[DECORATORS_PROP]
-        || { endpoints : [], route : '', query : [] , middleware : [], endpointMiddleware : new Map()};
+        || { endpoints : [], route : '', query : [] , middleware : [], endpointMiddleware : new Map(), headers : []};
     let decoratedObject : DecoratedObject = target;
     return decoratedObject.__rest__decorators__configuration;
 }
@@ -161,6 +164,7 @@ function configureObject(target : DecoratedObject) {
             let args = endpoint.params.map(x => req.params[x]);
 
             args = args.concat(endpoint.query.map(x => req.query[x]));
+            args = args.concat(endpoint.headers.map(x => req.get(x)));
 
             let body = unwrapBody(req.body);
 
