@@ -94,6 +94,15 @@ export function Route(route : string) {
     }
 }
 
+export const GET = (route? : string, queryParams? : Array<string>, headers? : Array<string>) =>
+    RequestMapping('get', route, queryParams, headers);
+export const POST = (route? : string, queryParams? : Array<string>, headers? : Array<string>) =>
+    RequestMapping('post', route, queryParams, headers);
+export const PUT = (route? : string, queryParams? : Array<string>, headers? : Array<string>) =>
+    RequestMapping('put', route, queryParams, headers);
+export const DELETE = (route? : string, queryParams? : Array<string>, headers? : Array<string>) =>
+    RequestMapping('delete', route, queryParams, headers);
+
 export function RequestMapping(method: string, route? : string, queryParams? : Array<string>, headers? : Array<string>) {
 
     route = route || '';

@@ -2,7 +2,7 @@
 
 import {Readable} from 'stream'
 
-import {start, stop, RequestMapping, Route, Middleware} from '../../../src/main/ts/rest/express_decorators';
+import {start, stop, RequestMapping, Route, Middleware, GET, POST} from '../../../src/main/ts/rest/express_decorators';
 
 import {setupChai, sleep} from './test_utils'
 
@@ -98,7 +98,7 @@ class TestEndpoint {
         }
     }
 
-    @RequestMapping('get', '/header_data/:id',['query'], ['header1', 'header2'])
+    @GET('/header_data/:id',['query'], ['header1', 'header2'])
     dataWithHeaders(id : string, query : string, header1 : string, header2 : string) : string {
         if(id == 'myId' && query == 'myQuery' && header1 == 'myHeader1' && header2 == 'myHeader2') {
             return 'pong';
@@ -121,7 +121,7 @@ class TestEndpoint2 {
         return this.message;
     }
 
-    @RequestMapping('post')
+    @POST()
     setMessage(message : string) : void {
         this.message = message;
     }
