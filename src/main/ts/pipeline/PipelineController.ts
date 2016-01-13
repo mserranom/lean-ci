@@ -3,7 +3,7 @@
 import {repository} from '../repository';
 import {model} from '../model';
 
-import {Inject} from '../../../../lib/container'
+import {Inject} from 'container-ts'
 
 
 export class PipelineController {

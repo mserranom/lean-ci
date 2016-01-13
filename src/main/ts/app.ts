@@ -16,7 +16,7 @@ import {Pipelines} from './rest/Pipelines'
 import {BuildRequestController} from './pipeline/BuildRequestController'
 import {PipelineController} from './pipeline/PipelineController'
 
-import {Container, ContainerBuilder} from '../../../lib/container';
+import {Container, ContainerBuilder} from 'container-ts';
 
 var fs = require('fs-extra');
 

@@ -1,6 +1,6 @@
 "use strict";
 
-import {Inject} from '../../../../lib/container';
+import {Inject} from 'container-ts';
 
 import {RequestMapping, Middleware} from './express_decorators';
 

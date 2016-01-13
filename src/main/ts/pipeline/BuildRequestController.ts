@@ -8,7 +8,7 @@ import {model} from '../model';
 
 import {config} from '../config';
 
-import {Inject} from '../../../../lib/container'
+import {Inject} from 'container-ts'
 
 interface ChangeSet {
     repo : string;

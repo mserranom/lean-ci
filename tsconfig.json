@@ -9,7 +9,7 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "declaration": true,
-        "outDir": "dist"
+        "outDir": "dist/src"
     },
     "exclude": [
       "node_modules",

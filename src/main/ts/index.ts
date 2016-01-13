@@ -4,7 +4,7 @@ require('source-map-support').install();
 
 import {start, BootstrapArguments} from './app'
 
-import {Container, ContainerBuilder} from '../../../lib/container';
+import {Container, ContainerBuilder} from 'container-ts';
 
 let args : BootstrapArguments = {
     local : process.argv.indexOf("-local") != -1

@@ -4,7 +4,7 @@ import {model} from '../model';
 import {repository} from '../repository';
 import {config} from '../config';
 
-import {Inject} from '../../../../lib/container'
+import {Inject} from 'container-ts'
 
 var Q = require('q');
 

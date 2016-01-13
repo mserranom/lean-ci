@@ -2,7 +2,7 @@
 
 import {DependencyGraph} from "../types/DependencyGraph";
 
-import {Inject} from '../../../../lib/container';
+import {Inject} from 'container-ts';
 import {RequestMapping, Middleware} from './express_decorators';
 import {model} from '../model';
 import {repository} from '../repository';

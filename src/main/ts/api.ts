@@ -4,7 +4,7 @@ import {model} from './model';
 import {config} from './config';
 import {auth} from './auth';
 
-import {Inject, PostConstruct} from '../../../lib/container';
+import {Inject, PostConstruct} from 'container-ts';
 
 import {configureExpress} from './rest/express_decorators';
 

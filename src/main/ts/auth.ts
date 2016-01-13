@@ -5,7 +5,7 @@ import {repository} from './repository'
 import {model} from './model'
 import {github} from './github'
 
-import {Inject} from '../../../lib/container';
+import {Inject} from 'container-ts';
 
 export module auth {
 
