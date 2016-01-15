@@ -20,12 +20,6 @@ export module model {
         SUCCESS
     }
 
-    export enum PipelineStatus {
-        RUNNING,
-        FAILED,
-        SUCCESS
-    }
-
     export interface BuildConfig {
         dependencies : Array<string>;
         commands : Array<string>;
@@ -47,6 +41,12 @@ export module model {
     export interface Dependency {
         up : string;
         down : string;
+    }
+
+    export enum PipelineStatus {
+        RUNNING,
+        FAILED,
+        SUCCESS
     }
 
     export interface PipelineSchema {
