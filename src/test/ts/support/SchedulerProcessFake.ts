@@ -24,7 +24,7 @@ export class SchedulerProcessFake {
     async markAsFinished(buildId : string) {
         let build : model.BuildSchema = await this.repo.fetchFirstQ({_id : buildId});
         build.commit = 'commit_id';
-        build.config = {dependencies : []};
+        build.config = {dependencies : [], commands : []};
         build.processedTimestamp = new Date();
         build.finishedTimestamp = new Date();
         build.log = 'build Log SUCCESS';

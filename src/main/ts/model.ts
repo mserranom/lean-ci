@@ -3,13 +3,13 @@
 export module model {
 
     export interface UserCredentialsSchema {
-        userId : string;
+        userId : string; // unique index
         token : string;
     }
 
     export interface RepositorySchema {
         userId : string;
-        name : string; // index
+        name : string; // unique index
     }
 
     export enum BuildStatus {
@@ -28,7 +28,7 @@ export module model {
 
     export interface BuildConfig {
         dependencies : Array<string>;
-        commands? : Array<string>;
+        commands : Array<string>;
     }
 
     export interface BuildSchema {
