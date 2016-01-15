@@ -1,9 +1,6 @@
-///<reference path="../../../lib/graphlib.d.ts"/>
-
 "use strict";
 
 var Graphlib = require('graphlib');
-
 
 export function cloneGraph(graph : Graphlib.Graph<any, any>) : Graphlib.Graph<any, any> {
 

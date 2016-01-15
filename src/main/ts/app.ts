@@ -20,6 +20,8 @@ import {Container, ContainerBuilder} from 'container-ts';
 
 var fs = require('fs-extra');
 
+const TINGODB_LOCATION = 'dist/tingodb_data';
+
 export interface BootstrapArguments {
     local : boolean;
 }
@@ -92,8 +94,6 @@ export class App {
     }
 }
 
-let tingoDBLocation = 'dist/tingodb_data';
-
 export function start(bootstrapArgs : BootstrapArguments) : App {
     let app = new App(bootstrapArgs);
     let onDBConnect = (err, db) => {
@@ -106,9 +106,8 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
     };
 
     if(bootstrapArgs.local) {
-        console.log('using local TingoDB connection for persistence');
-        fs.mkdirsSync(tingoDBLocation);
-        repository.tingodbConnect(tingoDBLocation, onDBConnect);
+        fs.mkdirsSync(TINGODB_LOCATION);
+        repository.tingodbConnect(TINGODB_LOCATION, onDBConnect);
     } else {
         repository.mongodbConnect(config.mongodbUrl, onDBConnect);
     }
@@ -117,7 +116,7 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
 }
 
 export function cleanup() {
-    fs.removeSync(tingoDBLocation);
+    fs.removeSync(TINGODB_LOCATION);
 }
 
 
