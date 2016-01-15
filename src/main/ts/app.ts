@@ -64,9 +64,9 @@ export class App {
     }
 
     private setupRepositories(db) {
-        this.container.add(new repository.MongoDBRepository<model.UserCredentials>('user_credentials', db), 'userCredentialsRepository');
-        this.container.add(new repository.MongoDBRepository<model.Repository>('repositories', db), 'repositoriesRepository');
-        this.container.add(new repository.MongoDBRepository<model.Build>('builds', db), 'queuedBuildsRepository');
+        this.container.add(new repository.MongoDBRepository<model.UserCredentialsSchema>('user_credentials', db), 'userCredentialsRepository');
+        this.container.add(new repository.MongoDBRepository<model.RepositorySchema>('repositories', db), 'repositoriesRepository');
+        this.container.add(new repository.MongoDBRepository<model.BuildSchema>('builds', db), 'queuedBuildsRepository');
         this.container.add(new repository.MongoDBRepository<model.DependencyGraphSchema>('dependency_graphs', db), 'dependencyGraphsRepository');
         this.container.add(new repository.MongoDBRepository<model.PipelineSchema>('pipelines', db), 'pipelinesRepository');
     }

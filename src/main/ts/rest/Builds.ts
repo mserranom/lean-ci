@@ -27,17 +27,17 @@ export class Builds {
 
     @RequestMapping('POST', '/builds', ['userId'])
     @Middleware(commitInfoValidator)
-    createBuild(userId : string, commitInfo : CommitInfo) : Promise<model.Build> {
+    createBuild(userId : string, commitInfo : CommitInfo) : Promise<model.BuildSchema> {
         return this.buildQueue.addBuildToQueue(userId, commitInfo.repo, commitInfo.commit);
     }
 
     @RequestMapping('GET', '/builds/:id', ['userId'])
-    getBuild(id : string, userId : string) : Promise<model.Build> {
+    getBuild(id : string, userId : string) : Promise<model.BuildSchema> {
         return this.buildQueue.getBuild(userId, id);
     }
 
     @RequestMapping('GET', '/builds', ['userId','page','per_page', 'status'])
-    getBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.Build>> {
+    getBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.BuildSchema>> {
 
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
@@ -54,7 +54,7 @@ export class Builds {
     }
 
     @RequestMapping('GET', '/queued_builds', ['userId','page','per_page'])
-    getQueuedBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.Build>> {
+    getQueuedBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.BuildSchema>> {
 
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
@@ -63,7 +63,7 @@ export class Builds {
     }
 
     @RequestMapping('GET', '/running_builds', ['userId','page','per_page'])
-    getRunningBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.Build>> {
+    getRunningBuilds(userId : string, page : string, perPage : string) : Q.Promise<Array<model.BuildSchema>> {
 
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
@@ -72,7 +72,7 @@ export class Builds {
     }
 
     @RequestMapping('GET', '/finished_builds', ['userId','page','per_page', 'status'])
-    getFinishedBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.Build>> {
+    getFinishedBuilds(userId : string, page : string, perPage : string, status : string) : Q.Promise<Array<model.BuildSchema>> {
 
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);

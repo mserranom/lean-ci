@@ -35,7 +35,7 @@ describe('addition of a new repository', () => {
     it('POST new repository should return the newly added repo',  async function(done) {
         await doPost('/repositories', {name : testRepo});
 
-        let repositories : Array<model.Repository> = await doGet('/repositories');
+        let repositories : Array<model.RepositorySchema> = await doGet('/repositories');
         expect(repositories.length).equals(1);
         expect(repositories[0].name).equals(testRepo);
         expect(repositories[0].userId).equals(USER_ID);
@@ -46,7 +46,7 @@ describe('addition of a new repository', () => {
         await doPost('/repositories', {name : testRepo});
 
         let automaticallyGivenID = 2;
-        let repository : model.Repository = await doGet('/repositories/' + automaticallyGivenID);
+        let repository : model.RepositorySchema = await doGet('/repositories/' + automaticallyGivenID);
 
         expect(repository.name).equals(testRepo);
         expect(repository.userId).equals(USER_ID);

@@ -18,10 +18,10 @@ interface ChangeSet {
 export class BuildRequestController {
 
     @Inject('queuedBuildsRepository')
-    buildsRepository : repository.DocumentRepositoryQ<model.Build>;
+    buildsRepository : repository.DocumentRepositoryQ<model.BuildSchema>;
 
     @Inject('repositoriesRepository')
-    repositories : repository.DocumentRepositoryQ<model.Repository>;
+    repositories : repository.DocumentRepositoryQ<model.RepositorySchema>;
 
     @Inject('dependencyGraphsRepository')
     dependencyGraphs : repository.DocumentRepositoryQ<model.DependencyGraphSchema>;
@@ -29,7 +29,7 @@ export class BuildRequestController {
     @Inject('pipelinesRepository')
     pipelines : repository.DocumentRepositoryQ<model.PipelineSchema>;
 
-    async processBuildRequest(repository : model.Repository, commit? : string) : Promise<model.PipelineSchema> {
+    async processBuildRequest(repository : model.RepositorySchema, commit? : string) : Promise<model.PipelineSchema> {
 
         let userId = repository.userId;
 
@@ -52,7 +52,7 @@ export class BuildRequestController {
         return addedPipeline[0];
     }
 
-    private async checkRepositoryExists(repository : model.Repository) : Promise<void> {
+    private async checkRepositoryExists(repository : model.RepositorySchema) : Promise<void> {
         let repo = await this.repositories.fetchFirstQ(repository);
         let repositoryExists =  repo != null && repo != undefined;
         if(!repositoryExists) {
@@ -67,15 +67,15 @@ export class BuildRequestController {
 
         let repos = await this.repositories.fetchQ({userId : userId}, 1, Number.MAX_SAFE_INTEGER);
 
-        let reposMap : Map<string, model.Repository> = new Map();
-        repos.forEach((repo : model.Repository) => reposMap.set(repo.name, repo));
+        let reposMap : Map<string, model.RepositorySchema> = new Map();
+        repos.forEach((repo : model.RepositorySchema) => reposMap.set(repo.name, repo));
 
         return DependencyGraph.fromSchemas(dependencyGraphScheme, reposMap);
     }
 
     private async createJobs(userId : string, changes : Array<ChangeSet>) {
 
-        let builds : Array<model.Build> = [];
+        let builds : Array<model.BuildSchema> = [];
 
         changes.forEach(changeSet =>
                         builds.push(this.createNewBuild(userId, changeSet.repo, changeSet.commit)));
@@ -85,7 +85,7 @@ export class BuildRequestController {
         return insertedBuilds;
     }
 
-    private createNewBuild(userId : string, repo : string, commit : string) : model.Build {
+    private createNewBuild(userId : string, repo : string, commit : string) : model.BuildSchema {
         return {
             _id : undefined,
             userId : userId,

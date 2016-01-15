@@ -43,3 +43,5 @@ dist
 dist.zip
 
 .baseDir.ts
+
+tscommand-*.txt

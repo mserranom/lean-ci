@@ -9,17 +9,17 @@ import {DependencyGraph} from './DependencyGraph';
 
 export class PipelineGraph {
 
-    private _graph : Graphlib.Graph<model.Job, void>;
+    private _graph : Graphlib.Graph<model.BuildSchema, void>;
 
     private _dependencies : Array<model.Dependency>;
 
 
-    static fromSchemas(dependencies : Array<model.Dependency>, jobs : Array<model.Job>) : PipelineGraph {
+    static fromSchemas(dependencies : Array<model.Dependency>, jobs : Array<model.BuildSchema>) : PipelineGraph {
 
         let options = { directed: true, compound: false, multigraph: false };
-        let graph : Graphlib.Graph<model.Job, void> = new Graphlib.Graph(options);
+        let graph : Graphlib.Graph<model.BuildSchema, void> = new Graphlib.Graph(options);
 
-        jobs.forEach((job : model.Job) => {
+        jobs.forEach((job : model.BuildSchema) => {
             graph.setNode(job._id, job);
         });
 
@@ -57,16 +57,16 @@ export class PipelineGraph {
         }
     }
 
-    nextIdle() : model.Job {
+    nextIdle() : model.BuildSchema {
 
-        let source:model.Job = this._graph.sources()[0];
+        let source:model.BuildSchema = this._graph.sources()[0];
         let nodesSorted = this.nodesSortedByDistance(this._graph, source);
 
         // iterates over all the jobs by closest distance from source
         for(let i = 0; i < nodesSorted.length; i++) {
 
             let nodeId = nodesSorted[i];
-            let job : model.Job = this._graph.node(nodeId);
+            let job : model.BuildSchema = this._graph.node(nodeId);
 
             // the next job to be queued has to be currently idle
             if(!(job.status == model.BuildStatus.IDLE)) {

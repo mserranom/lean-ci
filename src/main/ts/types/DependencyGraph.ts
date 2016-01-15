@@ -9,12 +9,12 @@ import {cloneGraph} from '../graph';
 
 export class DependencyGraph {
 
-    private _graph : Graphlib.Graph<model.Repository, void>;
+    private _graph : Graphlib.Graph<model.RepositorySchema, void>;
 
-    private _repos : Array<model.Repository>;
+    private _repos : Array<model.RepositorySchema>;
     private _dependencies : Array<model.Dependency>;
 
-    static fromSchemas(data : model.DependencyGraphSchema, repos : Map<string, model.Repository>) : DependencyGraph {
+    static fromSchemas(data : model.DependencyGraphSchema, repos : Map<string, model.RepositorySchema>) : DependencyGraph {
 
         let graph = createDependencyGraphFromSchema(data, repos);
 
@@ -31,11 +31,11 @@ export class DependencyGraph {
         return dependencyGraph;
     }
 
-    getRepos() : Array<model.Repository> {
+    getRepos() : Array<model.RepositorySchema> {
         return this._repos;
     }
 
-    updateDependencies(repo : model.Repository, dependencies : Array<string>) : void {
+    updateDependencies(repo : model.RepositorySchema, dependencies : Array<string>) : void {
 
         if(!this.hasRepo(repo.name)) {
             throw new Error('cannot update dependencies, repository ' + repo.name + ' does not exist in this dependency graph');
@@ -72,7 +72,7 @@ export class DependencyGraph {
         return result;
     }
 
-    createSubgraph(repo : model.Repository) : DependencyGraph {
+    createSubgraph(repo : model.RepositorySchema) : DependencyGraph {
 
         let newGraph = cloneGraph(this._graph);
 
@@ -96,10 +96,10 @@ export class DependencyGraph {
 }
 
 function createDependencyGraphFromSchema(data : model.DependencyGraphSchema,
-                            repos : Map<string, model.Repository>) : Graphlib.Graph<model.Repository, void> {
+                            repos : Map<string, model.RepositorySchema>) : Graphlib.Graph<model.RepositorySchema, void> {
 
     let options = { directed: true, compound: false, multigraph: false };
-    let graph : Graphlib.Graph<model.Repository, void> = new Graphlib.Graph(options);
+    let graph : Graphlib.Graph<model.RepositorySchema, void> = new Graphlib.Graph(options);
 
     data.repos.forEach((repoName : string) => {
         let repo = repos.get(repoName);

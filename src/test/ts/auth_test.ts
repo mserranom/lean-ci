@@ -14,7 +14,7 @@ describe('GithubAuthenticationService', () => {
 
     let sut : auth.GithubAuthenticationService;
 
-    let repoMock : repository.DocumentRepository<model.UserCredentials>;
+    let repoMock : repository.DocumentRepository<model.UserCredentialsSchema>;
     let githubMock : github.GithubAPI;
 
     let createMock = function(methods : Array<string>) : any {
@@ -23,7 +23,7 @@ describe('GithubAuthenticationService', () => {
         return mock;
     };
 
-    let testCredentials : model.UserCredentials = {userId : 'myUserId', token : 'myToken'};
+    let testCredentials : model.UserCredentialsSchema = {userId : 'myUserId', token : 'myToken'};
 
     let successfulFirstFetchMock = (query, onError, onResult: (any) => void ) => onResult(testCredentials);
     let failedFirstFetchMock = (query, onError: (string) => void, onResult) => onError('failed');
@@ -89,7 +89,7 @@ describe('GithubAuthenticationService', () => {
 
         simple.mock(repoMock, 'fetchFirst').callFn(successfulFirstFetchMock);
 
-        let checkResult = (credentials : model.UserCredentials) => {
+        let checkResult = (credentials : model.UserCredentialsSchema) => {
             expect(credentials.userId).equals(testCredentials.userId);
             expect(credentials.token).equals(testCredentials.token);
             expect(githubMock.authenticate['callCount']).equals(0);

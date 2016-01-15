@@ -43,12 +43,18 @@ module.exports = function (grunt) {
             },
             unit: {
                 options : {
-                    files : [project.targetTestDir + '/**/*.js', '!' + project.targetTestDir + '/**/integration/**/*.js']
+                    files : [project.targetTestDir + '/**/*.js', '!' + project.targetTestDir + '/**/integration/**/*.js',
+                                                                 '!' + project.targetTestDir + '/**/e2e/**/*.js']
                 }
             },
             integration: {
                 options : {
                     files : [project.targetTestDir + '/**/integration/**/*.js']
+                }
+            },
+            e2e: {
+                options : {
+                    files : [project.targetTestDir + '/**/e2e/**/*.js']
                 }
             }
         },
@@ -95,7 +101,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-zip');
 
     grunt.registerTask("compile", ["clean", "ts"]);
-    grunt.registerTask("test", ["compile", "mochacli:unit", "mochacli:integration"]);
+    grunt.registerTask("test", ["compile", "mochacli:unit", "mochacli:integration", "mochacli:e2e"]);
     grunt.registerTask("package", ["test", "zip"]);
     grunt.registerTask("default", ["package"]);
 

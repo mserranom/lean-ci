@@ -12,7 +12,7 @@ describe('DependencyGraph', () => {
 
     interface DependencyTestData {
         graphSchema : model.DependencyGraphSchema,
-        repos : Map<string,model.Repository>;
+        repos : Map<string,model.RepositorySchema>;
     }
 
     function createDependencyGraphSchema() : DependencyTestData {
@@ -23,7 +23,7 @@ describe('DependencyGraph', () => {
             dependencies : [{up : 'a/repo1', down: 'a/repo2' }]
         };
 
-        let repos : Map<string, model.Repository> = new Map();
+        let repos : Map<string, model.RepositorySchema> = new Map();
         repos.set(data.repos[0], {userId : data.userId, name : data.repos[0]});
         repos.set(data.repos[1], {userId : data.userId, name : data.repos[1]});
 
@@ -45,16 +45,16 @@ describe('DependencyGraph', () => {
 
     describe('subgraph creation:', () => {
 
-        let testRepo1 : model.Repository = { userId : '1', name : 'a/repo1' };
-        let testRepo2 : model.Repository = { userId : '1', name : 'a/repo2' };
-        let testRepo3 : model.Repository = { userId : '1', name : 'a/repo3' };
-        let testRepo4 : model.Repository = { userId : '1', name : 'a/repo4' };
-        let testRepo5 : model.Repository = { userId : '1', name : 'a/repo5' };
-        let unconnectedRepo : model.Repository = { userId : '1', name : 'a/repoUnconnected' };
+        let testRepo1 : model.RepositorySchema = { userId : '1', name : 'a/repo1' };
+        let testRepo2 : model.RepositorySchema = { userId : '1', name : 'a/repo2' };
+        let testRepo3 : model.RepositorySchema = { userId : '1', name : 'a/repo3' };
+        let testRepo4 : model.RepositorySchema = { userId : '1', name : 'a/repo4' };
+        let testRepo5 : model.RepositorySchema = { userId : '1', name : 'a/repo5' };
+        let unconnectedRepo : model.RepositorySchema = { userId : '1', name : 'a/repoUnconnected' };
 
         interface DependencyTestData {
             graphSchema : model.DependencyGraphSchema,
-            repos : Map<string,model.Repository>;
+            repos : Map<string,model.RepositorySchema>;
         }
 
         function createDependencyGraphSchema() : DependencyTestData {
@@ -68,7 +68,7 @@ describe('DependencyGraph', () => {
                                 {up : testRepo3.name, down: testRepo5.name }]
             };
 
-            let repos : Map<string, model.Repository> = new Map();
+            let repos : Map<string, model.RepositorySchema> = new Map();
             repos.set(testRepo1.name, {userId : data.userId, name : testRepo1.name});
             repos.set(testRepo2.name, {userId : data.userId, name : testRepo2.name});
             repos.set(testRepo3.name, {userId : data.userId, name : testRepo3.name});

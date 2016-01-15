@@ -64,7 +64,7 @@ export module api {
             let userToken = req.get(auth.Headers.USER_TOKEN);
             let githubToken = req.get(auth.Headers.GITHUB_TOKEN);
 
-            let onSuccess = (credentials : model.UserCredentials) => {
+            let onSuccess = (credentials : model.UserCredentialsSchema) => {
                 res.set(auth.Headers.USER_ID, credentials.userId);
                 res.set(auth.Headers.USER_TOKEN, credentials.token);
                 res.set(auth.Headers.GITHUB_TOKEN, githubToken);

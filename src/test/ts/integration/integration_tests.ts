@@ -64,7 +64,7 @@ describe('integration tests:', () => {
             let repoName = 'organisation/repo1';
             await doPost('/repositories', {name : repoName});
 
-            let request : model.Build = await doPost('/builds', {repo : 'organisation/repo1'});
+            let request : model.BuildSchema = await doPost('/builds', {repo : 'organisation/repo1'});
 
             expect(request).not.to.be.null;
             expect(request.repo).equals(repoName);
@@ -83,7 +83,7 @@ describe('integration tests:', () => {
                 await doPost('/builds', {repo : repoName});
             }
 
-            let result : Array<model.Build> = await doGet('/builds?page=1&per_page=14');
+            let result : Array<model.BuildSchema> = await doGet('/builds?page=1&per_page=14');
 
             expect(result.length).equals(14);
 
@@ -103,7 +103,7 @@ describe('integration tests:', () => {
                 await doPost('/builds', {repo : testRepo + i});
             }
 
-            let result : Array<model.Build> = await doGet('/queued_builds?page=1&per_page=3');
+            let result : Array<model.BuildSchema> = await doGet('/queued_builds?page=1&per_page=3');
 
             expect(result.length).equals(3);
             expect(result[0].repo).equals(testRepo + '0');
@@ -120,7 +120,7 @@ describe('integration tests:', () => {
 
             await addAndStartBuilds(7, 4);
 
-            let result : Array<model.Build> = await doGet('/running_builds?page=1&per_page=10');
+            let result : Array<model.BuildSchema> = await doGet('/running_builds?page=1&per_page=10');
 
             expect(result.length).equals(4);
             expect(result[0].repo).equals(testRepo + '0');
@@ -152,7 +152,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10');
+            let result : Array<model.BuildSchema> = await doGet('/finished_builds?page=1&per_page=10');
 
             expect(result.length).equals(4);
             expect(result[0].repo).equals(testRepo + '3');
@@ -174,7 +174,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10&status=success');
+            let result : Array<model.BuildSchema> = await doGet('/finished_builds?page=1&per_page=10&status=success');
 
             expect(result.length).equals(2);
             expect(result[0].repo).equals(testRepo + '1');
@@ -190,7 +190,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : model.Build = await doGet('/builds/8');
+            let result : model.BuildSchema = await doGet('/builds/8');
 
             expect(result.repo).equals(testRepo + '6');
             expect(result.status).equals(model.BuildStatus.QUEUED);
@@ -202,7 +202,7 @@ describe('integration tests:', () => {
 
             await createSetOfFinishedBuilds();
 
-            let result : Array<model.Build> = await doGet('/finished_builds?page=1&per_page=10&status=failed');
+            let result : Array<model.BuildSchema> = await doGet('/finished_builds?page=1&per_page=10&status=failed');
 
             expect(result.length).equals(2);
             expect(result[0].repo).equals(testRepo + '0');
@@ -222,7 +222,7 @@ describe('integration tests:', () => {
                 await doPost('/repositories', {name : 'organisation/repo' + i});
             }
 
-            let repositories : Array<model.Repository> = await doGet('/repositories?page=1&per_page=12');
+            let repositories : Array<model.RepositorySchema> = await doGet('/repositories?page=1&per_page=12');
 
             let pageSize = 12;
             expect(repositories.length).equals(pageSize);
@@ -232,7 +232,7 @@ describe('integration tests:', () => {
         it('DELETE single repository',  async function(done) {
             await doPost('/repositories', {name : 'organisation/repo1'});
 
-            let repositories : Array<model.Repository> = await doGet('/repositories');
+            let repositories : Array<model.RepositorySchema> = await doGet('/repositories');
             expect(repositories.length).equals(1);
 
             let id = repositories[0]['_id'];

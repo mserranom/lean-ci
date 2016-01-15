@@ -1024,11 +1024,6 @@
       "from": "iconv-lite@0.4.8",
       "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.8.tgz"
     },
-    "immutable": {
-      "version": "3.7.3",
-      "from": "immutable@3.7.3",
-      "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.7.3.tgz"
-    },
     "inflight": {
       "version": "1.0.4",
       "from": "inflight@>=1.0.4 <2.0.0",

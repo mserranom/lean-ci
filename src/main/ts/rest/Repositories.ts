@@ -23,7 +23,7 @@ export interface NewRepositoryInfo {
 export class Repositories {
 
     @Inject('repositoriesRepository')
-    repositories : repository.DocumentRepositoryQ<model.Repository>;
+    repositories : repository.DocumentRepositoryQ<model.RepositorySchema>;
 
     @Inject('dependencyGraphsRepository')
     dependencyGraphs : repository.DocumentRepositoryQ<model.DependencyGraphSchema>;
@@ -32,7 +32,7 @@ export class Repositories {
     github : github.GitService;
 
     @RequestMapping('GET', '/repositories', ['userId', 'page', 'per_page'])
-    getRepositories(userId : string, page : string, perPage : string) : Q.Promise<Array<model.Repository>> {
+    getRepositories(userId : string, page : string, perPage : string) : Q.Promise<Array<model.RepositorySchema>> {
 
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
@@ -42,7 +42,7 @@ export class Repositories {
     }
 
     @RequestMapping('GET', '/repositories/:id', ['userId'])
-    getRepository(id:string, userId : string) : Q.Promise<model.Repository> {
+    getRepository(id:string, userId : string) : Q.Promise<model.RepositorySchema> {
         return this.repositories.fetchFirstQ({userId : userId, _id : id});
     }
 
@@ -55,7 +55,7 @@ export class Repositories {
     @RequestMapping('POST', '/repositories', ['userId'])
     @Middleware(repositoryPostValidator)
     async createRepository(userId : string, repo : NewRepositoryInfo) : Promise<void> {
-        var data : model.Repository = {name : repo.name, userId : userId};
+        var data : model.RepositorySchema = {name : repo.name, userId : userId};
 
         let existingRepo = await this.repositories.fetchFirstQ(data);
 
@@ -72,7 +72,7 @@ export class Repositories {
         await this.saveNewRepo(data, JSON.parse(configFileContent));
     }
 
-    private async saveNewRepo(repo : model.Repository, config : model.BuildConfig) {
+    private async saveNewRepo(repo : model.RepositorySchema, config : model.BuildConfig) {
         await this.repositories.saveQ(repo);
 
         let graphSchema = await this.dependencyGraphs.fetchFirstQ({userId : repo.userId});
@@ -84,7 +84,7 @@ export class Repositories {
         }
     }
 
-    private async createNewDependencyGraph(repo : model.Repository, config : model.BuildConfig) {
+    private async createNewDependencyGraph(repo : model.RepositorySchema, config : model.BuildConfig) {
         let data : model.DependencyGraphSchema = {
             _id : undefined,
             userId : repo.userId,
@@ -100,7 +100,7 @@ export class Repositories {
         return dependencies;
     }
 
-    private async addRepoToDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.Repository, dependencies : Array<string>) {
+    private async addRepoToDependencyGraph(graphSchema : model.DependencyGraphSchema, repo : model.RepositorySchema, dependencies : Array<string>) {
 
         graphSchema.repos.push(repo.name);
 
@@ -115,8 +115,8 @@ export class Repositories {
         await this.dependencyGraphs.updateQ({_id : graphSchema._id}, graphSchemaObject);
     }
 
-    private createRepoMapFromArray(repos : Array<model.Repository>) : Map<string, model.Repository> {
-        let reposMap : Map<string, model.Repository> = new Map();
+    private createRepoMapFromArray(repos : Array<model.RepositorySchema>) : Map<string, model.RepositorySchema> {
+        let reposMap : Map<string, model.RepositorySchema> = new Map();
         repos.forEach(repo => reposMap.set(repo.name, repo));
         return reposMap;
     }

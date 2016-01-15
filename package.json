@@ -12,7 +12,6 @@
     "github": "0.2.4",
     "graphlib": "1.0.7",
     "http-proxy": "1.11.1",
-    "immutable": "3.7.3",
     "joi": "7.0.0",
     "mongodb": "2.0.35",
     "multer": "0.1.8",

@@ -1,17 +1,13 @@
-///<reference path='../../../node_modules/immutable/dist/immutable.d.ts'/>
-
 "use strict";
-
-import * as Immutable from "immutable"
 
 export module model {
 
-    export interface UserCredentials {
+    export interface UserCredentialsSchema {
         userId : string;
         token : string;
     }
 
-    export interface Repository {
+    export interface RepositorySchema {
         userId : string;
         name : string; // index
     }
@@ -35,12 +31,9 @@ export module model {
         commands? : Array<string>;
     }
 
-    export interface Job {
+    export interface BuildSchema {
         _id : string;
         status : BuildStatus;
-    }
-
-    export interface Build extends Job {
         repo : string;
         commit : string;
         userId : string;
@@ -69,5 +62,20 @@ export module model {
         userId : string;
         repos : Array<string>;
         dependencies : Array<Dependency>;
+    }
+
+    export function createBuildSchema() : model.BuildSchema {
+        return {
+            _id : undefined,
+            status : BuildStatus.IDLE,
+            repo : undefined,
+            commit : undefined,
+            userId : undefined,
+            requestTimestamp : undefined,
+            processedTimestamp : undefined,
+            finishedTimestamp : undefined,
+            log : undefined,
+            config : undefined,
+        }
     }
 }

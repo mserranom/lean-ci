@@ -19,7 +19,7 @@ export module auth {
 
         authenticate(userId:string, userToken : string, githubToken : string,
                      onError:(string) => void,
-                     onResult:(data:model.UserCredentials) => void) : void;
+                     onResult:(data:model.UserCredentialsSchema) => void) : void;
 
     }
 
@@ -27,7 +27,7 @@ export module auth {
 
         authenticate(userId:string, userToken : string, githubToken : string,
                      onError:(string) => void,
-                     onResult:(data:model.UserCredentials) => void) : void {
+                     onResult:(data:model.UserCredentialsSchema) => void) : void {
 
             if(userToken == 'mock_token') {
                 setTimeout(() => onResult({userId : userId, token : "mock_token" }), 1)
@@ -40,14 +40,14 @@ export module auth {
     export class GithubAuthenticationService implements AuthenticationService {
 
         @Inject('userCredentialsRepository')
-        repo : repository.DocumentRepository<model.UserCredentials>;
+        repo : repository.DocumentRepository<model.UserCredentialsSchema>;
 
         @Inject('githubApi')
         github : github.GithubAPI;
 
         authenticate(userId:string, userToken : string, githubToken : string,
                      onError:(string) => void,
-                     onResult:(data:model.UserCredentials) => void) : void {
+                     onResult:(data:model.UserCredentialsSchema) => void) : void {
 
             if(!userToken && !githubToken) {
                 onError('a token or github oauth token should be provided');
@@ -66,25 +66,25 @@ export module auth {
 
     class Authenticator {
 
-        private _repo : repository.DocumentRepository<model.UserCredentials>;
+        private _repo : repository.DocumentRepository<model.UserCredentialsSchema>;
         private _github : github.GithubAPI;
 
         private _userId : string;
         private _userToken : string;
         private _githubToken : string;
         private _onAuthError : (string) => void;
-        private _onAuthSuccess : (data : model.UserCredentials) => void;
+        private _onAuthSuccess : (data : model.UserCredentialsSchema) => void;
 
-        private _newCredentials : model.UserCredentials;
+        private _newCredentials : model.UserCredentialsSchema;
 
-        constructor(repo : repository.DocumentRepository<model.UserCredentials>, github : github.GithubAPI) {
+        constructor(repo : repository.DocumentRepository<model.UserCredentialsSchema>, github : github.GithubAPI) {
             this._repo = repo;
             this._github = github;
         }
 
         authenticate(userId:string, userToken : string, githubToken : string,
              onError:(string) => void,
-             onResult:(data:model.UserCredentials) => void) : void {
+             onResult:(data:model.UserCredentialsSchema) => void) : void {
 
             this._userId = userId;
             this._userToken = userToken;
@@ -106,7 +106,7 @@ export module auth {
             this._repo.fetchFirst({'userId' : this._userId}, onError, onSuccess);
         }
 
-        private checkCredentials(credentials : model.UserCredentials) {
+        private checkCredentials(credentials : model.UserCredentialsSchema) {
             console.info('retrieved credentials: ' + JSON.stringify(credentials));
             if(credentials && this._userId == credentials.userId && this._userToken == credentials.token) {
                 console.info('valid credentials');
@@ -158,7 +158,7 @@ export module auth {
             this.dispose();
         }
 
-        private dispatchSuccess(credentials : model.UserCredentials) : void {
+        private dispatchSuccess(credentials : model.UserCredentialsSchema) : void {
             this._onAuthSuccess(credentials);
             this.dispose();
         }

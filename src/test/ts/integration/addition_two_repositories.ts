@@ -44,7 +44,7 @@ describe('addition two repositories', () => {
         await doPost('/repositories', {name : testRepo1});
         await doPost('/repositories', {name : testRepo1});
 
-        let repositories : Array<model.Repository> = await doGet('/repositories?page=1&per_page=12');
+        let repositories : Array<model.RepositorySchema> = await doGet('/repositories?page=1&per_page=12');
         expect(repositories.length).equals(1);
         expect(repositories[0].name).equals(testRepo1);
         done();
@@ -53,7 +53,7 @@ describe('addition two repositories', () => {
     it('GET paged repositories returns the repositories',  async function(done) {
         await addRepositories();
 
-        let repositories : Array<model.Repository> = await doGet('/repositories?page=1&per_page=12');
+        let repositories : Array<model.RepositorySchema> = await doGet('/repositories?page=1&per_page=12');
         expect(repositories.length).equals(2);
         expect(repositories[0].name).equals(testRepo1);
         expect(repositories[1].name).equals(testRepo2);
