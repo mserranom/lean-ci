@@ -6,7 +6,7 @@ import {api} from './api';
 import {repository} from './repository';
 import {auth} from './auth';
 import {github} from './github';
-import {PersistedBuildQueue} from './build/BuildQueue'
+import {PersistedBuildQueue} from './build/BuildController'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
 import {Builds} from './rest/Builds'

@@ -4,7 +4,7 @@ import {Inject} from 'container-ts';
 
 import {RequestMapping, Middleware} from './express_decorators';
 
-import {BuildQueue} from '../build/BuildQueue';
+import {BuildQueue} from '../build/BuildController';
 import {model} from '../model';
 
 var Joi = require('joi');

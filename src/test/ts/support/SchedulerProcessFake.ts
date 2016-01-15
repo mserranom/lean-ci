@@ -2,7 +2,7 @@
 
 import {model} from '../../../main/ts/model';
 import {repository} from '../../../main/ts/repository';
-import {BuildQueue} from '../../../main/ts/build/BuildQueue'
+import {BuildQueue} from '../../../main/ts/build/BuildController'
 
 export class SchedulerProcessFake {
     private repo : repository.DocumentRepositoryQ<model.BuildSchema>;
