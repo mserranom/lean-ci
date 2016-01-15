@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "dependencies": {
     "body-parser": "1.12.4",
-    "colors": "1.1.0",
     "container-ts": "0.7.14",
     "continuation-local-storage": "3.1.4",
     "express": "4.12.4",
