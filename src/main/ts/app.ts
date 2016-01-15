@@ -6,15 +6,15 @@ import {api} from './api';
 import {repository} from './repository';
 import {auth} from './auth';
 import {github} from './github';
-import {PersistedBuildQueue} from './pipeline/BuildController'
+import {PersistedBuildQueue} from './controllers/BuildController'
 import {Repositories} from './rest/Repositories'
 import {Ping} from './rest/Ping'
 import {Builds} from './rest/Builds'
 import {BuildRequests} from './rest/BuildRequests'
 import {DependencyGraphs} from './rest/DependencyGraphs'
 import {Pipelines} from './rest/Pipelines'
-import {BuildRequestController} from './pipeline/BuildRequestController'
-import {PipelineController} from './pipeline/PipelineController'
+import {BuildRequestController} from './controllers/BuildRequestController'
+import {PipelineController} from './controllers/PipelineController'
 
 import {Container, ContainerBuilder} from 'container-ts';
 

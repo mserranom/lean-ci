@@ -4,7 +4,7 @@ import {Inject} from 'container-ts';
 
 import {RequestMapping} from './express_decorators';
 
-import {PipelineController} from '../pipeline/PipelineController';
+import {PipelineController} from '../controllers/PipelineController';
 import {model} from '../model';
 
 export class Pipelines {

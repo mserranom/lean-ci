@@ -3,7 +3,7 @@
 import {Inject} from 'container-ts';
 import {RequestMapping, Middleware} from './express_decorators';
 import {model} from '../model';
-import {BuildRequestController} from '../pipeline/BuildRequestController';
+import {BuildRequestController} from '../controllers/BuildRequestController';
 
 var Joi = require('joi');
 var validate = require('express-validation');
