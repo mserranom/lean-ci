@@ -50,7 +50,7 @@ export module model {
     }
 
     export interface PipelineSchema {
-        _id? : string;
+        _id : string;
         userId : string;
         status :  PipelineStatus;
         jobs : Array<string>
