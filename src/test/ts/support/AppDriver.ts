@@ -13,7 +13,13 @@ export class AppDriver {
             await doPost('/repositories', {name : names[i]});
         }
 
-        return await doGet('/repositories');
+        let allRepos : Array<model.RepositorySchema> =  await doGet('/repositories');
+        let newRepos = allRepos.filter(repo => names.some(name => repo.name == name));
+
+        expect(names.length).equals(newRepos.length);
+        names.forEach(name => expect(allRepos.some(repo => repo.name == name)).to.be.true);
+
+        return newRepos;
     }
 
     async getDependencyGraph() : Promise<model.DependencyGraphSchema> {
