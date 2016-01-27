@@ -96,7 +96,7 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         done();
     });
 
-    it('requesting a build for the upstream dependency produces a 2 build pipeline, the first queued, the second idle',  async function(done) {
+    it('requesting a build for the upstream dependency produces a 2 build pipeline, the first queued, the second is idle',  async function(done) {
 
         let pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
 
@@ -116,24 +116,18 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         done();
     });
 
-    it('when the upstream build is finished, the second remainsIdle queued',  async function(done) {
+    it('when the upstream build starts, the second remains idle',  async function(done) {
 
-        let pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
+        const pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
 
-        let upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
+        const upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
 
-        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.SUCCESS);
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
 
-        // checking the status of upStream build, downstreamBuild and pipeline
+        const updatedPipeline = await appDriver.getPipeline(parseInt(pipeline._id));
 
-        upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
-        expect(upBuild.status).equals(model.BuildStatus.SUCCESS);
-
-        let downBuild = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
-        expect(downBuild.status).equals(model.BuildStatus.QUEUED);
-
-        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
-        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+        checkStatus(updatedPipeline,
+            model.PipelineStatus.RUNNING, model.BuildStatus.SUCCESS, model.BuildStatus.IDLE);
 
         done();
     });
@@ -144,6 +138,7 @@ describe('requesting new builds with 2 dependant repositories:', () => {
 
         const upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
 
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
         await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.SUCCESS);
 
         const updatedPipeline = await appDriver.getPipeline(parseInt(pipeline._id));
@@ -154,15 +149,57 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         done();
     });
 
-    it.skip('when the downstream build is finished, the pipeline finishes',  async function(done) {
+    it('when the downstream build is finished, the pipeline finishes successfully',  async function(done) {
+        const pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
+
+        const upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
+        const downBuild = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
+
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.SUCCESS);
+        await appDriver.updateBuildStatus(downBuild._id, model.BuildStatus.RUNNING);
+        await appDriver.updateBuildStatus(downBuild._id, model.BuildStatus.SUCCESS);
+
+        const updatedPipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+
+        checkStatus(updatedPipeline,
+            model.PipelineStatus.SUCCESS, model.BuildStatus.SUCCESS, model.BuildStatus.SUCCESS);
+
         done();
     });
 
-    it.skip('when the first build fails, the pipeline fails and the second is skipped',  async function(done) {
+    it('when the first build fails, the pipeline fails and the second is skipped',  async function(done) {
+        const pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
+
+        const upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
+
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.FAILED);
+
+        const updatedPipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+
+        checkStatus(updatedPipeline,
+            model.PipelineStatus.FAILED, model.BuildStatus.FAILED, model.BuildStatus.SKIPPED);
+
         done();
     });
 
-    it.skip('when the 2nd build fails, the pipeline fails',  async function(done) {
+    it('when the 2nd build fails, the pipeline fails',  async function(done) {
+        const pipeline = await appDriver.requestBuild(upRepo, 'HEAD');
+
+        const upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
+        const downBuild = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
+
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.SUCCESS);
+        await appDriver.updateBuildStatus(downBuild._id, model.BuildStatus.RUNNING);
+        await appDriver.updateBuildStatus(downBuild._id, model.BuildStatus.FAILED);
+
+        const updatedPipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+
+        checkStatus(updatedPipeline,
+            model.PipelineStatus.FAILED, model.BuildStatus.SUCCESS, model.BuildStatus.FAILED);
+
         done();
     });
 
