@@ -9,10 +9,24 @@ import {Inject} from 'container-ts';
 
 export module auth {
 
+    export function privateApiAuth(req, res, next) {
+        let userId = req.get(auth.Headers.USER_ID);
+        let privateApiSecret = req.get(auth.Headers.PRIVATE_API_SECRET);
+
+        req.query.userId = userId; // for further usage as query parameter
+
+        if(privateApiSecret == config.privateApiSecret) {
+            next();
+        } else {
+            res.sendStatus(401);
+        }
+    }
+
     export class Headers {
         static USER_ID : string = 'x-lean-ci-user-id';
         static USER_TOKEN : string = 'x-lean-ci-user-token';
-        static GITHUB_TOKEN : string = 'x-lean-ci-github-token'
+        static GITHUB_TOKEN : string = 'x-lean-ci-github-token';
+        static PRIVATE_API_SECRET : string = 'x-lean-ci-private-api-secret';
     }
 
     export interface AuthenticationService {

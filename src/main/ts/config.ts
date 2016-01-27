@@ -8,6 +8,7 @@ export var config = {
 
     appUrl : 'http://0.0.0.0:' + port,
     defaultPort : 8091,
+    privateApiSecret : 'super-secret-token',
 
     mongodbUrl : '',
 

@@ -7,6 +7,7 @@ import {RequestMapping, Middleware} from './express_decorators';
 import {BuildQueue} from '../controllers/BuildController';
 import {BuildResultController} from '../controllers/BuildResultController';
 import {model} from '../model';
+import {auth} from '../auth';
 
 var Joi = require('joi');
 var validate = require('express-validation');
@@ -101,7 +102,7 @@ export class Builds {
     }
 
     @RequestMapping('POST', '/update_build_status', ['userId'])
-    @Middleware(statusUpdateInfoValidator)
+    @Middleware([auth.privateApiAuth, statusUpdateInfoValidator])
     updateBuildStatus(userId : string, updateInfo : StatusUpdateInfo) : Promise<model.BuildSchema> {
         return this.buildResultController.updateBuildStatus(userId, updateInfo.buildId, updateInfo.status);
     }

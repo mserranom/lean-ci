@@ -25,7 +25,8 @@ function request(endpoint, method, data) : Q.Promise<any> {
         headers: {
             'x-lean-ci-user-id': USER_ID,
             'x-lean-ci-user-token': 'mock_token',
-            'x-lean-ci-github-token': 'aaaa'
+            'x-lean-ci-github-token': 'aaaa',
+            'x-lean-ci-private-api-secret' : 'super-secret-token'
         },
         formData: null
     };
