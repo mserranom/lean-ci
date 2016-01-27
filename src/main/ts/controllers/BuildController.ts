@@ -18,6 +18,7 @@ export interface BuildQueue {
     finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
     successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
     failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
+    saveBuilds(builds : Array<model.BuildSchema>) : Promise<any>;
 }
 
 export class PersistedBuildQueue implements BuildQueue {
@@ -100,5 +101,16 @@ export class PersistedBuildQueue implements BuildQueue {
 
         return this.buildsRepository.fetchQ(query, page, perPage,
             cursor => cursor.sort({'requestTimestamp' : 'descending'}));
+    }
+
+    saveBuilds(builds : Array<model.BuildSchema>) : Promise<any> {
+        let promises : Array<any> = [];
+
+        for(let i = 0; i < builds.length; i++) {
+            let query = {_id : builds[i]._id, userId : builds[i].userId};
+            promises.push(this.buildsRepository.updateQ(query, builds[i]));
+        }
+
+        return Promise.all(promises);
     }
 }

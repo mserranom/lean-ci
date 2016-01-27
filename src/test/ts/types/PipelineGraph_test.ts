@@ -48,7 +48,7 @@ describe('PipelineGraph', () => {
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
 
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[0]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[0]);
         });
 
         it('when the job is not idle, next() should return null',  () => {
@@ -60,19 +60,19 @@ describe('PipelineGraph', () => {
 
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[0].status = model.BuildStatus.FAILED;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[0].status = model.BuildStatus.SUCCESS;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[0].status = model.BuildStatus.RUNNING;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
         });
     });
 
@@ -91,7 +91,7 @@ describe('PipelineGraph', () => {
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
 
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[0]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[0]);
         });
 
         it('when the 1st job has succeeded, should return the 2nd as next',  () => {
@@ -103,7 +103,7 @@ describe('PipelineGraph', () => {
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
 
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[1]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[1]);
         });
 
         it('when all the jobs are finished, should return null as next',  () => {
@@ -114,12 +114,12 @@ describe('PipelineGraph', () => {
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             // failed is also a finished state
             data.jobs[1].status = model.BuildStatus.FAILED;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
         });
 
         it('when the 1st job is in "failed", "running" or "queued" state, should return null as next',  () => {
@@ -130,14 +130,14 @@ describe('PipelineGraph', () => {
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[0].status = model.BuildStatus.RUNNING;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[0].status = model.BuildStatus.QUEUED;
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
         });
 
     });
@@ -170,13 +170,13 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job is idle, should return it as next',  () => {
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[0]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[0]);
         });
 
         it('when the 1st job succeeds, should return the 2nd or 3rd as next',  () => {
             data.jobs[0].status = model.BuildStatus.SUCCESS;
 
-            let next = PipelineGraph.fromSchemas(data.dependencies, data.jobs).nextIdle();
+            let next = PipelineGraph.fromSchemas(data.dependencies, data.jobs).nextQueueCandidate();
 
             expect(next.repo == '2' || next.repo == '3').to.be.true;
         });
@@ -186,21 +186,21 @@ describe('PipelineGraph', () => {
             data.jobs[0].status = model.BuildStatus.SUCCESS;
             data.jobs[1].status = model.BuildStatus.SUCCESS;
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[2]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[2]);
 
             data.jobs[2].status = model.BuildStatus.QUEUED;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
 
             data.jobs[2].status = model.BuildStatus.SUCCESS;
             pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).deep.equal(data.jobs[3]);
+            expect(pipeline.nextQueueCandidate()).deep.equal(data.jobs[3]);
         });
 
         it('when all the jobs are finished, should return null as next',  () => {
             data.jobs.forEach((build : model.BuildSchema) => build.status = model.BuildStatus.SUCCESS);
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
-            expect(pipeline.nextIdle()).to.be.null;
+            expect(pipeline.nextQueueCandidate()).to.be.null;
         });
 
     });

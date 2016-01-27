@@ -79,4 +79,24 @@ export module model {
             config : undefined,
         }
     }
+
+    export function isValidBuildStatusTransition(oldStatus : BuildStatus, newStatus : BuildStatus) : boolean {
+
+        if(newStatus != model.BuildStatus.RUNNING
+            && newStatus != model.BuildStatus.SUCCESS
+            && newStatus != model.BuildStatus.FAILED) {
+
+            return false;
+        }
+
+        if(newStatus == model.BuildStatus.IDLE
+            || (oldStatus == model.BuildStatus.QUEUED && newStatus != model.BuildStatus.IDLE )
+            || (oldStatus == model.BuildStatus.RUNNING && newStatus == model.BuildStatus.SUCCESS)
+            || (oldStatus == model.BuildStatus.RUNNING && newStatus == model.BuildStatus.FAILED)){
+
+            return true;
+        }
+
+        return false;
+    }
 }

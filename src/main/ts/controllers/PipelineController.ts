@@ -66,4 +66,18 @@ export class PipelineController {
         return await this.buildsRepository.fetchQ(query, 1, Number.MAX_SAFE_INTEGER);
     }
 
+    async findPipelineForBuild(userId:string, buildId:String) : Promise<model.PipelineSchema> {
+        const allActivePipelines = await this.getActivePipelines(userId,1, Number.MAX_SAFE_INTEGER);
+        const pipeline = allActivePipelines.find(pipeline => pipeline.jobs.some(job => job == buildId));
+        if(!pipeline) {
+            throw new Error("couldn't find the pipeline for the build " + buildId);
+        }
+        return pipeline;
+    }
+
+    async savePipeline(userId : string, pipeline : model.PipelineSchema) : Promise<void> {
+        let query = {_id : pipeline._id, userId : userId};
+        await this.pipelines.updateQ(query, pipeline);
+    }
+
 }

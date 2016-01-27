@@ -13,6 +13,7 @@ export class PipelineGraph {
 
     private _dependencies : Array<model.Dependency>;
 
+    private _builds : Array<model.BuildSchema>;
 
     static fromSchemas(dependencies : Array<model.Dependency>, jobs : Array<model.BuildSchema>) : PipelineGraph {
 
@@ -43,11 +44,13 @@ export class PipelineGraph {
         let pipelineGraph = new PipelineGraph();
         pipelineGraph._graph = graph;
         pipelineGraph._dependencies = dependencies;
+        pipelineGraph._builds = jobs;
 
         return pipelineGraph;
 
     }
 
+    //TODO: remove from here
     createPipelineSchema(userId : string) : model.PipelineSchema {
         return {
             _id : undefined,
@@ -58,8 +61,36 @@ export class PipelineGraph {
         }
     }
 
-    // TODO: change: it's the next candidate to be queued
-    nextIdle() : model.BuildSchema {
+    getBuilds() : Array<model.BuildSchema> {
+        return this._builds;
+    }
+
+    updateIdleCandidatesToQueued() : void {
+        let nextCandidateToBeQueued = this.nextQueueCandidate();
+        if(nextCandidateToBeQueued) {
+            nextCandidateToBeQueued.status = model.BuildStatus.QUEUED;
+            this.updateIdleCandidatesToQueued();
+        }
+    }
+
+    skipRemainingBuilds() : void {
+        this._builds.forEach(build => {
+            if(build.status == model.BuildStatus.IDLE || build.status == model.BuildStatus.QUEUED) {
+                build.status = model.BuildStatus.SKIPPED;
+            }
+        });
+    }
+
+    hasRunningOrQueuedBuilds() : boolean {
+        return this._builds.some(
+            build => (build.status == model.BuildStatus.RUNNING || build.status == model.BuildStatus.QUEUED))
+    }
+
+    isSuccesful() : boolean {
+        return this._builds.every(build => build.status == model.BuildStatus.SUCCESS)
+    }
+
+    nextQueueCandidate() : model.BuildSchema {
 
         let source:model.BuildSchema = this._graph.sources()[0];
         let nodesSorted = this.nodesSortedByDistance(this._graph, source);
@@ -77,7 +108,7 @@ export class PipelineGraph {
 
             // we move the jobs only when all the previous builds succeeded
             let predecessorsIds : Array<string> = this._graph.predecessors(nodeId);
-            let predecessorsFinished = predecessorsIds.every(id => { return this._graph.node(id).status == model.BuildStatus.SUCCESS });
+            let predecessorsFinished = predecessorsIds.every(id => this._graph.node(id).status == model.BuildStatus.SUCCESS);
 
             if(predecessorsFinished) {
                 return job;
