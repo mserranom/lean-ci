@@ -1,6 +1,5 @@
 "use strict";
 
-import {PipelineController} from './PipelineController';
 import {DependencyGraph} from '../types/DependencyGraph';
 import {PipelineGraph} from '../types/PipelineGraph';
 import {repository} from '../repository';
@@ -43,7 +42,7 @@ export class BuildRequestController {
         subGraph.getRepos().forEach(repo =>
             changeSets.push({repo : repo.name, commit : repo.name == repository.name ? commit : ''}));
 
-        let jobs = await this.createJobs(userId, changeSets);
+        let jobs = await this.createJobs(userId, changeSets, repository);
 
         let pipeline = PipelineGraph.fromSchemas(subGraph.getDependencies(), jobs);
 
@@ -54,7 +53,7 @@ export class BuildRequestController {
 
     private async checkRepositoryExists(repository : model.RepositorySchema) : Promise<void> {
         let repo = await this.repositories.fetchFirstQ(repository);
-        let repositoryExists =  repo != null && repo != undefined;
+        let repositoryExists = repo != null && repo != undefined;
         if(!repositoryExists) {
             throw new Error('repository ' + repository.name + ' does not exist');
             //TODO: how to make async functions fail with async/await, so they  look like a rejected promise ??
@@ -73,12 +72,18 @@ export class BuildRequestController {
         return DependencyGraph.fromSchemas(dependencyGraphScheme, reposMap);
     }
 
-    private async createJobs(userId : string, changes : Array<ChangeSet>) {
+    private async createJobs(userId : string, changes : Array<ChangeSet>, updatedRepo : model.RepositorySchema) {
 
         let builds : Array<model.BuildSchema> = [];
 
         changes.forEach(changeSet =>
                         builds.push(this.createNewBuild(userId, changeSet.repo, changeSet.commit)));
+
+        builds.forEach(build => {
+                if(build.repo == updatedRepo.name) {
+                    build.status = model.BuildStatus.QUEUED;
+                }
+            });
 
         let insertedBuilds = await this.buildsRepository.saveQ(builds);
 
@@ -90,7 +95,7 @@ export class BuildRequestController {
             _id : undefined,
             userId : userId,
             repo : repo,
-            status: model.BuildStatus.QUEUED,
+            status: model.BuildStatus.IDLE,
             log: null,
             commit : commit,
             requestTimestamp : new Date(),

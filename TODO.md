@@ -4,6 +4,8 @@ TODO
 M
 ==
 
+[ ] fix _ids, saving returning an object and number/string issues
+
 [ ] npm shrinkwrap
 
 [ ] Consolidate names with Controller, BuildQueue, ...
@@ -22,7 +24,7 @@ M
 
 [ ] run app using sourcemap, while keeping the debug on IntelliJ
 
-
+[ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
 L
 ==
 

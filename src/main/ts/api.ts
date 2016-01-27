@@ -52,11 +52,7 @@ export module api {
             configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests,
                 this.builds, this.dependencyGraphs, this.repositories]);
 
-            this._server = this._app.listen(config.defaultPort, () => {
-                var host = this._server.address().address;
-                var port = this._server.address().port;
-                console.log('http server listening at http://%s:%s', host, port);
-            });
+            this._server = this._app.listen(config.defaultPort);
         }
 
         authenticate(req, res, next) {

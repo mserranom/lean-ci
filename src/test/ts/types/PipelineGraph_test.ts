@@ -10,13 +10,16 @@ setupChai();
 
 describe('PipelineGraph', () => {
 
+    const upRepo = 'org/upRepo';
+    const downRepo = 'org/downRepo';
+
     //TODO: remove any in 'data' and use Object.assign() in all the tests for static type check
 
     it('should throw an error when there are circular dependencies',  () => {
         let data  = {
-            jobs: [Object.assign(model.createBuildSchema(), {_id: '1', status: model.BuildStatus.IDLE}),
-                   Object.assign(model.createBuildSchema(),{_id: '2', status: model.BuildStatus.IDLE})],
-            dependencies : [{up : '1', down : '2'}, {up : '2', down : '1'}]
+            jobs: [Object.assign(model.createBuildSchema(), {_id : '1', repo: upRepo, status: model.BuildStatus.IDLE}),
+                   Object.assign(model.createBuildSchema(),{_id : '2', repo: downRepo, status: model.BuildStatus.IDLE})],
+            dependencies : [{up : upRepo, down : downRepo}, {up : downRepo, down : upRepo}]
         };
 
         let call = () => PipelineGraph.fromSchemas(data.dependencies, data.jobs);
@@ -25,9 +28,9 @@ describe('PipelineGraph', () => {
 
     it('should throw an error when there is more than one starting node in the build graph',  () => {
         let data : any  = {
-            jobs: [{_id: '1', status: model.BuildStatus.IDLE},
-                   {_id: '2', status: model.BuildStatus.IDLE},
-                   {_id: '3', status: model.BuildStatus.IDLE}],
+            jobs: [{_id : '101', repo: '1', status: model.BuildStatus.IDLE},
+                   {_id : '102', repo: '2', status: model.BuildStatus.IDLE},
+                   {_id : '103', repo: '3', status: model.BuildStatus.IDLE}],
             dependencies : [{up : '1', down : '3'}, {up : '2', down : '3'}]
         };
 
@@ -39,7 +42,7 @@ describe('PipelineGraph', () => {
 
         it('when the job is idle, next() should return the job',  () => {
             let data : any  = {
-                jobs : [{_id : '1', status : model.BuildStatus.IDLE }],
+                jobs : [{_id : '101', repo : '1', status : model.BuildStatus.IDLE }],
                 dependencies : []
             };
 
@@ -51,7 +54,7 @@ describe('PipelineGraph', () => {
         it('when the job is not idle, next() should return null',  () => {
             let data : any = {
                 _id : '0',
-                jobs : [{_id : '1', status : model.BuildStatus.QUEUED }],
+                jobs : [{_id : '101', repo : '1', status : model.BuildStatus.QUEUED }],
                 dependencies : []
             };
 
@@ -81,8 +84,9 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job is idle, should return it as next',  () => {
             let data : any = {
-                jobs : [{_id : '1', status : model.BuildStatus.IDLE }, {_id : '2', status : model.BuildStatus.IDLE }],
-                dependencies : [{up : '1', down : '2'}]
+                jobs : [{_id : '101', repo : upRepo, status : model.BuildStatus.IDLE },
+                        {_id : '102', repo : downRepo, status : model.BuildStatus.IDLE }],
+                dependencies : [{up : upRepo, down : downRepo}]
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
@@ -92,8 +96,9 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job has succeeded, should return the 2nd as next',  () => {
             let data : any  = {
-                jobs : [{_id : '1', status : model.BuildStatus.SUCCESS }, {_id : '2', status : model.BuildStatus.IDLE }],
-                dependencies : [{up : '1', down : '2'}]
+                jobs : [{_id : '101', repo : upRepo, status : model.BuildStatus.SUCCESS },
+                        {_id : '102', repo : downRepo, status : model.BuildStatus.IDLE }],
+                dependencies : [{up : upRepo, down : downRepo}]
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
@@ -103,8 +108,9 @@ describe('PipelineGraph', () => {
 
         it('when all the jobs are finished, should return null as next',  () => {
             let data : any = {
-                jobs : [{_id : '1', status : model.BuildStatus.SUCCESS }, {_id : '2', status : model.BuildStatus.SUCCESS }],
-                dependencies : [{up : '1', down : '2'}]
+                jobs : [{_id : '101', repo : upRepo, status : model.BuildStatus.SUCCESS },
+                        {_id : '102', repo : downRepo, status : model.BuildStatus.SUCCESS }],
+                dependencies : [{up : upRepo, down : downRepo}]
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
@@ -118,8 +124,9 @@ describe('PipelineGraph', () => {
 
         it('when the 1st job is in "failed", "running" or "queued" state, should return null as next',  () => {
             let data : any = {
-                jobs : [{_id : '1', status : model.BuildStatus.FAILED }, {_id : '2', status : model.BuildStatus.IDLE }],
-                dependencies : [{up : '1', down : '2'}]
+                jobs : [{_id : '101', repo : upRepo, status : model.BuildStatus.FAILED },
+                        {_id : '102', repo : downRepo, status : model.BuildStatus.IDLE }],
+                dependencies : [{up : upRepo, down : downRepo}]
             };
 
             let pipeline = PipelineGraph.fromSchemas(data.dependencies, data.jobs);
@@ -146,8 +153,10 @@ describe('PipelineGraph', () => {
 
         let createGraph = function() {
             return {
-                jobs : [{_id : '1', status : model.BuildStatus.IDLE }, {_id : '2', status : model.BuildStatus.IDLE },
-                        {_id : '3', status : model.BuildStatus.IDLE }, {_id : '4', status : model.BuildStatus.IDLE }],
+                jobs : [{_id : '101', repo : '1', status : model.BuildStatus.IDLE },
+                        {_id : '102', repo : '2', status : model.BuildStatus.IDLE },
+                        {_id : '103', repo : '3', status : model.BuildStatus.IDLE },
+                        {_id : '104', repo : '4', status : model.BuildStatus.IDLE }],
                 dependencies : [{up : '1', down : '2'}, {up : '1', down : '3'},
                                 {up : '2', down : '4'}, {up : '3', down : '4'}]
             };
@@ -169,7 +178,7 @@ describe('PipelineGraph', () => {
 
             let next = PipelineGraph.fromSchemas(data.dependencies, data.jobs).nextIdle();
 
-            expect(next._id == '2' || next._id == '3').to.be.true;
+            expect(next.repo == '2' || next.repo == '3').to.be.true;
         });
 
         it('when the 1st and 2nd job succeeds, should wait for the 3rd to succeed before queuing the 4th',  () => {

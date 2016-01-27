@@ -15,6 +15,7 @@ import {DependencyGraphs} from './rest/DependencyGraphs'
 import {Pipelines} from './rest/Pipelines'
 import {BuildRequestController} from './controllers/BuildRequestController'
 import {PipelineController} from './controllers/PipelineController'
+import {BuildResultController} from './controllers/BuildResultController'
 
 import {Container, ContainerBuilder} from 'container-ts';
 
@@ -54,6 +55,8 @@ export class App {
 
         this.container.add(new PipelineController(), 'pipelineController');
 
+        this.container.add(new BuildResultController(), 'buildResultController');
+
         this.container.add(new api.ExpressServer(), 'expressServer');
 
         if(this.args.local) {
@@ -88,20 +91,30 @@ export class App {
         return this.container.get(id);
     }
 
+    getContainer() : Container {
+        return this.container;
+    }
+
     stop() {
         let server : api.ExpressServer = this.container.get('expressServer');
         server.stop();
     }
 }
 
-export function start(bootstrapArgs : BootstrapArguments) : App {
+export function start(bootstrapArgs : BootstrapArguments, callback?: (app : App, err : string) => void) : App {
     let app = new App(bootstrapArgs);
     let onDBConnect = (err, db) => {
         if(err) {
-            throw new Error('couldnt establish mongodb connection: ' + err)
+            let msg = 'couldnt establish mongodb connection: ' + err;
+            if(callback) {
+                callback(app, msg);
+            }
+            throw msg;
         } else {
             app.init(db);
-            return app;
+            if(callback) {
+                callback(app, null);
+            }
         }
     };
 
@@ -113,6 +126,19 @@ export function start(bootstrapArgs : BootstrapArguments) : App {
     }
 
     return app;
+}
+
+export function startAsync(bootstrapArgs : BootstrapArguments) : Promise<App> {
+    return new Promise(function(resolve, reject) {
+
+        start(bootstrapArgs, (app, err) => {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(app);
+                }
+            });
+    });
 }
 
 export function cleanup() {

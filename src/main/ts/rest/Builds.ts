@@ -5,6 +5,7 @@ import {Inject} from 'container-ts';
 import {RequestMapping, Middleware} from './express_decorators';
 
 import {BuildQueue} from '../controllers/BuildController';
+import {BuildResultController} from '../controllers/BuildResultController';
 import {model} from '../model';
 
 var Joi = require('joi');
@@ -12,7 +13,12 @@ var validate = require('express-validation');
 
 let commitInfoValidator = validate( {
     body: { repo : Joi.string().required(),
-        commit : Joi.string()}
+            commit : Joi.string()}
+});
+
+let statusUpdateInfoValidator = validate( {
+    body: { buildId : Joi.string().required(),
+            status : Joi.string().required()}
 });
 
 export interface CommitInfo {
@@ -20,10 +26,18 @@ export interface CommitInfo {
     commit : string;
 }
 
+export interface StatusUpdateInfo {
+    buildId : string;
+    status : model.BuildStatus;
+}
+
 export class Builds {
 
     @Inject('buildQueue')
     buildQueue : BuildQueue;
+
+    @Inject('buildResultController')
+    buildResultController : BuildResultController;
 
     @RequestMapping('POST', '/builds', ['userId'])
     @Middleware(commitInfoValidator)
@@ -85,4 +99,11 @@ export class Builds {
             return this.buildQueue.finishedBuilds(userId, intPage, intPerPage);
         }
     }
+
+    @RequestMapping('POST', '/update_build_status', ['userId'])
+    @Middleware(statusUpdateInfoValidator)
+    updateBuildStatus(userId : string, updateInfo : StatusUpdateInfo) : Promise<model.BuildSchema> {
+        return this.buildResultController.updateBuildStatus(userId, updateInfo.buildId, updateInfo.status);
+    }
+
 }

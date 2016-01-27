@@ -12,12 +12,13 @@ export module model {
         name : string; // unique index
     }
 
-    export enum BuildStatus {
-        IDLE,
-        QUEUED,
-        RUNNING,
-        FAILED,
-        SUCCESS
+    export class BuildStatus {
+        static IDLE = 'idle';
+        static QUEUED = 'queued';
+        static RUNNING = 'running';
+        static FAILED = 'failed';
+        static SUCCESS = 'success';
+        static SKIPPED = 'skipped';
     }
 
     export interface BuildConfig {

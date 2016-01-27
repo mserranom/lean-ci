@@ -23,11 +23,12 @@ export class PipelineGraph {
             graph.setNode(job._id, job);
         });
 
-        let jobIds = new Set<string>(jobs.map(job => {return job._id}));
+        let jobsByRepo : Map<string, model.BuildSchema> = new Map();
+        jobs.forEach(job => jobsByRepo.set(job.repo, job));
 
         dependencies.forEach((dependency : model.Dependency) => {
-            if(jobIds.has(dependency.up) && jobIds.has(dependency.down)) {
-                graph.setEdge(dependency.up, dependency.down);
+            if(jobsByRepo.has(dependency.up) && jobsByRepo.has(dependency.down)) {
+                graph.setEdge(jobsByRepo.get(dependency.up)._id, jobsByRepo.get(dependency.down)._id);
             }
         });
 
@@ -57,6 +58,7 @@ export class PipelineGraph {
         }
     }
 
+    // TODO: change: it's the next candidate to be queued
     nextIdle() : model.BuildSchema {
 
         let source:model.BuildSchema = this._graph.sources()[0];
