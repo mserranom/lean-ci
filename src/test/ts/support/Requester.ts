@@ -4,6 +4,8 @@ var Q = require('q');
 
 export const USER_ID : string = 'aaaa';
 
+export var port = 8091;
+
 export function doGet(endpoint) : Q.Promise<any> {
     return request(endpoint, 'get', null);
 }
@@ -21,7 +23,7 @@ function request(endpoint, method, data) : Q.Promise<any> {
     let defer : Q.Deferred<any> = Q.defer();
 
     var options = {
-        url: 'http://localhost:8091' + endpoint,
+        url: 'http://localhost:' + port + endpoint,
         headers: {
             'x-lean-ci-user-id': USER_ID,
             'x-lean-ci-user-token': 'mock_token',

@@ -35,7 +35,9 @@ describe('MongoDBRepository', () => {
             if(err) {
                 throw err;
             } else {
-                sut = new repository.MongoDBRepository<MyType>('MyType_collection', db);
+                let uuid = require('uuid');
+                let dbName = 'db_' + uuid.v4();
+                sut = new repository.MongoDBRepository<MyType>(dbName, db);
                 sut.removeAll( errorHandler, () => done() );
             }
         });
