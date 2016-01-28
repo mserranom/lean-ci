@@ -101,9 +101,9 @@ describe('addition of a single repository and request of new builds:', () => {
         requestedPipeline = await appDriver.getPipeline(parseInt(pipeline2._id));
         expect(requestedPipeline).deep.equal(pipeline2);
 
-        // check active pipelines contains both pipelines
+        // check active pipelines contains both pipelines, the latest first
         let activePipelines = await appDriver.getActivePipelines();
-        expect(activePipelines).deep.equal([pipeline, pipeline2]);
+        expect(activePipelines).deep.equal([pipeline2, pipeline]);
 
         done();
     });
@@ -116,7 +116,7 @@ describe('addition of a single repository and request of new builds:', () => {
         let pipeline2 : model.PipelineSchema = await appDriver.requestBuild(testRepo, 'commit-124');
 
         let activePipelines = await appDriver.getActivePipelines();
-        expect(activePipelines).deep.equal([pipeline1, pipeline2]);
+        expect(activePipelines).deep.equal([pipeline2, pipeline1]);
 
         await appDriver.debugUpdatePipelineAsFinishedSuccesfully(pipeline2._id);
 

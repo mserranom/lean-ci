@@ -6,101 +6,52 @@ import {config} from '../config';
 
 import {Inject} from 'container-ts'
 
-var Q = require('q');
+import * as Q from 'q';
 
 export interface BuildQueue {
-    // TODO: remove addBuildToQueue() so that the build is queued by the pipeline managers
-    addBuildToQueue(userId : string, repo : string, commit? : string); // async
-    nextQueuedBuild(userId : string) : Q.Promise<model.BuildSchema>;
-    getBuild(userId : string, buildId : string); // async
-    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
-    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
-    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
-    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
-    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>>;
+    getBuild(userId : string, buildId : string);
+    getBuilds(userId : string, page : number, perPage : number, status : model.BuildStatus) : Q.Promise<Array<model.BuildSchema>>;
+    getNextQueuedBuild(userId : string);
     saveBuilds(builds : Array<model.BuildSchema>) : Promise<any>;
 }
 
-export class PersistedBuildQueue implements BuildQueue {
+const NEWEST_FIRST = -1;
+const OLDEST_FIRST = 1;
 
-    @Inject('repositoriesRepository')
-    repositories : repository.DocumentRepositoryQ<model.RepositorySchema>;
+export class PersistedBuildQueue implements BuildQueue {
 
     @Inject('queuedBuildsRepository')
     buildsRepository : repository.DocumentRepositoryQ<model.BuildSchema>;
 
-    async addBuildToQueue(userId : string, repo : string, commit?:string) {
-        commit = commit || '';
-
-        await this.checkRepositoryExists(userId, repo);
-
-        let request = this.createNewBuildRequest(userId, repo, commit);
-
-        let insertedBuilds = await this.buildsRepository.saveQ(request);
-        return insertedBuilds[0];
-    }
-
-    private async checkRepositoryExists(userId : string, repo : string) {
-        let repository : model.RepositorySchema = await this.repositories.fetchFirstQ({userId : userId, name : repo});
-        if(!repository) {
-            throw new Error(repo + 'is not a valid repository');
-        }
-    }
-
-    private createNewBuildRequest(userId : string, repo : string, commit : string) : model.BuildSchema {
-        return {
-            _id : undefined,
-            status: model.BuildStatus.QUEUED,
-            repo : repo,
-            commit : commit,
-            userId : userId,
-            requestTimestamp : new Date(),
-            processedTimestamp : null,
-            finishedTimestamp: null,
-            log: null,
-            config : null
-        };
-    }
-
-    nextQueuedBuild(userId : string) : Q.Promise<model.BuildSchema> {
-        return this.queuedBuilds(userId, 1, 1).then((items) => { return items[0]});
-    }
-
-    async getBuild(userId : string, buildId : string) {
+    getBuild(userId : string, buildId : string) {
         return this.buildsRepository.fetchFirstQ({userId : userId, _id : buildId});
     }
 
-    queuedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>> {
-        let query = {userId : userId, status : model.BuildStatus.QUEUED};
-        return this.buildsRepository.fetchQ(query, page, perPage,
-                cursor => cursor.sort({'requestTimestamp' : 'ascending'}));
+    getBuilds(userId : string, page : number, perPage : number, status : model.BuildStatus) : Q.Promise<Array<model.BuildSchema>> {
+
+        let query = {userId : userId};
+
+        if(status) {
+            query['status'] = status;
+        }
+
+        let cursorFn;
+        if(status == model.BuildStatus.SUCCESS || status == model.BuildStatus.FAILED) {
+            cursorFn = cursor => cursor.sort({'finishedTimestamp' : NEWEST_FIRST});
+        } else if(status == model.BuildStatus.RUNNING) {
+            cursorFn = cursor => cursor.sort({'startedTimestamp' : NEWEST_FIRST});
+        } else if(status == model.BuildStatus.IDLE || status == model.BuildStatus.SKIPPED) {
+            cursorFn = cursor => cursor.sort({'finishedTimestamp': NEWEST_FIRST});
+        } else if(status == model.BuildStatus.QUEUED) {
+            cursorFn = cursor => cursor.sort({'queuedTimestamp': OLDEST_FIRST});
+        }
+
+        return this.buildsRepository.fetchQ(query, page, perPage, cursorFn);
     }
 
-    runningBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>> {
-        let query = {userId : userId, status : model.BuildStatus.RUNNING};
-        return this.buildsRepository.fetchQ(query, page, perPage,
-            cursor => cursor.sort({'processedTimestamp' : 'descending'}));
-    }
-
-    successfulBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>> {
-        let query = {userId : userId, status : model.BuildStatus.SUCCESS};
-        return this.buildsRepository.fetchQ(query, page, perPage,
-            cursor => cursor.sort({'finishedTimestamp' : 'descending'}));
-    }
-
-    failedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>> {
-        let query = {userId : userId, status : model.BuildStatus.FAILED};
-        return this.buildsRepository.fetchQ(query, page, perPage,
-            cursor => cursor.sort({'finishedTimestamp' : 'descending'}));
-    }
-
-    finishedBuilds(userId : string, page : number, perPage : number) : Q.Promise<Array<model.BuildSchema>> {
-        let query = {userId : userId,
-                     $or: [ { status: model.BuildStatus.SUCCESS },
-                            { status: model.BuildStatus.FAILED }]};
-
-        return this.buildsRepository.fetchQ(query, page, perPage,
-            cursor => cursor.sort({'requestTimestamp' : 'descending'}));
+    async getNextQueuedBuild(userId : string) {
+        let builds = await this.getBuilds(userId, 1, 1, model.BuildStatus.QUEUED);
+        return builds[0];
     }
 
     saveBuilds(builds : Array<model.BuildSchema>) : Promise<any> {

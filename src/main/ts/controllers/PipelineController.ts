@@ -5,6 +5,8 @@ import {model} from '../model';
 
 import {Inject} from 'container-ts'
 
+const NEWEST_FIRST = -1;
+const OLDEST_FIRST = 1;
 
 export class PipelineController {
 
@@ -32,8 +34,8 @@ export class PipelineController {
             userId : userId,
         };
 
-        let pipelines = await this.pipelines.fetchQ(query, page, perPage);
-        return pipelines;
+        return await this.pipelines.fetchQ(query, page, perPage,
+            cursor => cursor.sort({'createdTimestamp' : NEWEST_FIRST}));
     }
 
     async getActivePipelines(userId : string, page : number, perPage : number) : Promise<Array<model.PipelineSchema>> {
@@ -43,8 +45,8 @@ export class PipelineController {
             status : model.PipelineStatus.RUNNING,
         };
 
-        let pipelines = await this.pipelines.fetchQ(query, page, perPage);
-        return pipelines;
+        return await this.pipelines.fetchQ(query, page, perPage,
+            cursor => cursor.sort({'createdTimestamp' : NEWEST_FIRST}));
     }
 
     async getFinishedPipelines(userId : string, page : number, perPage : number) : Promise<Array<model.PipelineSchema>> {
@@ -55,8 +57,8 @@ export class PipelineController {
                    { status: model.PipelineStatus.FAILED }],
         };
 
-        let pipelines = await this.pipelines.fetchQ(query, page, perPage);
-        return pipelines;
+        return await this.pipelines.fetchQ(query, page, perPage,
+            cursor => cursor.sort({'createdTimestamp' : NEWEST_FIRST}));
     }
 
     async getBuildsForPipeline(userId : string, pipelineId : string) : Promise<Array<model.BuildSchema>> {

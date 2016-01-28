@@ -17,8 +17,8 @@ describe('PipelineGraph', () => {
 
     it('should throw an error when there are circular dependencies',  () => {
         let data  = {
-            jobs: [Object.assign(model.createBuildSchema(), {_id : '1', repo: upRepo, status: model.BuildStatus.IDLE}),
-                   Object.assign(model.createBuildSchema(),{_id : '2', repo: downRepo, status: model.BuildStatus.IDLE})],
+            jobs: [Object.assign(model.newBuildSchema(), {_id : '1', repo: upRepo, status: model.BuildStatus.IDLE}),
+                   Object.assign(model.newBuildSchema(),{_id : '2', repo: downRepo, status: model.BuildStatus.IDLE})],
             dependencies : [{up : upRepo, down : downRepo}, {up : downRepo, down : upRepo}]
         };
 

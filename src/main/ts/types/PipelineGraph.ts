@@ -50,25 +50,21 @@ export class PipelineGraph {
 
     }
 
-    //TODO: remove from here
     createPipelineSchema(userId : string) : model.PipelineSchema {
-        return {
-            _id : undefined,
-            userId : userId,
-            status :  model.PipelineStatus.RUNNING,
-            jobs : this._graph.nodes(),
-            dependencies : this._dependencies
-        }
-    }
 
-    getBuilds() : Array<model.BuildSchema> {
-        return this._builds;
+        let pipeline = model.newPipelineSchema();
+        pipeline.userId = userId;
+        pipeline.jobs = this._graph.nodes();
+        pipeline.dependencies = this._dependencies;
+        pipeline.createdTimestamp = new Date();
+        return pipeline;
     }
 
     updateIdleCandidatesToQueued() : void {
         let nextCandidateToBeQueued = this.nextQueueCandidate();
         if(nextCandidateToBeQueued) {
             nextCandidateToBeQueued.status = model.BuildStatus.QUEUED;
+            nextCandidateToBeQueued.queuedTimestamp = new Date();
             this.updateIdleCandidatesToQueued();
         }
     }
@@ -77,6 +73,7 @@ export class PipelineGraph {
         this._builds.forEach(build => {
             if(build.status == model.BuildStatus.IDLE || build.status == model.BuildStatus.QUEUED) {
                 build.status = model.BuildStatus.SKIPPED;
+                build.finishedTimestamp = new Date();
             }
         });
     }

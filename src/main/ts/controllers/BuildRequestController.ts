@@ -46,7 +46,8 @@ export class BuildRequestController {
 
         let pipeline = PipelineGraph.fromSchemas(subGraph.getDependencies(), jobs);
 
-        let addedPipeline = await this.pipelines.saveQ(pipeline.createPipelineSchema(userId));
+        let schema = pipeline.createPipelineSchema(userId);
+        let addedPipeline = await this.pipelines.saveQ(schema);
 
         return addedPipeline[0];
     }
@@ -91,18 +92,13 @@ export class BuildRequestController {
     }
 
     private createNewBuild(userId : string, repo : string, commit : string) : model.BuildSchema {
-        return {
-            _id : undefined,
-            userId : userId,
-            repo : repo,
-            status: model.BuildStatus.IDLE,
-            log: null,
-            commit : commit,
-            requestTimestamp : new Date(),
-            processedTimestamp : null,
-            finishedTimestamp: null,
-            config : null
-        };
+        let build = model.newBuildSchema();
+        build.userId = userId;
+        build.repo = repo;
+        build.commit = commit;
+        build.status = model.BuildStatus.IDLE;
+        build.createdTimestamp = new Date();
+        return build;
     }
 
 

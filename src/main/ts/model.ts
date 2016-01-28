@@ -32,8 +32,9 @@ export module model {
         repo : string;
         commit : string;
         userId : string;
-        requestTimestamp : Date;
-        processedTimestamp : Date;
+        createdTimestamp : Date;
+        queuedTimestamp : Date;
+        startedTimestamp : Date;
         finishedTimestamp : Date;
         log : string;
         config : BuildConfig;
@@ -55,7 +56,9 @@ export module model {
         userId : string;
         status :  PipelineStatus;
         jobs : Array<string>
-        dependencies : Array<Dependency>
+        dependencies : Array<Dependency>,
+        createdTimestamp : Date,
+        finishedTimestamp : Date,
     }
 
     export interface DependencyGraphSchema {
@@ -65,19 +68,32 @@ export module model {
         dependencies : Array<Dependency>;
     }
 
-    export function createBuildSchema() : model.BuildSchema {
+    export function newBuildSchema() : model.BuildSchema {
         return {
             _id : undefined,
             status : BuildStatus.IDLE,
             repo : undefined,
             commit : undefined,
             userId : undefined,
-            requestTimestamp : undefined,
-            processedTimestamp : undefined,
+            createdTimestamp : undefined,
+            queuedTimestamp : undefined,
+            startedTimestamp : undefined,
             finishedTimestamp : undefined,
             log : undefined,
             config : undefined,
         }
+    }
+
+    export function newPipelineSchema() : model.PipelineSchema {
+        return {
+            _id: undefined,
+            userId: undefined,
+            status: model.PipelineStatus.RUNNING,
+            jobs: [],
+            dependencies: [],
+            createdTimestamp: undefined,
+            finishedTimestamp: undefined
+        };
     }
 
     export function isValidBuildStatusTransition(oldStatus : BuildStatus, newStatus : BuildStatus) : boolean {

@@ -6,7 +6,6 @@ import {github} from '../../../../src/main/ts/github';
 import {doGet, doPost, doDel, USER_ID} from '../support/Requester';
 
 import {setupChai} from '../test_utils'
-import {SchedulerProcessFake} from "../support/SchedulerProcessFake";
 
 var expect = require('chai').expect;
 setupChai();

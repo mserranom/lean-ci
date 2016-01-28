@@ -111,15 +111,9 @@ describe('complex pipeline:', () => {
         expect(build.status).equals(model.BuildStatus.QUEUED);
         expect(build.userId).equals(USER_ID);
 
-        let expectedPipeline : model.PipelineSchema = {
-                _id: pipeline._id,
-                userId: USER_ID,
-                status: model.PipelineStatus.RUNNING,
-                jobs: [ '' + build._id ],
-                dependencies: []
-            };
-
-        expect(pipeline).deep.equal(expectedPipeline);
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+        expect(pipeline.jobs).deep.equals([ '' + build._id ]);
+        expect(pipeline.dependencies).deep.equals([]);
 
         done();
     });
@@ -187,8 +181,8 @@ describe('complex pipeline:', () => {
 
         // check active pipelines return correctly
         let activePipelines = await appDriver.getActivePipelines();
-        expect(activePipelines[0]).deep.equals(firstPipeline);
-        expect(activePipelines[1]).deep.equals(secondPipeline);
+        expect(activePipelines[0]).deep.equals(secondPipeline);
+        expect(activePipelines[1]).deep.equals(firstPipeline);
 
         done();
     });

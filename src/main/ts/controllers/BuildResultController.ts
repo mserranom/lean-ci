@@ -27,7 +27,7 @@ export class BuildResultController {
         const builds = await this.pipelineController.getBuildsForPipeline(userId, pipeline._id);
 
         const updatedBuild = builds.find(build => build._id == buildId);
-        updatedBuild.status = newStatus;
+        this.updateBuild(updatedBuild, newStatus);
 
         const graph : PipelineGraph = PipelineGraph.fromSchemas(pipeline.dependencies, builds);
 
@@ -38,6 +38,7 @@ export class BuildResultController {
         if(!graph.hasRunningOrQueuedBuilds()) {
             graph.skipRemainingBuilds();
             pipeline.status = graph.isSuccesful() ? model.PipelineStatus.SUCCESS : model.PipelineStatus.FAILED;
+            pipeline.finishedTimestamp = new Date();
             await this.pipelineController.savePipeline(userId, pipeline);
         }
 
@@ -54,6 +55,17 @@ export class BuildResultController {
         if(!model.isValidBuildStatusTransition(oldStatus, newStatus)) {
             throw new Error(`status transition from ${oldStatus} to ${newStatus} is not valid`);
         }
+    }
+
+    private updateBuild(build : model.BuildSchema, newStatus : model.BuildStatus) : void {
+        if(newStatus == model.BuildStatus.SUCCESS
+            || newStatus == model.BuildStatus.FAILED
+            ||  newStatus == model.BuildStatus.SKIPPED) {
+            build.finishedTimestamp = new Date();
+        } else if(newStatus == model.BuildStatus.RUNNING) {
+            build.startedTimestamp = new Date();
+        }
+        build.status = newStatus;
     }
 
 }
