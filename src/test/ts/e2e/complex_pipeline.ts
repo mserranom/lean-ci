@@ -41,6 +41,24 @@ describe('complex pipeline:', () => {
         { up: '104', down: '106' },
         { up: '105', down: '106' } ];
 
+    // aliases
+    const Q = model.BuildStatus.QUEUED;
+    const I = model.BuildStatus.IDLE;
+    const R = model.BuildStatus.RUNNING;
+
+    async function checkBuildsStatus(buildIds : Array<string>, statuses : Array<Array<any>>) {
+        expect(buildIds.length).equals(statuses.length);
+
+        for(var i = 0; i < statuses.length; i++) {
+            let jobId : string = buildIds[i];
+            let build = await appDriver.getBuild(parseInt(jobId));
+            let expectedRepo = statuses[i][0];
+            let expectedStatus = statuses[i][1];
+            expect(build.repo).equals(expectedRepo);
+            expect(build.status).equals(expectedStatus);
+        }
+
+    }
 
     //                   -> |104| -
     //                 /            \
@@ -110,30 +128,10 @@ describe('complex pipeline:', () => {
 
         let pipeline = await appDriver.requestBuild('101', 'HEAD');
 
-        expect(pipeline.userId).equals(USER_ID);
         expect(pipeline.dependencies).deep.equal(DEPENDENCIES);
         expect(pipeline.jobs.length).equals(6);
 
-        let upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
-        let downBuild1 = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
-        let downBuild2 = await appDriver.getBuild(parseInt(pipeline.jobs[2]));
-        let downBuild3 = await appDriver.getBuild(parseInt(pipeline.jobs[3]));
-        let downBuild4 = await appDriver.getBuild(parseInt(pipeline.jobs[4]));
-        let downBuild5 = await appDriver.getBuild(parseInt(pipeline.jobs[5]));
-
-        expect(upBuild.repo).equals('101');
-        expect(upBuild.status).equals(model.BuildStatus.QUEUED);
-
-        expect(downBuild1.repo).equals('102');
-        expect(downBuild1.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild2.repo).equals('103');
-        expect(downBuild2.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild3.repo).equals('104');
-        expect(downBuild3.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild4.repo).equals('105');
-        expect(downBuild4.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild5.repo).equals('106');
-        expect(downBuild5.status).equals(model.BuildStatus.IDLE);
+        await checkBuildsStatus(pipeline.jobs,[['101', Q], ['102', I], ['103', I], ['104', I], ['105', I], ['106', I]]);
 
         done();
     });
@@ -142,24 +140,10 @@ describe('complex pipeline:', () => {
 
         let pipeline = await appDriver.requestBuild('102', 'HEAD');
 
-        expect(pipeline.userId).equals(USER_ID);
         expect(pipeline.dependencies).deep.equal([DEPENDENCIES[2], DEPENDENCIES[3], DEPENDENCIES[5], DEPENDENCIES[6]]);
         expect(pipeline.jobs.length).equals(4);
 
-        let upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
-        let downBuild1 = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
-        let downBuild2 = await appDriver.getBuild(parseInt(pipeline.jobs[2]));
-        let downBuild3 = await appDriver.getBuild(parseInt(pipeline.jobs[3]));
-
-        expect(upBuild.repo).equals('102');
-        expect(upBuild.status).equals(model.BuildStatus.QUEUED);
-
-        expect(downBuild1.repo).equals('104');
-        expect(downBuild1.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild2.repo).equals('105');
-        expect(downBuild2.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild3.repo).equals('106');
-        expect(downBuild3.status).equals(model.BuildStatus.IDLE);
+        await checkBuildsStatus(pipeline.jobs,[['102', Q], ['104', I], ['105', I], ['106', I]]);
 
         done();
     });
@@ -168,31 +152,47 @@ describe('complex pipeline:', () => {
 
         let pipeline = await appDriver.requestBuild('102', 'HEAD');
 
-        expect(pipeline.userId).equals(USER_ID);
         expect(pipeline.dependencies).deep.equal([DEPENDENCIES[2], DEPENDENCIES[3], DEPENDENCIES[5], DEPENDENCIES[6]]);
         expect(pipeline.jobs.length).equals(4);
 
         let upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
         await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
 
-
-        upBuild = await appDriver.getBuild(parseInt(pipeline.jobs[0]));
-        let downBuild1 = await appDriver.getBuild(parseInt(pipeline.jobs[1]));
-        let downBuild2 = await appDriver.getBuild(parseInt(pipeline.jobs[2]));
-        let downBuild3 = await appDriver.getBuild(parseInt(pipeline.jobs[3]));
-
-        expect(upBuild.repo).equals('102');
-        expect(upBuild.status).equals(model.BuildStatus.RUNNING);
-
-        expect(downBuild1.repo).equals('104');
-        expect(downBuild1.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild2.repo).equals('105');
-        expect(downBuild2.status).equals(model.BuildStatus.IDLE);
-        expect(downBuild3.repo).equals('106');
-        expect(downBuild3.status).equals(model.BuildStatus.IDLE);
+        await checkBuildsStatus(pipeline.jobs,[['102', R], ['104', I], ['105', I], ['106', I]]);
 
         done();
     });
+
+    it('requesting a second build',  async function(done) {
+
+        // first pipeline is requested and starts running
+        let firstPipeline = await appDriver.requestBuild('102', 'HEAD');
+
+        expect(firstPipeline.dependencies).deep.equal([DEPENDENCIES[2], DEPENDENCIES[3], DEPENDENCIES[5], DEPENDENCIES[6]]);
+        expect(firstPipeline.jobs.length).equals(4);
+
+        let upBuild = await appDriver.getBuild(parseInt(firstPipeline.jobs[0]));
+        await appDriver.updateBuildStatus(upBuild._id, model.BuildStatus.RUNNING);
+
+        await checkBuildsStatus(firstPipeline.jobs,[['102', R], ['104', I], ['105', I], ['106', I]]);
+
+        // requesting a second pipeline
+        let secondPipeline = await appDriver.requestBuild('101', 'HEAD');
+
+        expect(secondPipeline).not.equals(firstPipeline);
+        expect(secondPipeline.dependencies).deep.equal(DEPENDENCIES);
+        expect(secondPipeline.jobs.length).equals(6);
+
+        await checkBuildsStatus(secondPipeline.jobs,[['101', Q], ['102', I], ['103', I], ['104', I], ['105', I], ['106', I]]);
+
+        // check active pipelines return correctly
+        let activePipelines = await appDriver.getActivePipelines();
+        expect(activePipelines[0]).deep.equals(firstPipeline);
+        expect(activePipelines[1]).deep.equals(secondPipeline);
+
+        done();
+    });
+
 
 });
 
