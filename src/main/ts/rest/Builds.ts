@@ -102,7 +102,7 @@ export class Builds {
     }
 
     @RequestMapping('POST', '/update_build_status', ['userId'])
-    @Middleware([auth.privateApiAuth, statusUpdateInfoValidator])
+    @Middleware(statusUpdateInfoValidator)
     updateBuildStatus(userId : string, updateInfo : StatusUpdateInfo) : Promise<model.BuildSchema> {
         return this.buildResultController.updateBuildStatus(userId, updateInfo.buildId, updateInfo.status);
     }

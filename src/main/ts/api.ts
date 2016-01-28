@@ -59,6 +59,14 @@ export module api {
             let userId = req.get(auth.Headers.USER_ID);
             let userToken = req.get(auth.Headers.USER_TOKEN);
             let githubToken = req.get(auth.Headers.GITHUB_TOKEN);
+            let privateApiSecret = req.get(auth.Headers.PRIVATE_API_SECRET);
+
+            req.query.userId = userId; // for further usage as query parameter
+
+            if(privateApiSecret == config.privateApiSecret) {
+                next();
+                return;
+            }
 
             let onSuccess = (credentials : model.UserCredentialsSchema) => {
                 res.set(auth.Headers.USER_ID, credentials.userId);
@@ -68,8 +76,6 @@ export module api {
             };
 
             let onError = (error) => res.sendStatus(401);
-
-            req.query.userId = userId; // for further usage as query parameter
 
             this.auth.authenticate(userId, userToken, githubToken, onError, onSuccess);
         }
