@@ -13,8 +13,6 @@ describe('PipelineGraph', () => {
     const upRepo = 'org/upRepo';
     const downRepo = 'org/downRepo';
 
-    //TODO: remove any in 'data' and use Object.assign() in all the tests for static type check
-
     it('should throw an error when there are circular dependencies',  () => {
         let data  = {
             jobs: [Object.assign(model.newBuildSchema(), {_id : '1', repo: upRepo, status: model.BuildStatus.IDLE}),

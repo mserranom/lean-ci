@@ -57,7 +57,6 @@ export class BuildRequestController {
         let repositoryExists = repo != null && repo != undefined;
         if(!repositoryExists) {
             throw new Error('repository ' + repository.name + ' does not exist');
-            //TODO: how to make async functions fail with async/await, so they  look like a rejected promise ??
         }
     }
 

@@ -129,7 +129,7 @@ export module github {
 
                     let url = res.download_url;
 
-                    // TODO: download actual content of the file
+                    // should download actual content of the file. not implementend yet
                     d.resolve(url);
                 }
             });

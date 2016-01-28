@@ -6,45 +6,33 @@ M
 
 [ ] fix _ids, saving returning an object and number/string issues
 
-[ ] npm shrinkwrap
-
-[ ] Consolidate names with Controller, BuildQueue, ...
-
 [ ] dependency_graphs should return Repository objects, not just repository names
-
-[ ] repository.tingodbConnect(TINGODB_PATH, (err,db) as Promise and update tests with async
 
 [ ] fix Promise return types on interfaces (when/if TS allows that)
 
-[ ] review TO DOs and create items in this list
+[ ] include d.ts file for chai-things
 
-[ ] make sure non-connected graphs are allowed for dependency graphs, but not for pipelines
 
-[ ] dates in Build entity are probably not real now, since we have idle state. Should be fixed
-
-[ ] run app using sourcemap, while keeping the debug on IntelliJ
-
-[ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
 L
 ==
 
-[ ] test retrieving pipelines using PipelineController
+[ ] deleting a repo breaks the dependency graph
 
-[ ] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts
+[ ] github doesn't download the actual content of the buildfile, only the mock is implemented
 
-[ ] clearly separate Schemas from other data objects
-
-[ ] remove POST build endpoint, builds should start with a build request entry, a push, manual start or similar, and be managed by the pipeline
+[ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
 
 [ ] automate the send of 500 instead of a try/catch block in REST endpoints
 
-[ ] make DependencyGraph and PipelineGraph immutables
-
-[ ] unit test DependencyGraph.updateDependencies()
 
 XL
 ==
 
+[ ] include exact commit information in builds inside a pipeline, not allowing HEAD
+
+[ ] allow an option to run 2 build requests in one pipeline when sequential, and the 2nd not started yet
+
+[ ] replace Mongo with SQL
 
 
 NICE TO HAVE
@@ -52,13 +40,25 @@ NICE TO HAVE
 
 [ ] replace logs with proper tool - winston?
 
-[ ] remove hardcoded properties, such as using objects defining the fields that are relevant in a query
+[ ] make DependencyGraph and PipelineGraph immutables
+
+[ ] unit test DependencyGraph.updateDependencies()
 
 
 
 DONE
 ====
 
+[x] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts
+[x] clearly separate Schemas from other data objects
+[x] remove POST build endpoint, builds should start with a build request entry, a push, manual start or similar, and be managed by the pipeline
+[x] repository.tingodbConnect(TINGODB_PATH, (err,db) as Promise and update tests with async
+[x] npm shrinkwrap
+[x] Consolidate names with Controller, BuildQueue, ...
+[x] review TO DOs and create items in this list
+[x] make sure non-connected graphs are allowed for dependency graphs, but not for pipelines
+[x] dates in Build entity are probably not real now, since we have idle state. Should be fixed
+[x] run app using sourcemap, while keeping the debug on IntelliJ
 [x] migrate to ES6 straight export from TS, no babel
 [x] migrate TSC 1.7
 [x] adding repository to the pipeline should test the /pipelines endpoint

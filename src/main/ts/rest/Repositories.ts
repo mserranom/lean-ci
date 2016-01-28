@@ -49,7 +49,6 @@ export class Repositories {
     @RequestMapping('DELETE', '/repositories/:id', ['userId'])
     deleteRepository(id:string, userId : string) : Q.Promise<void> {
         return this.repositories.removeQ({userId : userId, _id : id});
-        //TODO: handle dependency graph
     }
 
     @RequestMapping('POST', '/repositories', ['userId'])

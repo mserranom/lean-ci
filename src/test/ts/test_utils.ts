@@ -27,7 +27,6 @@ export function setupChai() {
     var chaiAsPromised = require('chai-as-promised');
     chai.use(chaiAsPromised);
 
-    //TODO: include d.ts file
     var chaiThings = require('chai-things');
     chai.use(chaiThings);
 }
