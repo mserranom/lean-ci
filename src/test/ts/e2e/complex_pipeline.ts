@@ -45,13 +45,23 @@ describe('complex pipeline:', () => {
     const Q = model.BuildStatus.QUEUED;
     const I = model.BuildStatus.IDLE;
     const R = model.BuildStatus.RUNNING;
+    const S = model.BuildStatus.SUCCESS;
+    const F = model.BuildStatus.FAILED;
+    const SK = model.BuildStatus.SKIPPED;
 
     async function checkBuildsStatus(buildIds : Array<string>, statuses : Array<Array<any>>) {
         expect(buildIds.length).equals(statuses.length);
 
+        let builds = [];
+
         for(var i = 0; i < statuses.length; i++) {
             let jobId : string = buildIds[i];
             let build = await appDriver.getBuild(parseInt(jobId));
+            builds.push(build);
+        }
+
+        for(var i = 0; i < builds.length; i++) {
+            let build = builds[i];
             let expectedRepo = statuses[i][0];
             let expectedStatus = statuses[i][1];
             expect(build.repo).equals(expectedRepo);
@@ -183,6 +193,123 @@ describe('complex pipeline:', () => {
         let activePipelines = await appDriver.getActivePipelines();
         expect(activePipelines[0]).deep.equals(secondPipeline);
         expect(activePipelines[1]).deep.equals(firstPipeline);
+
+        done();
+    });
+
+    it('successful completion of the pipeline',  async function(done) {
+
+        let pipeline = await appDriver.requestBuild('101', 'HEAD');
+
+        let backgroundPipeline1 = await appDriver.requestBuild('102', 'HEAD');
+        let backgroundPipeline2 = await appDriver.requestBuild('105', 'HEAD');
+
+        await checkBuildsStatus(pipeline.jobs,[['101', Q], ['102', I], ['103', I], ['104', I], ['105', I], ['106', I]]);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[0]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', Q], ['103', Q], ['104', I], ['105', I], ['106', I]]);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[1]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', Q], ['104', Q], ['105', I], ['106', I]]);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[2], model.BuildStatus.RUNNING);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', R], ['104', Q], ['105', I], ['106', I]]);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[2], model.BuildStatus.SUCCESS);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', Q], ['105', Q], ['106', I]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[3]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', S], ['105', Q], ['106', I]]);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[4], model.BuildStatus.RUNNING);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', S], ['105', R], ['106', I]]);
+
+
+        //background activity in the middle
+        await appDriver.startAndSucceedBuild(backgroundPipeline2.jobs[0]);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[4], model.BuildStatus.SUCCESS);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', S], ['105', S], ['106', Q]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[5], model.BuildStatus.RUNNING);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', S], ['105', S], ['106', R]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[5], model.BuildStatus.SUCCESS);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', S], ['104', S], ['105', S], ['106', S]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.SUCCESS);
+
+
+        //now checking the status of the other pipelines, shouldn't have changed
+
+        backgroundPipeline1 = await appDriver.getPipeline(parseInt(backgroundPipeline1._id));
+        expect(backgroundPipeline1.status).equals(model.PipelineStatus.RUNNING);
+        await checkBuildsStatus(backgroundPipeline1.jobs,[['102', Q], ['104', I], ['105', I], ['106', I]]);
+
+        backgroundPipeline2 = await appDriver.getPipeline(parseInt(backgroundPipeline2._id));
+        expect(backgroundPipeline2.status).equals(model.PipelineStatus.RUNNING);
+        await checkBuildsStatus(backgroundPipeline2.jobs,[['105', S], ['106', Q]]);
+
+        done();
+    });
+
+    it('failing build, while continuing remaining builds that are not blocked by failing ones',  async function(done) {
+
+        let pipeline = await appDriver.requestBuild('101', 'HEAD');
+
+        let backgroundPipeline1 = await appDriver.requestBuild('102', 'HEAD');
+        let backgroundPipeline2 = await appDriver.requestBuild('105', 'HEAD');
+
+        await checkBuildsStatus(pipeline.jobs,[['101', Q], ['102', I], ['103', I], ['104', I], ['105', I], ['106', I]]);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[0]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', Q], ['103', Q], ['104', I], ['105', I], ['106', I]]);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[1]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', Q], ['104', Q], ['105', I], ['106', I]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[2], model.BuildStatus.RUNNING);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', R], ['104', Q], ['105', I], ['106', I]]);
+
+        await appDriver.updateBuildStatus(pipeline.jobs[2], model.BuildStatus.FAILED);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', F], ['104', Q], ['105', I], ['106', I]]);
+
+        //background activity in the middle
+        await appDriver.startAndSucceedBuild(backgroundPipeline2.jobs[0]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
+
+        await appDriver.startAndSucceedBuild(pipeline.jobs[3]);
+        await checkBuildsStatus(pipeline.jobs,[['101', S], ['102', S], ['103', F], ['104', S], ['105', SK], ['106', SK]]);
+
+        pipeline = await appDriver.getPipeline(parseInt(pipeline._id));
+        expect(pipeline.status).equals(model.PipelineStatus.FAILED);
+
+
+
+        //now checking the status of the other pipelines, shouldn't have changed
+
+        backgroundPipeline1 = await appDriver.getPipeline(parseInt(backgroundPipeline1._id));
+        expect(backgroundPipeline1.status).equals(model.PipelineStatus.RUNNING);
+        await checkBuildsStatus(backgroundPipeline1.jobs,[['102', Q], ['104', I], ['105', I], ['106', I]]);
+
+        backgroundPipeline2 = await appDriver.getPipeline(parseInt(backgroundPipeline2._id));
+        expect(backgroundPipeline2.status).equals(model.PipelineStatus.RUNNING);
+        await checkBuildsStatus(backgroundPipeline2.jobs,[['105', S], ['106', Q]]);
 
         done();
     });

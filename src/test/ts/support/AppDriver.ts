@@ -72,6 +72,16 @@ export class AppDriver {
 
     async updateBuildStatus(buildId : string, status : model.BuildStatus) : Promise<void> {
         await doPost('/update_build_status', {buildId : buildId, status : status});
+        let build = await this.getBuild(parseInt(buildId));
+        expect(build.status).equals(status);
+    }
+
+    async startAndSucceedBuild(buildId : string) : Promise<void> {
+        let build = await this.getBuild(parseInt(buildId));
+        expect(build.status).equals(model.BuildStatus.QUEUED);
+
+        await this.updateBuildStatus(buildId, model.BuildStatus.RUNNING);
+        await this.updateBuildStatus(buildId, model.BuildStatus.SUCCESS);
     }
 
     async debugUpdatePipelineAsFinishedSuccesfully(id : string) : Promise<void> {
