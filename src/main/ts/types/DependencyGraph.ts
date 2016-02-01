@@ -26,7 +26,7 @@ export class DependencyGraph {
             dependencyGraph._repos.push(repo);
         }
 
-        dependencyGraph._dependencies = data.dependencies;
+        dependencyGraph._dependencies = data.dependencies.concat();
 
         return dependencyGraph;
     }
@@ -50,6 +50,15 @@ export class DependencyGraph {
         dependencies.forEach(dep => this._graph.setEdge(dep, repo.name));
 
         this._dependencies = dependencies.map(dep => {return {up : dep, down : repo.name} }) ;
+    }
+
+    removeRepo(name : string) : void {
+
+        if(this.hasRepo(name)) {
+            this._repos = this._repos.filter(repo => repo.name != name);
+            this._graph.removeNode(name);
+            this._dependencies = this._graph.edges().map(edge => {return {up : edge.v, down : edge.w}});
+        }
     }
 
     private hasRepo(name : string) : boolean {

@@ -314,6 +314,28 @@ describe('complex pipeline:', () => {
         done();
     });
 
+    it('deletion of a repository',  async function(done) {
+
+        await appDriver.deleteRepository('105');
+
+        let dependencyGraph =  await appDriver.getDependencyGraph();
+
+        let expectedDependencies = [  { up: '101', down: '102' },
+            { up: '101', down: '103' },
+            { up: '102', down: '104' },
+            { up: '104', down: '106' } ];
+
+        let expectedGraph  = {
+            _id: dependencyGraph._id,
+            userId: USER_ID,
+            repos: [ '101', '102', '103', '104', '106' ],
+            dependencies: expectedDependencies};
+
+        expect(dependencyGraph).deep.equal(expectedGraph);
+
+        done();
+    });
+
 
 });
 

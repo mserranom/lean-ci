@@ -58,9 +58,7 @@ describe('integration tests:', () => {
             let repositories : Array<model.RepositorySchema> = await doGet('/repositories');
             expect(repositories.length).equals(1);
 
-            let id = repositories[0]['_id'];
-
-            await doDel('/repositories/' + id);
+            await doDel('/repositories', {name : 'organisation/repo1'});
 
             repositories = await doGet('/repositories');
 

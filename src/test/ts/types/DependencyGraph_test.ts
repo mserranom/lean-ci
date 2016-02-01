@@ -114,6 +114,17 @@ describe('DependencyGraph', () => {
             expect(newGraph.getRepos()).deep.equal([testRepo4]);
         });
 
+        it('should update the graph when removing a node', () => {
+            let data = createDependencyGraphSchema();
+            let graph = DependencyGraph.fromSchemas(data.graphSchema, data.repos);
+            graph.removeRepo(testRepo2.name);
+            expect(graph.getRepos()).deep.equal([testRepo1, testRepo3, testRepo4, testRepo5, unconnectedRepo]);
+            expect(graph.getDependencies()).deep.equal([
+                {up : testRepo1.name, down: testRepo3.name },
+                {up : testRepo3.name, down: testRepo4.name },
+                {up : testRepo3.name, down: testRepo5.name }]);
+        });
+
     });
 
 

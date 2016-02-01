@@ -18,8 +18,6 @@ M
 L
 ==
 
-[ ] deleting a repo breaks the dependency graph
-
 [ ] github doesn't download the actual content of the buildfile, only the mock is implemented
 
 [ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
@@ -53,6 +51,7 @@ NICE TO HAVE
 DONE
 ====
 
+[x] deleting a repo breaks the dependency graph
 [x] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts
 [x] clearly separate Schemas from other data objects
 [x] remove POST build endpoint, builds should start with a build request entry, a push, manual start or similar, and be managed by the pipeline

@@ -14,8 +14,8 @@ export function doPost(endpoint, data) : Q.Promise<any> {
     return request(endpoint, 'post', data);
 }
 
-export function doDel(endpoint) : Q.Promise<any> {
-    return request(endpoint, 'del', null);
+export function doDel(endpoint, data) : Q.Promise<any> {
+    return request(endpoint, 'del', data);
 }
 
 function request(endpoint, method, data) : Q.Promise<any> {

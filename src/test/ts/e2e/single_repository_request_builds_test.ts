@@ -130,6 +130,20 @@ describe('addition of a single repository and request of new builds:', () => {
         done();
     });
 
+    it('deleting a repo would keep an empty dependency graph',  async function(done) {
+
+        await createRepository();
+
+        await appDriver.deleteRepository(testRepo);
+
+        let dependencyGraph =  await appDriver.getDependencyGraph();
+
+        expect(dependencyGraph.dependencies).deep.equal([]);
+        expect(dependencyGraph.repos).deep.equal([]);
+
+        done();
+    });
+
 });
 
 

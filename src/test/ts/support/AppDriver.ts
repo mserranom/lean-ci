@@ -30,6 +30,15 @@ export class AppDriver {
         return newRepos;
     }
 
+    async deleteRepository(name : string) : Promise<void> {
+
+        await doDel('/repositories', {name : name});
+
+        let allRepos : Array<model.RepositorySchema> =  await doGet('/repositories');
+
+        expect(allRepos.some(repo => repo.name == name)).to.be.false;
+    }
+
     async getDependencyGraph() : Promise<model.DependencyGraphSchema> {
         let graphs : Array<model.DependencyGraphSchema> = await doGet('/dependency_graphs');
         expect(graphs.length).equals(1);

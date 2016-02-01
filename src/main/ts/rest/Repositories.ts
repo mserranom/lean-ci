@@ -46,9 +46,26 @@ export class Repositories {
         return this.repositories.fetchFirstQ({userId : userId, _id : id});
     }
 
-    @RequestMapping('DELETE', '/repositories/:id', ['userId'])
-    deleteRepository(id:string, userId : string) : Q.Promise<void> {
-        return this.repositories.removeQ({userId : userId, _id : id});
+    @RequestMapping('DELETE', '/repositories', ['userId'])
+    async deleteRepository(userId : string, repoSchema : model.RepositorySchema) : Promise<void> {
+
+        let repos = await this.repositories.fetchQ({userId : userId}, 1, Number.MAX_SAFE_INTEGER);
+
+        if(!repos.some(repo => repo.name == repoSchema.name)) {
+            return;
+        }
+
+        let graphSchema = await this.dependencyGraphs.fetchFirstQ({userId : userId});
+        let graph = DependencyGraph.fromSchemas(graphSchema, this.createRepoMapFromArray(repos));
+
+        graph.removeRepo(repoSchema.name);
+
+        await Promise.all([
+            this.dependencyGraphs.updateQ({_id : graphSchema._id},
+                                            graph.createDependencySchema(userId, graphSchema._id)),
+            this.repositories.removeQ({userId : userId, name : repoSchema.name})
+        ]);
+
     }
 
     @RequestMapping('POST', '/repositories', ['userId'])

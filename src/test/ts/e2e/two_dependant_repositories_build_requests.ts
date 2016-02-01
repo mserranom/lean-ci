@@ -197,6 +197,18 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         done();
     });
 
+    it('deleting the upstream repo would keep a single repo dependency graph',  async function(done) {
+
+        await appDriver.deleteRepository(upRepo);
+
+        let dependencyGraph =  await appDriver.getDependencyGraph();
+
+        expect(dependencyGraph.dependencies).deep.equal([]);
+        expect(dependencyGraph.repos).deep.equal([downRepo]);
+
+        done();
+    });
+
 });
 
 
