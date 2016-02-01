@@ -24,7 +24,8 @@ var fs = require('fs-extra');
 const TINGODB_LOCATION = 'dist/tingodb_data';
 
 export interface BootstrapArguments {
-    local : boolean;
+    mockDB : boolean;
+    mockGit : boolean;
 }
 
 export class App {
@@ -43,10 +44,12 @@ export class App {
         this.setupRepositories(db);
         this.setupRestServices();
 
-        if(this.args.local) {
+        if(this.args.mockGit) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
+            this.container.add(new github.GitServiceMock(), 'githubApi');
         } else {
             this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
+            this.container.add(new github.GithubAPI(), 'githubApi');
         }
 
         this.container.add(new PersistedBuildQueue(), 'buildQueue');
@@ -58,12 +61,6 @@ export class App {
         this.container.add(new BuildResultController(), 'buildResultController');
 
         this.container.add(new api.ExpressServer(), 'expressServer');
-
-        if(this.args.local) {
-            this.container.add(new github.GitServiceMock(), 'githubApi');
-        } else {
-            this.container.add(new github.GithubAPI(), 'githubApi');
-        }
 
         this.container.init();
     }
@@ -118,7 +115,7 @@ export function start(bootstrapArgs : BootstrapArguments, callback?: (app : App,
         }
     };
 
-    if(bootstrapArgs.local) {
+    if(bootstrapArgs.mockDB) {
         fs.mkdirsSync(TINGODB_LOCATION);
         repository.tingodbConnect(TINGODB_LOCATION, onDBConnect);
     } else {

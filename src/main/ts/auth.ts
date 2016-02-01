@@ -44,7 +44,7 @@ export module auth {
         repo : repository.DocumentRepository<model.UserCredentialsSchema>;
 
         @Inject('githubApi')
-        github : github.GithubAPI;
+        github : github.GitService;
 
         authenticate(userId:string, userToken : string, githubToken : string,
                      onError:(string) => void,
@@ -68,7 +68,7 @@ export module auth {
     class Authenticator {
 
         private _repo : repository.DocumentRepository<model.UserCredentialsSchema>;
-        private _github : github.GithubAPI;
+        private _github : github.GitService;
 
         private _userId : string;
         private _userToken : string;
@@ -78,7 +78,7 @@ export module auth {
 
         private _newCredentials : model.UserCredentialsSchema;
 
-        constructor(repo : repository.DocumentRepository<model.UserCredentialsSchema>, github : github.GithubAPI) {
+        constructor(repo : repository.DocumentRepository<model.UserCredentialsSchema>, github : github.GitService) {
             this._repo = repo;
             this._github = github;
         }

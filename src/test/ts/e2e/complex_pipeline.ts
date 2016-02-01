@@ -18,9 +18,8 @@ describe('complex pipeline:', () => {
 
     beforeEach(async function(done) {
         let args = {
-            local : true,
-            mockAgents : true,
-            mockAuth : true
+            mockDB : true,
+            mockGit : true
         };
         app = await startAsync(args);
         appDriver = new AppDriver(app.getContainer());

@@ -15,9 +15,8 @@ describe('integration tests:', () => {
 
     beforeEach( (done) => {
         let args = {
-            local : true,
-            mockAgents : true,
-            mockAuth : true
+            mockDB : true,
+            mockGit : true
         };
         app = start(args);
         setTimeout(() => done(), 10);

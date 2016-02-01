@@ -21,13 +21,7 @@ const defaultConfig = {
     httpServerPort : DEFAULT_PORT,
     privateApiSecret : 'super-secret-token',
 
-    mongodbUrl : '',
-
-    github : {
-        appClientId : '',
-        appClientSecret : '',
-        hookUrl : '',
-    }
+    mongodbUrl : ''
 };
 
 export var config = getEnvConfig() || defaultConfig;

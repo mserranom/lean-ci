@@ -17,9 +17,8 @@ describe('addition of a single repository and request of new builds:', () => {
 
     beforeEach(async function(done) {
         let args = {
-            local : true,
-            mockAgents : true,
-            mockAuth : true
+            mockDB : true,
+            mockGit : true
         };
         app = await startAsync(args);
         appDriver = new AppDriver(app.getContainer());

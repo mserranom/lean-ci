@@ -85,8 +85,8 @@ export module github {
         private _service:any;
 
         constructor() {
-            var GitHubApi:any = require("github");
-            this._service = new GitHubApi({
+            var Api : any = require("github");
+            this._service = new Api({
                 // required
                 version: "3.0.0",
                 // optional
@@ -138,7 +138,8 @@ export module github {
 
         user(id : string) : Q.Promise<any> {
             var d = Q.defer();
-            this._service.userId.get({'id' : id}, (err, res) => {
+            console.log('SERVICE ::: ' + Object.getOwnPropertyNames(this._service));
+            this._service.user.get({'id' : id}, (err, res) => {
                 if (err) {
                     let errorMessage = "github 'user' request error: " + err;
                     console.error(errorMessage);
