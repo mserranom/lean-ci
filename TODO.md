@@ -12,6 +12,8 @@ M
 
 [ ] include d.ts file for chai-things
 
+[ ] remove Q, use ES6 Promises only
+
 
 L
 ==
