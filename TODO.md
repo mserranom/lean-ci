@@ -34,6 +34,8 @@ XL
 
 [ ] replace Mongo with SQL
 
+[ ] transaction/race condition issues
+
 
 NICE TO HAVE
 ============
