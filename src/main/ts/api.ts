@@ -52,7 +52,7 @@ export module api {
             configureExpress(this._app, [this.ping, this.pipelines, this.buildRequests,
                 this.builds, this.dependencyGraphs, this.repositories]);
 
-            this._server = this._app.listen(config.defaultPort);
+            this._server = this._app.listen(config.httpServerPort);
         }
 
         authenticate(req, res, next) {
