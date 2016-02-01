@@ -14,6 +14,8 @@ M
 
 [ ] remove Q, use ES6 Promises only
 
+[ ] check DB indexes
+
 
 L
 ==
