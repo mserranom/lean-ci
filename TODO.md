@@ -4,6 +4,8 @@ TODO
 M
 ==
 
+[ ] github as singleton might break when authenticating with a different user maybe
+
 [ ] move all typings import to index
 
 [ ] fix _ids, saving returning an object and number/string issues
