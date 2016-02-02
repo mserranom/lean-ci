@@ -28,8 +28,8 @@ export class Repositories {
     @Inject('dependencyGraphsRepository')
     dependencyGraphs : repository.DocumentRepositoryQ<model.DependencyGraphSchema>;
 
-    @Inject('githubApi')
-    github : github.GitService;
+    @Inject('gitServiceFactory')
+    gitServiceFactory : github.GitServiceFactory;
 
     @RequestMapping('GET', '/repositories', ['userId', 'page', 'per_page'])
     getRepositories(userId : string, page : string, perPage : string) : Q.Promise<Array<model.RepositorySchema>> {
@@ -72,6 +72,7 @@ export class Repositories {
     @Middleware(repositoryPostValidator)
     async createRepository(userId : string, repo : NewRepositoryInfo) : Promise<void> {
         var data : model.RepositorySchema = {name : repo.name, userId : userId};
+        var gitApi = this.gitServiceFactory.getService();
 
         let existingRepo = await this.repositories.fetchFirstQ(data);
 
@@ -82,7 +83,7 @@ export class Repositories {
         let configFileContent : string;
 
         try {
-            await this.github.getRepo(repo.name);
+            await gitApi.getRepo(repo.name);
         } catch(error) {
             let msg = `couldn't retrieve repository information from github`;
             throw new Error(msg);
@@ -90,7 +91,7 @@ export class Repositories {
 
         try {
             //TODO: handle whether the file doesn't exist or it fails to be fetched
-            configFileContent = await this.github.getFile(repo.name, 'leanci.json');
+            configFileContent = await gitApi.getFile(repo.name, 'leanci.json');
         } catch(error) {
             let msg = `couldn't retrieve leanci.json file from ${repo}`;
             throw new Error(msg);

@@ -52,7 +52,7 @@ describe('addition of a new repository', () => {
     });
 
     it('POST repository should fail when repo is not validated by git service',  (done) => {
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
         gitService.failNextCall();
 
         doPost('/repositories', {name : 'organisation/nonExistingRepo'})
@@ -75,7 +75,7 @@ describe('addition of a new repository', () => {
     });
 
     it('POST a new repository with dependencies on a non-existing repo should create a new dependency graph including the dependency',  async function(done) {
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
         gitService.setMockFileContentToBeReturned(JSON.stringify({dependencies : ['organisation/other_repo']}));
 
         await doPost('/repositories', {name : testRepo});

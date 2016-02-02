@@ -37,7 +37,7 @@ describe('requesting new builds with 2 dependant repositories:', () => {
     async function createRepositories() : Promise<void> {
         await appDriver.createRepositories(upRepo);
 
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
         gitService.setMockFileContentToBeReturned(JSON.stringify({dependencies : [upRepo]}));
 
         await appDriver.createRepositories(downRepo);

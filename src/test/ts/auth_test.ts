@@ -15,7 +15,7 @@ describe('GithubAuthenticationService', () => {
     let sut : auth.GithubAuthenticationService;
 
     let repoMock : repository.DocumentRepository<model.UserCredentialsSchema>;
-    let githubMock : github.GithubAPI;
+    let githubMock : github.GitService;
 
     let createMock = function(methods : Array<string>) : any {
         let mock = {};
@@ -43,7 +43,8 @@ describe('GithubAuthenticationService', () => {
 
         sut = new auth.GithubAuthenticationService();
         sut.repo = repoMock;
-        sut.github = githubMock;
+        sut.gitServiceFactory = createMock([]);
+        sut.gitServiceFactory.getService = () => githubMock;
     });
 
     afterEach(() => {

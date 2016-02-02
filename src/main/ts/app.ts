@@ -46,10 +46,10 @@ export class App {
 
         if(this.args.mockGit) {
             this.container.add(new auth.MockAuthenticationService(), 'authenticationService');
-            this.container.add(new github.GitServiceMock(), 'githubApi');
+            this.container.add(new github.GitServiceFactoryMock(), 'gitServiceFactory');
         } else {
             this.container.add(new auth.GithubAuthenticationService(), 'authenticationService');
-            this.container.add(new github.GithubAPI(), 'githubApi');
+            this.container.add(new github.GithubServiceFactory(), 'gitServiceFactory');
         }
 
         this.container.add(new PersistedBuildQueue(), 'buildQueue');

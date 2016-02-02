@@ -73,7 +73,7 @@ describe('addition two repositories', () => {
 
         await doPost('/repositories', {name : testRepo1});
 
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
         gitService.setMockFileContentToBeReturned(JSON.stringify({dependencies : [testRepo1]}));
 
         await doPost('/repositories', {name : testRepo2});
@@ -90,7 +90,7 @@ describe('addition two repositories', () => {
 
     it('a repo is added with a dependency in a non-registered repo. When the 2nd repo is registered, the dependency should be defined',  async function(done) {
 
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
 
         gitService.setMockFileContentToBeReturned(JSON.stringify({dependencies : [testRepo1]}));
         await doPost('/repositories', {name : testRepo2});

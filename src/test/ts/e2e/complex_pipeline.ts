@@ -78,7 +78,7 @@ describe('complex pipeline:', () => {
     //       -> |103|-
     //
     async function createRepositories() : Promise<void> {
-        let gitService : github.GitServiceMock = app.getComponent('githubApi');
+        let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
 
         await appDriver.createRepositories('101');
 

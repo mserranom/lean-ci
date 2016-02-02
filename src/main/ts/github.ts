@@ -2,6 +2,26 @@
 
 export module github {
 
+    export interface GitServiceFactory {
+        getService() : GitService;
+    }
+
+    export class GitServiceFactoryMock implements GitServiceFactory{
+
+        private _service = new GitServiceMock();
+
+        getService() : GitService {
+            return this._service
+        }
+    }
+
+    export class GithubServiceFactory implements GitServiceFactory{
+
+        getService() : GitService {
+            return new GithubAPI();
+        }
+    }
+
     export interface GitService {
         authenticate(token:String);
         user(id : string) : Promise<any>;
@@ -70,7 +90,7 @@ export module github {
         }
     }
 
-    export class GithubAPI implements GitService {
+    class GithubAPI implements GitService {
 
         private _service:any;
 

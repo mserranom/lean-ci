@@ -4,8 +4,6 @@ TODO
 M
 ==
 
-[ ] github as singleton might break when authenticating with a different user maybe
-
 [ ] move all typings import to index
 
 [ ] fix _ids, saving returning an object and number/string issues
@@ -61,6 +59,7 @@ NICE TO HAVE
 DONE
 ====
 
+[x] remove issues of github as a singleton
 [x] deleting a repo breaks the dependency graph
 [x] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts
 [x] clearly separate Schemas from other data objects
