@@ -48,12 +48,7 @@ describe('MongoDBRepository', () => {
     });
 
     it('shouldnt fail when inserting elements', (done) => {
-        sut.save(new MyType(), errorHandler, (data : Array<any>) => {
-            expect(data.length).equals(1);
-            expect(data[0]._id == 2).to.be.true;
-            expect(data[0].id).equals(1);
-            done();
-        });
+        sut.save(new MyType(), errorHandler, () => done());
     });
 
     it('should allow insertion of elements and then retrieval', (done) => {

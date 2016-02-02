@@ -22,7 +22,7 @@ export module repository {
     export interface DocumentRepositoryQ<T> {
         removeAllQ() : Q.Promise<void>;
         removeQ(query : Object) : Q.Promise<void>;
-        saveQ(data : T | Array<T>) : Q.Promise<Array<T>>;
+        saveQ(data : T | Array<T>) : Q.Promise<void>;
         updateQ(query : Object, data : T) : Q.Promise<void>;
         fetchQ(query : any, page : number, perPage : number, cursorDecorator? : (any) => void) : Q.Promise<Array<T>>;
         fetchFirstQ(query : any, cursorDecorator? : (any) => void) : Q.Promise<T>;
@@ -31,7 +31,7 @@ export module repository {
     export interface DocumentRepository<T> {
         removeAll(onError: (error) => void, onResult:() => void) : void;
         remove(query : Object, onError: (error) => void, onResult:() => void) : void;
-        save(data : T | Array<T> , onError:(any) => void, onResult:(item : Array<T>) => void) : void;
+        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void;
         update(query : Object, data : T, onError:(any) => void, onResult:() => void) : void;
         fetch(query : any, page : number, perPage : number,
               onError:(any) => void, onResult:(data:Array<T>) => void, cursorDecorator? : (any) => void) : void;
@@ -72,18 +72,18 @@ export module repository {
             this.remove({}, onError, onResult)
         }
 
-        saveQ(data : T | Array<T>) : Q.Promise<Array<T>> {
-            let defer : Q.Deferred<Array<T>> = Q.defer();
-            this.save(data, (error) => defer.reject(error), (data) => defer.resolve(data));
+        saveQ(data : T | Array<T>) : Q.Promise<void> {
+            let defer : Q.Deferred<void> = Q.defer();
+            this.save(data, (error) => defer.reject(error), () => defer.resolve());
             return defer.promise;
         }
 
-        save(data : T | Array<T> , onError:(any) => void, onResult:(insertedData : Array<T>) => void) : void {
+        save(data : T | Array<T> , onError:(any) => void, onResult:() => void) : void {
             this._collection.insert(data, (err,res) => {
                 if(err) {
                     onError(err);
                 } else {
-                    onResult(res);
+                    onResult();
                 }
             });
         }

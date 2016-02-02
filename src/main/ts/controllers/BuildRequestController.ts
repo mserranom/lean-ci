@@ -47,9 +47,9 @@ export class BuildRequestController {
         let pipeline = PipelineGraph.fromSchemas(subGraph.getDependencies(), jobs);
 
         let schema = pipeline.createPipelineSchema(userId);
-        let addedPipeline = await this.pipelines.saveQ(schema);
+        await this.pipelines.saveQ(schema);
 
-        return addedPipeline[0];
+        return schema;
     }
 
     private async checkRepositoryExists(repository : model.RepositorySchema) : Promise<void> {
@@ -85,9 +85,9 @@ export class BuildRequestController {
                 }
             });
 
-        let insertedBuilds = await this.buildsRepository.saveQ(builds);
+        await this.buildsRepository.saveQ(builds);
 
-        return insertedBuilds;
+        return builds;
     }
 
     private createNewBuild(userId : string, repo : string, commit : string) : model.BuildSchema {
