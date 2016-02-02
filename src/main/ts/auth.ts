@@ -124,7 +124,7 @@ export module auth {
             let onSuccess = (userData) => this.onGithubCredentialsSuccess(userData);
 
             this._github.authenticate(this._githubToken);
-            this._github.user(this._userId).then(onSuccess).fail(onError);
+            this._github.user(this._userId).then(onSuccess).catch(onError);
         }
 
         private onGithubCredentialsSuccess(userData : any) {

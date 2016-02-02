@@ -81,14 +81,33 @@ export class Repositories {
 
         let configFileContent : string;
 
-        await this.github.getRepo(repo.name); //checks if repo exists in github
+        try {
+            await this.github.getRepo(repo.name);
+        } catch(error) {
+            let msg = `couldn't retrieve repository information from github`;
+            throw new Error(msg);
+        }
 
-        configFileContent = await this.github.getFile(repo.name, 'leanci.json');
+        try {
+            //TODO: handle whether the file doesn't exist or it fails to be fetched
+            configFileContent = await this.github.getFile(repo.name, 'leanci.json');
+        } catch(error) {
+            let msg = `couldn't retrieve leanci.json file from ${repo}`;
+            throw new Error(msg);
+        }
 
-        await this.saveNewRepo(data, JSON.parse(configFileContent));
+        await this.saveNewRepo(data, this.wrapBuildConfig(configFileContent));
+    }
+
+    private wrapBuildConfig(configFileContent : string) : model.BuildConfig {
+        let conf : model.BuildConfig = JSON.parse(configFileContent);
+        conf.commands = conf.commands || [];
+        conf.dependencies = conf.dependencies || [];
+        return conf;
     }
 
     private async saveNewRepo(repo : model.RepositorySchema, config : model.BuildConfig) {
+
         await this.repositories.saveQ(repo);
 
         let graphSchema = await this.dependencyGraphs.fetchFirstQ({userId : repo.userId});
@@ -112,7 +131,9 @@ export class Repositories {
 
     private createDependenciesFromConfig(repoName : string, config : model.BuildConfig) : Array<model.Dependency> {
         let dependencies : Array<model.Dependency> = [];
+
         config.dependencies.forEach((depId : string) => dependencies.push({up : depId, down : repoName}));
+
         return dependencies;
     }
 

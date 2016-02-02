@@ -4,6 +4,8 @@ TODO
 M
 ==
 
+[ ] move all typings import to index
+
 [ ] fix _ids, saving returning an object and number/string issues
 
 [ ] dependency_graphs should return Repository objects, not just repository names
@@ -20,6 +22,8 @@ M
 L
 ==
 
+[ ] Errors on github are not properly managed, should have specific errors logged in the endpoint
+
 [ ] github doesn't download the actual content of the buildfile, only the mock is implemented
 
 [ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
@@ -29,6 +33,8 @@ L
 
 XL
 ==
+
+[ ] dependency graph should be updated when a build is requested, before scheduling builds
 
 [ ] include exact commit information in builds inside a pipeline, not allowing HEAD
 
