@@ -30,9 +30,13 @@ L
 
 [ ] automate the send of 500 instead of a try/catch block in REST endpoints
 
+[ ] deleting a repo doesn't delete scheduled builds/pipelines
+
 
 XL
 ==
+
+[ ] solution for authenticated requests limit in github
 
 [ ] dependency graph should be updated when a build is requested, before scheduling builds
 
