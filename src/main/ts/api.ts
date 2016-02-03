@@ -62,6 +62,7 @@ export module api {
             let privateApiSecret = req.get(auth.Headers.PRIVATE_API_SECRET);
 
             req.query.userId = userId; // for further usage as query parameter
+            req.query.githubToken = githubToken;
 
             if(privateApiSecret == config.privateApiSecret) {
                 next();

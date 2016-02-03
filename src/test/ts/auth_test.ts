@@ -10,7 +10,7 @@ var Q = require('q');
 var simple = require('simple-mock');
 var expect = require('chai').expect;
 
-describe('GithubAuthenticationService', () => {
+describe('GithubAuthenticationService:', () => {
 
     let sut : auth.GithubAuthenticationService;
 
@@ -36,10 +36,12 @@ describe('GithubAuthenticationService', () => {
 
     beforeEach(() => {
         repoMock = createMock(['fetchFirst', 'update']);
+
         githubMock = createMock(['authenticate']);
 
         githubUserPromise = Q.defer();
-        githubMock.user = (id) => githubUserPromise.promise;
+        githubMock.user = simple.spy((id) => githubUserPromise.promise);
+
 
         sut = new auth.GithubAuthenticationService();
         sut.repo = repoMock;
@@ -102,16 +104,16 @@ describe('GithubAuthenticationService', () => {
             (credentials) => checkResult(credentials));
     });
 
-    it('should request github authorisation when user/password is not correct', (done) => {
+    it('should check github authorisation calling "user" endpoint when user/password is not correct', (done) => {
         simple.mock(repoMock, 'fetchFirst').callFn(firstFetchWithInvalidCredentialsMock);
 
         let checkGithubWasRequested = () => {
-            expect(githubMock.authenticate['callCount']).equals(1);
-            expect(githubMock.authenticate['lastCall'].args[0]).equals('myGithubToken');
+            expect(githubMock.user['callCount']).equals(1);
+            expect(githubMock.user['lastCall'].args[0]).equals(testCredentials.userId);
             done();
         };
 
-        sut.authenticate('', '', 'myGithubToken',
+        sut.authenticate(testCredentials.userId, '', 'myGithubToken',
             (error) => checkGithubWasRequested(),
             () => {throw 'should have failed'});
 

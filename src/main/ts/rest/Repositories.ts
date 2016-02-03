@@ -68,11 +68,11 @@ export class Repositories {
 
     }
 
-    @RequestMapping('POST', '/repositories', ['userId'])
+    @RequestMapping('POST', '/repositories', ['userId', 'githubToken'])
     @Middleware(repositoryPostValidator)
-    async createRepository(userId : string, repo : NewRepositoryInfo) : Promise<void> {
+    async createRepository(userId : string, githubToken : string, repo : NewRepositoryInfo) : Promise<void> {
         var data : model.RepositorySchema = {name : repo.name, userId : userId};
-        var gitApi = this.gitServiceFactory.getService();
+        var gitApi = this.gitServiceFactory.getService(githubToken);
 
         let existingRepo = await this.repositories.fetchFirstQ(data);
 

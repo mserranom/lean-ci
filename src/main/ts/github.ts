@@ -3,22 +3,24 @@
 export module github {
 
     export interface GitServiceFactory {
-        getService() : GitService;
+        getService(token : string) : GitService;
     }
 
     export class GitServiceFactoryMock implements GitServiceFactory{
 
         private _service = new GitServiceMock();
 
-        getService() : GitService {
+        getService(token : string) : GitService {
             return this._service
         }
     }
 
     export class GithubServiceFactory implements GitServiceFactory{
 
-        getService() : GitService {
-            return new GithubAPI();
+        getService(token : string) : GitService {
+            let api = new GithubAPI();
+            api.authenticate(token);
+            return api;
         }
     }
 

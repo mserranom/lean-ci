@@ -22,6 +22,8 @@ M
 L
 ==
 
+[ ] add libA -> libB . delete libA, add libA, the dependency relationship disapears in the dependency graph
+
 [ ] Errors on github are not properly managed, should have specific errors logged in the endpoint
 
 [ ] github doesn't download the actual content of the buildfile, only the mock is implemented

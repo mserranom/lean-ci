@@ -68,7 +68,7 @@ export module auth {
     class Authenticator {
 
         private _repo : repository.DocumentRepository<model.UserCredentialsSchema>;
-        private _github : github.GitService;
+        private _githubServiceFactory : github.GitServiceFactory;
 
         private _userId : string;
         private _userToken : string;
@@ -81,7 +81,7 @@ export module auth {
         constructor(repo : repository.DocumentRepository<model.UserCredentialsSchema>,
                     gitServiceFactory : github.GitServiceFactory) {
             this._repo = repo;
-            this._github = gitServiceFactory.getService();
+            this._githubServiceFactory = gitServiceFactory;
         }
 
         authenticate(userId:string, userToken : string, githubToken : string,
@@ -124,8 +124,8 @@ export module auth {
             let onError = (error) => { this.dispatchError('unable to reauthenticate user in github'); };
             let onSuccess = (userData) => this.onGithubCredentialsSuccess(userData);
 
-            this._github.authenticate(this._githubToken);
-            this._github.user(this._userId).then(onSuccess).catch(onError);
+            let githubApi = this._githubServiceFactory.getService(this._githubToken);
+            githubApi.user(this._userId).then(onSuccess).catch(onError);
         }
 
         private onGithubCredentialsSuccess(userData : any) {
@@ -167,7 +167,7 @@ export module auth {
 
         private dispose() {
             this._repo = null;
-            this._github = null;
+            this._githubServiceFactory = null;
             this._userId = null;
             this._userToken = null;
             this._githubToken = null;
