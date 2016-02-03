@@ -183,13 +183,25 @@ function configureObject(target : DecoratedObject) {
 
             let handler = target[endpoint.handler];
 
-            let result = handler.apply(target, args);
+            let result;
+
+            try {
+                result = handler.apply(target, args);
+            } catch(error) {
+                console.error(error); //TODO: this error handler should be configurable
+                response.status(500).send(wrapBody(error));
+                return;
+            }
+
 
             if(isPromise(result)) {
 
                 let promise : Promise<any> = result;
                 promise.then(x => response.send(x))
-                       .catch(error => response.status(500).send(error));
+                       .catch(error => {
+                           console.error(error); //TODO: this error handler should be configurable
+                           response.status(500).send(wrapBody(error));
+                       });
 
             } else if(isReadableStream(result)) {
 
@@ -236,6 +248,15 @@ function unwrapBody(body : any) : any {
     } else {
         return body;
     }
+}
+
+function wrapBody(body : any) : any {
+    try {
+        return JSON.parse(body);
+    } catch(error) { }
+
+    return { message : '' + body};
+
 }
 
 

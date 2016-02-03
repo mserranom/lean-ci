@@ -47,7 +47,7 @@ function request(endpoint, method, data) : Q.Promise<any> {
         if (error) {
             defer.reject(error);
         } else if (response.statusCode != 200) {
-            defer.reject('server status code: ' + response.statusCode);
+            defer.reject(body);
         } else if (body){
             try {
                 defer.resolve(JSON.parse(body));

@@ -32,11 +32,16 @@ export module github {
 
     export class GitServiceMock implements GitService {
 
+        private _failGetRepoCall : boolean = false;
         private _failNextCall : boolean = false;
         private _mockFileContent : string = JSON.stringify({dependencies:[]});
 
         failNextCall() {
             this._failNextCall = true
+        }
+
+        failGetRepoCall(shouldFail : boolean) {
+            this._failGetRepoCall = shouldFail
         }
 
         authenticate(githubToken:String) { }
@@ -69,8 +74,8 @@ export module github {
 
         getRepo(name : string) : Promise<any> {
             return new Promise((resolve, reject) => {
-                if(this._failNextCall) {
-                    setTimeout(() => reject('{message:"repo cannot be resolved", errors:[]}'), 1);
+                if(this._failNextCall || this._failGetRepoCall) {
+                    setTimeout(() => reject('github getRepo error'), 1);
                     this._failNextCall = false
                 } else {
                     process.nextTick(() => resolve({name : name}));
@@ -171,6 +176,7 @@ export module github {
                         console.error(errorMessage);
                         reject({message: errorMessage});
                     } else {
+                        // TODO: review error messages in github and consider this a rejection if it's the case
                         console.info("github 'user' request result: " + JSON.stringify(res));
                         resolve(res);
                     }

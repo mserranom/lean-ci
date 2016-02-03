@@ -56,7 +56,7 @@ describe('addition of a new repository', () => {
         gitService.failNextCall();
 
         doPost('/repositories', {name : 'organisation/nonExistingRepo'})
-            .should.eventually.be.rejectedWith('server status code: 500')
+            .should.eventually.be.rejectedWith('{"message":"Error: github getRepo error"}')
             .and.notify(done);
     });
 

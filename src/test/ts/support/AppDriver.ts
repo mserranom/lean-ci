@@ -15,6 +15,10 @@ export class AppDriver {
         this._app = app;
     }
 
+    async createRepository(name : string) : Promise<any> {
+        return await doPost('/repositories', {name : name});
+    }
+
     async createRepositories(...names : string[]) : Promise<Array<model.RepositorySchema>> {
 
         for(let i = 0; i < names.length; i++) {

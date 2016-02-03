@@ -2,6 +2,7 @@
 
 import {startAsync, cleanup, App} from '../../../../src/main/ts/app';
 import {model} from '../../../../src/main/ts/model';
+import {github} from '../../../../src/main/ts/github';
 import {AppDriver} from '../support/AppDriver';
 
 import {setupChai} from '../test_utils'
@@ -22,7 +23,6 @@ describe('addition of a single repository and request of new builds:', () => {
         };
         app = await startAsync(args);
         appDriver = new AppDriver(app.getContainer());
-        await createRepository();
         done();
     });
 
@@ -33,6 +33,10 @@ describe('addition of a single repository and request of new builds:', () => {
 
     async function createRepository() : Promise<void> {
         await appDriver.createRepositories(testRepo);
+    }
+
+    function getGitServiceMock() : github.GitServiceMock {
+        return app.getComponent('gitServiceFactory').getService();
     }
 
     it('requesting a build request should create a new pipeline and a new job',  async function(done) {
@@ -141,6 +145,25 @@ describe('addition of a single repository and request of new builds:', () => {
         expect(dependencyGraph.repos).deep.equal([]);
 
         done();
+    });
+
+
+    describe('error scenarios:', () => {
+
+        it('should fail with 502 when github doesnt respond',  async function(done) {
+
+            getGitServiceMock().failGetRepoCall(true);
+
+            try {
+                await appDriver.createRepository(testRepo);
+            } catch(error) {
+                expect(JSON.parse(error)).deep.equal({message:"Error: github getRepo error"});
+                done();
+            }
+
+            expect(true).to.be.false;
+        });
+
     });
 
 });

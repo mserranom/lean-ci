@@ -85,8 +85,7 @@ export class Repositories {
         try {
             await gitApi.getRepo(repo.name);
         } catch(error) {
-            let msg = `couldn't retrieve repository information from github`;
-            throw new Error(msg);
+            throw new Error(error);
         }
 
         try {
