@@ -56,14 +56,15 @@ export class Repositories {
         }
 
         let graphSchema = await this.dependencyGraphs.fetchFirstQ({userId : userId});
-        let graph = DependencyGraph.fromSchemas(graphSchema, this.createRepoMapFromArray(repos));
 
-        graph.removeRepo(repoSchema.name);
+        graphSchema.dependencies = graphSchema.dependencies
+                .filter(dependency => dependency.down != repoSchema.name);
+
+        graphSchema.repos = graphSchema.repos.filter(repo => repo != repoSchema.name);
 
         await Promise.all([
-            this.dependencyGraphs.updateQ({_id : graphSchema._id},
-                                            graph.createDependencySchema(userId, graphSchema._id)),
-            this.repositories.removeQ({userId : userId, name : repoSchema.name})
+            this.repositories.removeQ({userId : userId, name : repoSchema.name}),
+            this.dependencyGraphs.updateQ({_id : graphSchema._id}, graphSchema)
         ]);
 
     }

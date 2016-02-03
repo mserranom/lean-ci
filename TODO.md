@@ -22,8 +22,6 @@ M
 L
 ==
 
-[ ] add libA -> libB . delete libA, add libA, the dependency relationship disapears in the dependency graph
-
 [ ] Errors on github are not properly managed, should have specific errors logged in the endpoint
 
 [ ] github doesn't download the actual content of the buildfile, only the mock is implemented
@@ -65,6 +63,7 @@ NICE TO HAVE
 DONE
 ====
 
+[x] add libA -> libB . delete libA, add libA, the dependency relationship disapears in the dependency graph
 [x] remove issues of github as a singleton
 [x] deleting a repo breaks the dependency graph
 [x] create complex scenario for testing dependency graphs, extending addition_two_repositories.ts

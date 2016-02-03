@@ -121,8 +121,8 @@ describe('complex pipeline:', () => {
         expect(build.userId).equals(USER_ID);
 
         expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
-        expect(pipeline.jobs).deep.equals([ '' + build._id ]);
-        expect(pipeline.dependencies).deep.equals([]);
+        expect(pipeline.jobs).deep.equal([ '' + build._id ]);
+        expect(pipeline.dependencies).deep.equal([]);
 
         done();
     });
@@ -190,8 +190,8 @@ describe('complex pipeline:', () => {
 
         // check active pipelines return correctly
         let activePipelines = await appDriver.getActivePipelines();
-        expect(activePipelines[0]).deep.equals(secondPipeline);
-        expect(activePipelines[1]).deep.equals(firstPipeline);
+        expect(activePipelines[0]).deep.equal(secondPipeline);
+        expect(activePipelines[1]).deep.equal(firstPipeline);
 
         done();
     });
@@ -319,10 +319,12 @@ describe('complex pipeline:', () => {
 
         let dependencyGraph =  await appDriver.getDependencyGraph();
 
-        let expectedDependencies = [  { up: '101', down: '102' },
+        let expectedDependencies = [
+            { up: '101', down: '102' },
             { up: '101', down: '103' },
             { up: '102', down: '104' },
-            { up: '104', down: '106' } ];
+            { up: '104', down: '106' },
+            { up: '105', down: '106' } ];
 
         let expectedGraph  = {
             _id: dependencyGraph._id,

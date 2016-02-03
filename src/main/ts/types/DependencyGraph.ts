@@ -52,6 +52,7 @@ export class DependencyGraph {
         this._dependencies = dependencies.map(dep => {return {up : dep, down : repo.name} }) ;
     }
 
+    // TODO: probably not needed
     removeRepo(name : string) : void {
 
         if(this.hasRepo(name)) {

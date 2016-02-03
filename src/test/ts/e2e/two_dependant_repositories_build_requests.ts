@@ -83,8 +83,8 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         expect(build.userId).equals(USER_ID);
 
         expect(pipeline.status).equals(model.PipelineStatus.RUNNING);
-        expect(pipeline.jobs).deep.equals([ '' + build._id ]);
-        expect(pipeline.dependencies).deep.equals([]);
+        expect(pipeline.jobs).deep.equal([ '' + build._id ]);
+        expect(pipeline.dependencies).deep.equal([]);
 
         done();
     });
@@ -196,16 +196,35 @@ describe('requesting new builds with 2 dependant repositories:', () => {
         done();
     });
 
-    it('deleting the upstream repo would keep a single repo dependency graph',  async function(done) {
+    it('deleting the upstream repo would keep a single repo dependency graph, but with existing dependency information',  async function(done) {
 
         await appDriver.deleteRepository(upRepo);
 
         let dependencyGraph =  await appDriver.getDependencyGraph();
 
-        expect(dependencyGraph.dependencies).deep.equal([]);
+        expect(dependencyGraph.dependencies).deep.equal([{up : upRepo, down : downRepo}]);
         expect(dependencyGraph.repos).deep.equal([downRepo]);
 
         done();
+    });
+
+
+    describe('regression tests:', () => {
+
+        it('dependency dissapears in the graph after adding, deleting, re-adding the upstream build', async function(done) {
+            await appDriver.deleteRepository(upRepo);
+
+            let gitService : github.GitServiceMock = app.getComponent('gitServiceFactory').getService();
+            gitService.setMockFileContentToBeReturned(JSON.stringify({dependencies : []}));
+
+            await appDriver.createRepositories(upRepo);
+
+            let dependencyGraph = await appDriver.getDependencyGraph();
+            expect(dependencyGraph.dependencies).deep.equal([{ up: upRepo, down: downRepo }]);
+
+            done();
+        })
+
     });
 
 });
