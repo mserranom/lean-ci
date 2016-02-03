@@ -55,7 +55,6 @@ describe('GithubAuthenticationService:', () => {
     it('should fail immediately when no token or github-token are provided', (done) => {
         let checkError = (error) => {
             expect(error).equals('a token or github oauth token should be provided');
-            expect(githubMock.authenticate['callCount']).equals(0);
             done();
         };
         sut.authenticate('boo','','',
@@ -66,7 +65,6 @@ describe('GithubAuthenticationService:', () => {
     it('should fail immediately when a token is provided but a username is not', (done) => {
         let checkError = (error) => {
             expect(error).equals('userid not provided for token=myToken');
-            expect(githubMock.authenticate['callCount']).equals(0);
             done();
         };
         sut.authenticate('','myToken','myGithubToken',
@@ -78,13 +76,8 @@ describe('GithubAuthenticationService:', () => {
 
         simple.mock(repoMock, 'fetchFirst').callFn(failedFirstFetchMock);
 
-        let checkGithubAuthNotRequested = () => {
-            expect(githubMock.authenticate['callCount']).equals(0);
-            done();
-        };
-
         sut.authenticate(testCredentials.userId, testCredentials.token, '',
-            (error) => checkGithubAuthNotRequested(),
+            (error) => done(),
             () => {throw 'should have failed'});
     });
 
@@ -95,7 +88,6 @@ describe('GithubAuthenticationService:', () => {
         let checkResult = (credentials : model.UserCredentialsSchema) => {
             expect(credentials.userId).equals(testCredentials.userId);
             expect(credentials.token).equals(testCredentials.token);
-            expect(githubMock.authenticate['callCount']).equals(0);
             done();
         };
 

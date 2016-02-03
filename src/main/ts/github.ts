@@ -25,7 +25,6 @@ export module github {
     }
 
     export interface GitService {
-        authenticate(token:String);
         user(id : string) : Promise<any>;
         getRepo(name : string) : Promise<any>
         getFile(repo : string, fileName : string) : Promise<string>;
