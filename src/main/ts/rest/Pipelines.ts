@@ -18,21 +18,21 @@ export class Pipelines {
     }
 
     @RequestMapping('GET', '/pipelines', ['userId'])
-    getPipelines(id : string, userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
+    getPipelines(userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
         return this.pipelinesController.getPipelines(userId, intPage, intPerPage);
     }
 
     @RequestMapping('GET', '/active_pipelines', ['userId'])
-    getActivePipelines(id : string, userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
+    getActivePipelines(userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
         return this.pipelinesController.getActivePipelines(userId, intPage, intPerPage);
     }
 
     @RequestMapping('GET', '/finished_pipelines', ['userId'])
-    getFinshedPipelines(id : string, userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
+    getFinshedPipelines(userId : string, page : string, perPage : string) : Promise<Array<model.PipelineSchema>> {
         let intPage = isNaN(parseInt(page)) ? 1 : parseInt(page);
         let intPerPage = isNaN(parseInt(perPage)) ? 10 : parseInt(perPage);
         return this.pipelinesController.getFinishedPipelines(userId, intPage, intPerPage);
