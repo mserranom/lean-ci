@@ -188,8 +188,9 @@ function configureObject(target : DecoratedObject) {
             try {
                 result = handler.apply(target, args);
             } catch(error) {
-                console.error(error); //TODO: this error handler should be configurable
-                response.status(500).send(wrapBody(error));
+                let wrappedError = wrapErrorBody(error); //TODO: this error handler should be configurable
+                console.error('Request Error: ' + JSON.stringify(wrappedError));
+                response.status(500).send(wrappedError);
                 return;
             }
 
@@ -199,8 +200,9 @@ function configureObject(target : DecoratedObject) {
                 let promise : Promise<any> = result;
                 promise.then(x => response.send(x))
                        .catch(error => {
-                           console.error(error); //TODO: this error handler should be configurable
-                           response.status(500).send(wrapBody(error));
+                           let wrappedError = wrapErrorBody(error); //TODO: this error handler should be configurable
+                           console.error('Request Error: ' + JSON.stringify(wrappedError));
+                           response.status(500).send(wrappedError);
                        });
 
             } else if(isReadableStream(result)) {
@@ -250,13 +252,23 @@ function unwrapBody(body : any) : any {
     }
 }
 
-function wrapBody(body : any) : any {
+function wrapErrorBody(body : any) : any {
+    //TODO: [Object object] might not be the best way to check this when the method is overriden
+    if(body.toString() == '[object Object]' && isStringifiable(body)) {
+        return body;
+    } else {
+        return {message : '' + body};
+    }
+
+}
+
+function isStringifiable(obj : any) : boolean {
     try {
-        return JSON.parse(body);
-    } catch(error) { }
-
-    return { message : '' + body};
-
+        JSON.stringify(obj);
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
 
 

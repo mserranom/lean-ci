@@ -150,7 +150,7 @@ describe('addition of a single repository and request of new builds:', () => {
 
     describe('error scenarios:', () => {
 
-        it('should fail with 502 when github doesnt respond',  async function(done) {
+        it('should fail when github doesnt respond',  async function(done) {
 
             getGitServiceMock().failGetRepoCall(true);
 

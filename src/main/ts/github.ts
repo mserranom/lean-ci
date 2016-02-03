@@ -136,9 +136,8 @@ export module github {
 
                 this._service.repos.getContent(query, (err, res) => {
                     if (err) {
-                        let errorMessage = "github 'getContent' request error: " + err;
-                        console.error(errorMessage);
-                        reject({message: errorMessage});
+                        console.error("github 'getContent' request error: " + err);
+                        reject(err);
                     } else {
                         console.info("github 'content; request result: " + JSON.stringify(res));
 
@@ -155,9 +154,8 @@ export module github {
             return new Promise((resolve, reject) => {
                 this._service.user.get({'id' : id}, (err, res) => {
                     if (err) {
-                        let errorMessage = "github 'user' request error: " + err;
-                        console.error(errorMessage);
-                        reject({message: errorMessage});
+                        console.error("github 'user' request error: " + err);
+                        reject('' + err);
                     } else {
                         console.info("github 'user; request result: " + JSON.stringify(res));
                         resolve(res);
@@ -172,9 +170,8 @@ export module github {
                 let owner = name.split('/')[0];
                 this._service.repos.get({user: owner, repo: repo}, (err, res) => {
                     if (err) {
-                        let errorMessage = "github 'repos' request error: " + err;
-                        console.error(errorMessage);
-                        reject({message: errorMessage});
+                        console.error( "github 'repos' request error: " + err);
+                        reject('' + err);
                     } else {
                         // TODO: review error messages in github and consider this a rejection if it's the case
                         console.info("github 'user' request result: " + JSON.stringify(res));
@@ -202,9 +199,8 @@ export module github {
                     repo: repo.split('/')[1],
                 }, (err, res) => {
                     if (err) {
-                        let errorMessage = "github 'getHooks' request error: " + err;
-                        console.log(errorMessage);
-                        reject({message: errorMessage});
+                        console.log("github 'getHooks' request error: " + err);
+                        reject(err);
                     } else {
                         console.info('github request result: ' + JSON.stringify(res));
                         let hookId;
@@ -217,7 +213,7 @@ export module github {
                         if(hookId != null) {
                             resolve(hookId);
                         } else {
-                            reject({message: 'webhook for ' + url + ' not found'});
+                            reject('webhook for ' + url + ' not found');
                         }
                     }
                 });
@@ -238,9 +234,8 @@ export module github {
                     }
                 }, (err, res) => {
                     if (err) {
-                        let errorMessage = "github 'createHook' request error: " + err;
-                        console.error(errorMessage);
-                        reject({message: errorMessage});
+                        console.error("github 'createHook' request error: " + err);
+                        reject(err);
                     } else {
                         console.info('github request result: ' + JSON.stringify(res));
                         resolve(res.id);
