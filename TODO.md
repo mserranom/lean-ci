@@ -4,6 +4,8 @@ TODO
 M
 ==
 
+[ ] logging for the external parts of the system (gihub)
+
 [ ] move all typings import to index
 
 [ ] fix _ids, saving returning an object and number/string issues
