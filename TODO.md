@@ -26,8 +26,6 @@ L
 
 [ ] Errors on github are not properly managed, should have specific errors logged in the endpoint
 
-[ ] github doesn't download the actual content of the buildfile, only the mock is implemented
-
 [ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
 
 [ ] automate the send of 500 instead of a try/catch block in REST endpoints
@@ -65,6 +63,7 @@ NICE TO HAVE
 DONE
 ====
 
+[x] github doesn't download the actual content of the buildfile, only the mock is implemented
 [x] add libA -> libB . delete libA, add libA, the dependency relationship disapears in the dependency graph
 [x] remove issues of github as a singleton
 [x] deleting a repo breaks the dependency graph
