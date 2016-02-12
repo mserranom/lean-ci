@@ -16,6 +16,17 @@ export module auth {
         static PRIVATE_API_SECRET : string = 'x-lean-ci-private-api-secret';
     }
 
+    export function privateApiAuth(req, res, next) {
+        let userId = req.get(auth.Headers.USER_ID);
+        let privateApiSecret = req.get(auth.Headers.PRIVATE_API_SECRET);
+
+        if(privateApiSecret == config.privateApiSecret) {
+            next();
+        } else {
+            res.sendStatus(401);
+        }
+    }
+
     export interface AuthenticationService {
 
         authenticate(userId:string, userToken : string, githubToken : string,

@@ -45,9 +45,10 @@ export class Builds {
         return this.buildQueue.getBuild(userId, id);
     }
 
-    @RequestMapping('GET', '/next_queued_build', ['userId'])
-    getNextQueuedBuild(userId : string) : Promise<model.BuildSchema> {
-        return this.buildQueue.getNextQueuedBuild(userId);
+    @RequestMapping('GET', '/next_queued_build')
+    @Middleware(auth.privateApiAuth)
+    getNextQueuedBuild() : Promise<model.BuildSchema> {
+        return this.buildQueue.getNextQueuedBuild();
     }
 
     @RequestMapping('GET', '/builds', ['userId','page','per_page', 'status'])

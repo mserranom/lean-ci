@@ -11,7 +11,7 @@ import * as Q from 'q';
 export interface BuildQueue {
     getBuild(userId : string, buildId : string);
     getBuilds(userId : string, page : number, perPage : number, status : model.BuildStatus) : Q.Promise<Array<model.BuildSchema>>;
-    getNextQueuedBuild(userId : string);
+    getNextQueuedBuild() : Promise<model.BuildSchema>;
     saveBuilds(builds : Array<model.BuildSchema>) : Promise<any>;
 }
 
@@ -49,8 +49,9 @@ export class PersistedBuildQueue implements BuildQueue {
         return this.buildsRepository.fetchQ(query, page, perPage, cursorFn);
     }
 
-    async getNextQueuedBuild(userId : string) {
-        let builds = await this.getBuilds(userId, 1, 1, model.BuildStatus.QUEUED);
+    async getNextQueuedBuild() : Promise<model.BuildSchema> {
+        let cursorFn = cursor => cursor.sort({'queuedTimestamp': OLDEST_FIRST});
+        let builds = await this.buildsRepository.fetchQ({status : model.BuildStatus.QUEUED}, 1, 1, cursorFn);
         return builds[0];
     }
 
