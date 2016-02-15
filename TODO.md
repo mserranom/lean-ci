@@ -24,6 +24,8 @@ M
 L
 ==
 
+[ ] updateBuildStatus() should be private, not depending on userId
+
 [ ] Errors on github are not properly managed, should have specific errors logged in the endpoint
 
 [ ] BuildResultController might too slow to lookup for the pipeline belonging a given build
