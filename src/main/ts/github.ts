@@ -52,7 +52,7 @@ export module github {
         }
 
         getFile(repo : string, fileName : string) : Promise<string> {
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 if(this._failNextCall) {
                     setTimeout(() => reject('{message:"file couldnt be retrieved", errors:[]}'), 1);
                     this._failNextCall = false
@@ -63,7 +63,7 @@ export module github {
         }
 
         user(id : string) : Promise<any> {
-            return new Promise((resolve, reject) => {
+            return new Promise<any>((resolve, reject) => {
                 if(this._failNextCall) {
                     setTimeout(() => reject('{message:"user does not exist", errors:[]}'), 1);
                     this._failNextCall = false
@@ -74,7 +74,7 @@ export module github {
         }
 
         getRepo(name : string) : Promise<any> {
-            return new Promise((resolve, reject) => {
+            return new Promise<any>((resolve, reject) => {
                 if(this._failNextCall || this._failGetRepoCall) {
                     setTimeout(() => reject('github getRepo error'), 1);
                     this._failNextCall = false
@@ -85,7 +85,7 @@ export module github {
         }
 
         setupWebhook(url:string, repo:string):Promise<string> {
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 if(this._failNextCall) {
                     setTimeout(() => reject('{message:"could not setup hook id", errors:[]}'), 1);
                     this._failNextCall = false
@@ -126,7 +126,7 @@ export module github {
 
         getFile(repo:string, filePath:string):Promise<string> {
 
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 let split = repo.split('/');
 
                 let query = {
@@ -152,7 +152,7 @@ export module github {
         }
 
         user(id : string) : Promise<any> {
-            return new Promise((resolve, reject) => {
+            return new Promise<any>((resolve, reject) => {
                 this._service.user.get({'id' : id}, (err, res) => {
                     if (err) {
                         console.error("github 'user' request error: " + err);
@@ -166,7 +166,7 @@ export module github {
         }
 
         getRepo(name : string) : Promise<any> {
-            return new Promise((resolve, reject) => {
+            return new Promise<any>((resolve, reject) => {
                 let repo = name.split('/')[1];
                 let owner = name.split('/')[0];
                 this._service.repos.get({user: owner, repo: repo}, (err, res) => {
@@ -183,7 +183,7 @@ export module github {
         }
 
         setupWebhook(url:string, repo:string):Promise<string> {
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 this.checkWebhookExists(url, repo)
                     .then(hookId => resolve(hookId))
                     .catch(() => this.createWebhook(url, repo)
@@ -194,7 +194,7 @@ export module github {
         }
 
         private checkWebhookExists(url : string, repo : string):Promise<string> {
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 this._service.repos.getHooks({
                     user: repo.split('/')[0],
                     repo: repo.split('/')[1],
@@ -222,7 +222,7 @@ export module github {
         }
 
         private createWebhook(url:string, repo:string):Promise<string> {
-            return new Promise((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 this._service.repos.createHook({
                     name: 'web',
                     events: ['push'],

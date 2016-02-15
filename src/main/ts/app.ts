@@ -126,7 +126,7 @@ export function start(bootstrapArgs : BootstrapArguments, callback?: (app : App,
 }
 
 export function startAsync(bootstrapArgs : BootstrapArguments) : Promise<App> {
-    return new Promise(function(resolve, reject) {
+    return new Promise<App>(function(resolve, reject) {
 
         start(bootstrapArgs, (app, err) => {
                 if(err) {
